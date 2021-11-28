@@ -1,4 +1,4 @@
-package menuexample;
+package brokenarrow.menu.lib.menuexample;
 
 import brokenarrow.menu.lib.MenuButton;
 import brokenarrow.menu.lib.MenuHolderTest;

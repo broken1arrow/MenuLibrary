@@ -1,3 +1,5 @@
+package brokenarrow.menu.lib;
+
 import java.util.HashMap;
 import java.util.Map;
 

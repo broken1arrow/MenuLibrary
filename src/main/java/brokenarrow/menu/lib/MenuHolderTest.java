@@ -1,3 +1,5 @@
+package brokenarrow.menu.lib;
+
 import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
 import com.google.common.base.Enums;
 import org.bukkit.Bukkit;

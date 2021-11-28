@@ -1,3 +1,5 @@
+package brokenarrow.menu.lib;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,8 +10,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ListIterator;
-
-import static GetKeyDataFromCache.checkMap;
 
 public class MenuUtiliListener {
 
@@ -37,7 +37,7 @@ public class MenuUtiliListener {
 		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
 			menu = (MenuHolderTest) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value();
 		else
-			menu = menuCache.getMenuInCache(checkMap(player, location, object));
+			menu = menuCache.getMenuInCache(GetKeyDataFromCache.checkMap(player, location, object));
 
 		if (!event.getView().getTopInventory().equals(menu.getMenu())) return;
 

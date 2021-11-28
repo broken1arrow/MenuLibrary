@@ -1,4 +1,4 @@
-package NMS;
+package brokenarrow.menu.lib.NMS;
 
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;

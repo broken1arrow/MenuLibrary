@@ -1,3 +1,5 @@
+package brokenarrow.menu.lib;
+
 public enum MenuMetadataKey {
 
 	MENU_OPEN,

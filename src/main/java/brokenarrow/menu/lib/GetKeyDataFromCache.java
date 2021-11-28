@@ -1,3 +1,5 @@
+package brokenarrow.menu.lib;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
