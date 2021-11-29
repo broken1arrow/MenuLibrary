@@ -137,15 +137,15 @@ public class testMenu extends MenuHolderTest {
 			}
 
 			@Override
-			public ItemStack getItem(Object object) {
-				int slot = getSlotIndex();
+			public ItemStack getItem(int slot,Object object) {
+
 				ItemStack result = null;
 				OfflinePlayer player = null;
-				if (object instanceof Integer) {
+
 					if (!(preferenceRegistery.getPlayers(getViewer()).size() > (Integer) object)) return null;
-					result = preferenceRegistery.getPlayers(getViewer()) != null ? ItemUtily.createItemStack(GuiTempletsYaml.getIcon("PartylistMenu", "Players_List", preferenceRegistery.getPlayers(getViewer()).get((Integer) object))) : null;
-					player = preferenceRegistery.getPlayers(getViewer()) != null ? Bukkit.getOfflinePlayer(preferenceRegistery.getPlayers(getViewer()).get((Integer) object)) : null;
-				}
+					result = preferenceRegistery.getPlayers(getViewer()) != null ? ItemUtily.createItemStack(GuiTempletsYaml.getIcon("PartylistMenu", "Players_List", preferenceRegistery.getPlayers(getViewer()).get( slot))) : null;
+					player = preferenceRegistery.getPlayers(getViewer()) != null ? Bukkit.getOfflinePlayer(preferenceRegistery.getPlayers(getViewer()).get( slot)) : null;
+
 				setListOfFillItems(preferenceRegistery.getPlayers(getViewer()));
 
 				if (object instanceof ItemStack) {
@@ -174,7 +174,7 @@ public class testMenu extends MenuHolderTest {
 
 	@Override
 	public ItemStack getFillItemsAt(int slot) {
-		return fillItems.getItem(slot);
+		return fillItems.getItem(slot,null);
 	}
 
 	@Override

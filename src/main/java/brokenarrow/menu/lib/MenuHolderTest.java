@@ -35,6 +35,7 @@ public abstract class MenuHolderTest {
 	public MenuHolderTest(Plugin plugin, int inventorySize) {
 		this.inventorySize = inventorySize;
 		this.plugin = plugin;
+		registerFields();
 	}
 
 	/**
@@ -45,11 +46,11 @@ public abstract class MenuHolderTest {
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
 	 */
 	public MenuHolderTest(Plugin plugin, int inventorySize, boolean shallCacheItems) {
-
 		this.inventorySize = inventorySize;
 		this.itemsPerPage = inventorySize;
 		this.plugin = plugin;
 		this.shallCacheItems = shallCacheItems;
+		registerFields();
 	}
 
 	private final MenuCache menuCache = MenuCache.getInstance();
@@ -61,6 +62,7 @@ public abstract class MenuHolderTest {
 	private boolean slotsYouCanAddItems;
 	private boolean startLoadMenuButtons;
 	private boolean hasLoadMenuButtons;
+	private boolean loadToCahe;
 	private int slotIndex = 0;
 	private int requiredPages;
 	private int itemsPerPage = this.inventorySize;
@@ -186,6 +188,28 @@ public abstract class MenuHolderTest {
 	}
 
 	/**
+	 * Get menuholder instance from player metadata.
+	 *
+	 * @return menuholder instance.
+	 */
+
+	public MenuHolderTest getMenuholder(Player player) {
+		return getMenuholder(player, MenuMetadataKey.MENU_OPEN.name());
+	}
+
+	public MenuHolderTest getPreviousMenuholder(Player player) {
+		return getMenuholder(player, MenuMetadataKey.MENU_OPEN_PREVIOUS.name());
+	}
+
+	private MenuHolderTest getMenuholder(Player player, final String metadataKey) {
+
+		if (player.hasMetadata(metadataKey))
+			return (MenuHolderTest) player.getMetadata(metadataKey).get(0).value();
+
+		return null;
+	}
+
+	/**
 	 * Get the objekt you have set.
 	 *
 	 * @return objekt or null if no are set.
@@ -207,23 +231,24 @@ public abstract class MenuHolderTest {
 		return listOfFillItems;
 	}
 
-	public void onMenuClose(InventoryCloseEvent event, Class<?> metadata) {
-		if (metadata != null)
-			this.player.removeMetadata(metadata.toString(), plugin);
+	public void onMenuClose(InventoryCloseEvent event) {
+		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
+			player.removeMetadata(MenuMetadataKey.MENU_OPEN.name(), plugin);
 	}
 
-	public void onMenuOpen(Location location) {
+	public void onMenuOpen(final Location location) {
 		onMenuOpen(null, location, true);
 	}
 
-	public void onMenuOpen(Player player) {
+	public void onMenuOpen(final Player player) {
 		onMenuOpen(player, null, false);
 	}
 
-	private void onMenuOpen(Player player, Location location, boolean loadToCahe) {
-		Inventory menu = null;
+	private void onMenuOpen(final Player player, final Location location, final boolean loadToCahe) {
 		this.player = player;
 		this.location = location;
+		this.loadToCahe = loadToCahe;
+
 		if (!hasLoadMenuButtons) {
 			registerFields();
 			if (!shallCacheItems) {
@@ -231,18 +256,19 @@ public abstract class MenuHolderTest {
 			}
 			hasLoadMenuButtons = true;
 		}
-		menu = loadInventory(player, loadToCahe);
-
+		final Inventory menu = loadInventory(player, loadToCahe);
 		if (menu == null) return;
 
 		player.openInventory(menu);
 
 		if (this.title != null && !this.title.equals(""))
 			UpdateTittleContainers.update(player, this.title, Material.CHEST, menu.getSize());
-		//PlayerUtil.updateInventoryTitle(player, GuiTempletsYaml.getGuiTitle("Settings_Menu"));
 		onMenuOpenPlaySound();
-		setPlayerLocationmetadata(player, location);
+		if (location != null)
+			setPlayermetadata(player, location);
+
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
+
 	}
 
 	public boolean isStartLoadMenuButtons() {
@@ -269,7 +295,7 @@ public abstract class MenuHolderTest {
 			pageNumber = 0;
 		}
 		this.pageNumber = pageNumber;
-		player.openInventory(getInventory());
+		onMenuOpen(this.player, this.location, this.loadToCahe);
 	}
 
 	/**
@@ -288,41 +314,15 @@ public abstract class MenuHolderTest {
 			pageNumber = 0;
 		}
 		this.pageNumber = pageNumber;
-		player.openInventory(getInventory());
+		onMenuOpen(this.player, this.location, this.loadToCahe);
 	}
 
 	public void updateButtons() {
 		registerFields();
 		generateInventories();
-		//saveMenuCache(this.player, this.location, this.playermetadataKey);
-		player.openInventory(getInventory());
+		onMenuOpen(this.player, this.location, this.loadToCahe);
 	}
 
-	private Inventory loadInventory(Player player, boolean loadToCahe) {
-		Inventory menu;
-		if (loadToCahe) {
-			if (menuCache.getMenuInCache(player) == null || menuCache.getMenuInCache(player).getMenu() == null) {
-				saveMenuCache(player, location);
-			}
-			menu = menuCache.getMenuInCache(player).getMenu();
-		} else {
-			if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
-				menu = ((MenuHolderTest) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
-				player.removeMetadata(MenuMetadataKey.MENU_OPEN.name(), plugin);
-			} else {
-				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
-				menu = getMenu();
-			}
-		}
-		return menu;
-	}
-
-	private Inventory getInventory() {
-		if (menuCache.getMenuInCache(this.player) != null && menuCache.getMenuInCache(this.player).getMenu() != null)
-			return menuCache.getMenuInCache(this.player).getMenu();
-		else
-			return getMenu();
-	}
 
 	private Object toMenuCache(Player player, Location location) {
 		Object obj = null;
@@ -340,12 +340,11 @@ public abstract class MenuHolderTest {
 		menuCache.setMenusChached(toMenuCache(player, location), this);
 	}
 
-	private void setPlayerLocationmetadata(Player player, Location location) {
-		if (location != null)
-			player.setMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name(), new FixedMetadataValue(plugin, location));
+	private void setPlayermetadata(Player player, Location location) {
+		player.setMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name(), new FixedMetadataValue(plugin, location));
 	}
 
-	private void setPlayerLocationmetadata(Player player, String setPlayerMetadataKey, String setPlayerMetadataValue) {
+	private void setPlayermetadata(Player player, String setPlayerMetadataKey, String setPlayerMetadataValue) {
 		player.setMetadata(setPlayerMetadataKey, new FixedMetadataValue(plugin, setPlayerMetadataValue));
 	}
 
@@ -358,7 +357,29 @@ public abstract class MenuHolderTest {
 			this.player.playSound(player.getLocation(), menuOpenSound, 1, 1);
 	}
 
+
+	private Inventory loadInventory(Player player, boolean loadToCahe) {
+		Inventory menu = null;
+		if (loadToCahe) {
+			if (menuCache.getMenuInCache(player) == null || menuCache.getMenuInCache(player).getMenu() == null) {
+				saveMenuCache(player, location);
+			}
+			menu = menuCache.getMenuInCache(player).getMenu();
+		} else {
+			MenuHolderTest previous = getMenuholder(this.player);
+			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
+				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
+			else if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
+				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
+				menu = ((MenuHolderTest) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
+			} else if (player.hasMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()))
+				menu = ((MenuHolderTest) player.getMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()).get(0).value()).getMenu();
+		}
+		return menu;
+	}
+
 	private void registerFields() {
+		this.buttons.clear();
 		Class<?> iteratedClass = getClass();
 		try {
 			do {
@@ -415,22 +436,19 @@ public abstract class MenuHolderTest {
 				this.inventories[i] = createInventory();
 			}
 			for (int slot = 0; slot < this.inventories[i].getSize(); slot++) {
-				//for (int itemPos : this.fillSpace) {
-				ItemStack result = null;
+				ItemStack result;
 				if (fillSpace != null && fillSpace.contains(slot)) {
 					result = getFillItemsAt(this.slotIndex);
 					this.slotIndex++;
 				} else {
 					result = getItemAt(slot);
 				}
-				//System.out.println("time in loop before add items" + (System.currentTimeMillis() - innloop));
 				if (result == null) continue;
 				this.inventories[i].setItem(slot, result);
 				if (!this.shallCacheItems)
 					this.addedButtons.put(i * inventories[i].getSize() + slot, result);
 				else
 					addedButtons.put(i * inventories[i].getSize() + slot, result);
-				//System.out.println("time inn loop" + (System.currentTimeMillis() - innloop));
 			}
 		}
 		this.slotIndex = 0;

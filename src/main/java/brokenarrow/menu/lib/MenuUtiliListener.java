@@ -20,7 +20,6 @@ public class MenuUtiliListener {
 	}
 
 	private final MenuCache menuCache = MenuCache.getInstance();
-	private String playermetadata;
 
 	public void onMenuClicking(InventoryClickEvent event) {
 		Player player = (Player) event.getWhoClicked();
@@ -102,18 +101,7 @@ public class MenuUtiliListener {
 
 	public void onMenuClose(InventoryCloseEvent event) {
 		Player player = (Player) event.getPlayer();
-		if (player.hasMetadata(this.playermetadata))
-			player.removeMetadata(this.playermetadata, plugin);
-	}
 
-	/**
-	 * If you have set metadata, use this method to compere it
-	 *
-	 * @param playermetadata metadata key you has set on the player.
-	 */
-
-	public void setPlayermetadata(String playermetadata) {
-		this.playermetadata = playermetadata;
 	}
 
 }
