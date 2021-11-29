@@ -1,7 +1,7 @@
 package brokenarrow.menu.lib.menuexample;
 
 import brokenarrow.menu.lib.MenuButton;
-import brokenarrow.menu.lib.MenuHolderTest;
+import brokenarrow.menu.lib.MenuHolder;
 import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
 import org.brokenarrow.storage.api.PreferenceSettingsRegisteryApi;
 import org.brokenarrow.storage.util.GuiTempletsYaml;
@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class testMenu extends MenuHolderTest {
+public class testMenu extends MenuHolder {
 	private final MenuButton LinkButton;
 	private final MenuButton otherTest;
 	private final MenuButton tett;

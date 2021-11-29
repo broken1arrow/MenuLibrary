@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5fb8fa24-d7a9-4f2a-96ed-de0366a51c11" name="Default Changelist" comment="test">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolderTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuMetadataKey.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuMetadataKey.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuCache.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuUtiliListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuUtiliListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/menuexample/testMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/menuexample/testMenu.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

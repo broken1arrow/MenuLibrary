@@ -6,9 +6,9 @@ import java.util.Map;
 public class MenuCache {
 
 	private static final MenuCache instance = new MenuCache();
-	private Map<Object, MenuHolderTest> menusChached = new HashMap<>();
+	private Map<Object, MenuHolder> menusChached = new HashMap<>();
 
-	public void setMenusChached(Object object, MenuHolderTest menusChached) {
+	public void setMenusChached(Object object, MenuHolder menusChached) {
 		this.menusChached.put(object, menusChached);
 
 	}
@@ -26,11 +26,11 @@ public class MenuCache {
 	 * @return a cached menu.
 	 */
 
-	public MenuHolderTest getMenuInCache(Object object) {
+	public MenuHolder getMenuInCache(Object object) {
 		return this.menusChached.get(object);
 	}
 
-	public Map<Object, MenuHolderTest> getMenusCached() {
+	public Map<Object, MenuHolder> getMenusCached() {
 		return menusChached;
 	}
 

@@ -32,9 +32,9 @@ public class MenuUtiliListener {
 				location = (Location) object;
 		}
 
-		MenuHolderTest menu;
+		MenuHolder menu;
 		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
-			menu = (MenuHolderTest) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value();
+			menu = (MenuHolder) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value();
 		else
 			menu = menuCache.getMenuInCache(GetKeyDataFromCache.checkMap(player, location, object));
 

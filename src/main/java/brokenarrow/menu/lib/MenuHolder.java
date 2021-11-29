@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-public abstract class MenuHolderTest {
+public abstract class MenuHolder {
 
 
 	/**
@@ -32,7 +32,7 @@ public abstract class MenuHolderTest {
 	 * @param inventorySize size if menu.
 	 */
 
-	public MenuHolderTest(Plugin plugin, int inventorySize) {
+	public MenuHolder(Plugin plugin, int inventorySize) {
 		this.inventorySize = inventorySize;
 		this.plugin = plugin;
 		registerFields();
@@ -45,7 +45,7 @@ public abstract class MenuHolderTest {
 	 * @param inventorySize   size if menu.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
 	 */
-	public MenuHolderTest(Plugin plugin, int inventorySize, boolean shallCacheItems) {
+	public MenuHolder(Plugin plugin, int inventorySize, boolean shallCacheItems) {
 		this.inventorySize = inventorySize;
 		this.itemsPerPage = inventorySize;
 		this.plugin = plugin;
@@ -193,18 +193,18 @@ public abstract class MenuHolderTest {
 	 * @return menuholder instance.
 	 */
 
-	public MenuHolderTest getMenuholder(Player player) {
+	public MenuHolder getMenuholder(Player player) {
 		return getMenuholder(player, MenuMetadataKey.MENU_OPEN.name());
 	}
 
-	public MenuHolderTest getPreviousMenuholder(Player player) {
+	public MenuHolder getPreviousMenuholder(Player player) {
 		return getMenuholder(player, MenuMetadataKey.MENU_OPEN_PREVIOUS.name());
 	}
 
-	private MenuHolderTest getMenuholder(Player player, final String metadataKey) {
+	private MenuHolder getMenuholder(Player player, final String metadataKey) {
 
 		if (player.hasMetadata(metadataKey))
-			return (MenuHolderTest) player.getMetadata(metadataKey).get(0).value();
+			return (MenuHolder) player.getMetadata(metadataKey).get(0).value();
 
 		return null;
 	}
@@ -366,14 +366,14 @@ public abstract class MenuHolderTest {
 			}
 			menu = menuCache.getMenuInCache(player).getMenu();
 		} else {
-			MenuHolderTest previous = getMenuholder(this.player);
+			MenuHolder previous = getMenuholder(this.player);
 			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
 				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
 			else if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
 				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
-				menu = ((MenuHolderTest) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
+				menu = ((MenuHolder) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
 			} else if (player.hasMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()))
-				menu = ((MenuHolderTest) player.getMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()).get(0).value()).getMenu();
+				menu = ((MenuHolder) player.getMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()).get(0).value()).getMenu();
 		}
 		return menu;
 	}
