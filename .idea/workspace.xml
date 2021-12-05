@@ -5,10 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5fb8fa24-d7a9-4f2a-96ed-de0366a51c11" name="Default Changelist" comment="test">
-      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuCache.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuUtiliListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuUtiliListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/menuexample/testMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/menuexample/testMenu.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/exampleMenus/ExampleMenuPlayerCanAddItemsToMenu" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/exampleMenus/ExamplePlayerheadsMenu" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/CheckDuplicatedItems.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/messages/SendMsg.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/utility/Item/ItemUtily.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/GetKeyDataFromCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/cache/GetKeyDataFromCache.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuButton.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuButton.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/cache/MenuCache.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuUtiliListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolderListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/menuexample/testMenu.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,6 +77,8 @@
       <recent name="F:\idea\menu" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="brokenarrow.menu.lib.messages.utility.Item" />
+      <recent name="brokenarrow.menu.lib" />
       <recent name="brokenarrow.menu.lib.NMS" />
     </key>
   </component>
@@ -92,6 +104,32 @@
     </configuration>
     <configuration default="true" type="JarApplication">
       <option name="ALTERNATIVE_JRE_PATH" />
+      <method v="2" />
+    </configuration>
+    <configuration name="brokenarrow [clean,install]" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="clean" />
+                <option value="install" />
+              </list>
+            </option>
+            <option name="pomFileName" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
       <method v="2" />
     </configuration>
   </component>

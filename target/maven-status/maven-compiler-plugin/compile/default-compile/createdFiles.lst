@@ -1,0 +1,10 @@
+brokenarrow\menu\lib\MenuHolder.class
+brokenarrow\menu\lib\MenuMetadataKey.class
+brokenarrow\menu\lib\MenuHolderListener.class
+brokenarrow\menu\lib\cache\MenuCache.class
+brokenarrow\menu\lib\NMS\UpdateTittleContainers.class
+brokenarrow\menu\lib\CheckDuplicatedItems.class
+brokenarrow\menu\lib\messages\SendMsg.class
+brokenarrow\menu\lib\cache\GetKeyDataFromCache.class
+brokenarrow\menu\lib\utility\Item\ItemUtily.class
+brokenarrow\menu\lib\MenuButton.class

@@ -1,5 +1,6 @@
 package brokenarrow.menu.lib;
 
+import brokenarrow.menu.lib.cache.MenuCache;
 import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
 import com.google.common.base.Enums;
 import org.bukkit.Bukkit;
@@ -21,9 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.IntStream;
 
 public abstract class MenuHolder {
-
 
 	/**
 	 * Create menu instance.
@@ -36,6 +37,7 @@ public abstract class MenuHolder {
 		this.inventorySize = inventorySize;
 		this.plugin = plugin;
 		registerFields();
+		registerListener();
 	}
 
 	/**
@@ -51,23 +53,24 @@ public abstract class MenuHolder {
 		this.plugin = plugin;
 		this.shallCacheItems = shallCacheItems;
 		registerFields();
+		registerListener();
 	}
 
+	private static MenuHolderListener menuHolderListener = null;
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttons = new ArrayList<>();
-	private final Map<Integer, ItemStack> addedButtons = new HashMap<>();
+	private final Map<Integer, Map<Integer, ItemStack>> addedButtons = new HashMap<>();
 	private final Plugin plugin;
-	private Inventory[] inventories;
+	private Inventory inventory;
 	private boolean shallCacheItems;
 	private boolean slotsYouCanAddItems;
-	private boolean startLoadMenuButtons;
-	private boolean hasLoadMenuButtons;
 	private boolean loadToCahe;
 	private int slotIndex = 0;
 	private int requiredPages;
 	private int itemsPerPage = this.inventorySize;
 	private int inventorySize;
 	private int pageNumber;
+	private int amountOfViwers;
 	private List<Integer> fillSpace;
 	private List<?> listOfFillItems;
 	private Player player;
@@ -77,25 +80,52 @@ public abstract class MenuHolder {
 	private Object object;
 	private Location location;
 
+	/**
+	 * Set the item you want in a slot.
+	 *
+	 * @param slot will return current number till will add item.
+	 * @return one itemstack;
+	 */
 	public ItemStack getItemAt(int slot) {
 		return null;
 	}
+
+	/**
+	 * Set the items you want in fill slots.
+	 *
+	 * @param o will return object you have added as fillitems.
+	 * @return one itemstack;
+	 */
+
+	public ItemStack getFillItemsAt(Object o) {
+		return null;
+	}
+
+	/**
+	 * Set the items you want in fill slots.
+	 *
+	 * @param slot will return current number till will add item.
+	 * @return one itemstack;
+	 */
 
 	public ItemStack getFillItemsAt(int slot) {
 		return null;
 	}
 
-	public ItemStack getFillItemsAt() {
-		return null;
-	}
-
+	/**
+	 * set menu tittle inside your menu.
+	 *
+	 * @param title you want to show inside the menu.
+	 */
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-	public void setPageNumber(int pageNumber) {
-		this.pageNumber = pageNumber;
-	}
+	/**
+	 * set amount of items on every page
+	 *
+	 * @param itemsPerPage number of items it shall be on every page.
+	 */
 
 	public void setItemsPerPage(int itemsPerPage) {
 		if (itemsPerPage <= 0)
@@ -103,13 +133,39 @@ public abstract class MenuHolder {
 		this.itemsPerPage = itemsPerPage;
 	}
 
+	/**
+	 * witch slot you want to fill with items.
+	 * Recomend use {@link IntStream#rangeClosed} to automatic convert
+	 * a range like first number 0 and last 26.
+	 * <p>
+	 * Like this IntStream.rangeClosed(0, 26).boxed().collect(Collectors.toList());
+	 * for a menu some are for example size 36 will it not add items to last 9 slots.
+	 *
+	 * @param fillSpace set slots you want to use as fill slots.
+	 */
+
+
 	public void setFillSpace(List<Integer> fillSpace) {
 		this.fillSpace = fillSpace;
 	}
 
+	/**
+	 * Set sound when open menu.
+	 * Defult it is BLOCK_NOTE_BLOCK_BASEDRUM , if you set this
+	 * to null it will not play any sound.
+	 *
+	 * @param sound
+	 */
+
 	public void setMenuOpenSound(Sound sound) {
 		this.menuOpenSound = sound;
 	}
+
+	/**
+	 * Set list of items you want to add in the menu.
+	 *
+	 * @param listOfFillItems list of items some shall be added.
+	 */
 
 	public <T> void setListOfFillItems(List<T> listOfFillItems) {
 		this.listOfFillItems = listOfFillItems;
@@ -147,38 +203,90 @@ public abstract class MenuHolder {
 		return slotsYouCanAddItems;
 	}
 
-	public Map<Integer, ItemStack> getAddedButtons() {
+	/**
+	 * Get item Some are stored inside cache
+	 *
+	 * @return map with current amount of pages and slots every item are placed and items.
+	 */
+
+	public Map<Integer, Map<Integer, ItemStack>> getAddedButtons() {
 		return addedButtons;
 	}
+
+	/**
+	 * All buttons inside the menu.
+	 *
+	 * @return list of buttons some currently are registed.
+	 */
 
 	public List<MenuButton> getButtons() {
 		return buttons;
 	}
 
+	/**
+	 * get player some have open the menu.
+	 *
+	 * @return player.
+	 */
+
 	public Player getViewer() {
 		return this.player;
 	}
 
-	public Inventory getMenu() {
-		if (this.inventories != null)
-			return this.inventories[this.pageNumber];
-		return null;
+	/**
+	 * return amount of players look inside the current inventory.
+	 *
+	 * @return amount of players curently looking in the inventory.
+	 */
+	public int getAmountOfViwers() {
+
+		return amountOfViwers;
 	}
+
+	/**
+	 * Get the menu
+	 *
+	 * @return menu some are curent created.
+	 */
+
+	public Inventory getMenu() {
+		return inventory;
+	}
+
+	/**
+	 * get current page.
+	 *
+	 * @return curent page you has open.
+	 */
 
 	public int getPageNumber() {
 		return pageNumber;
 	}
 
+	/**
+	 * Get amount of pages some are needed.
+	 *
+	 * @return 1 or amount it need to fit all items.
+	 */
+
 	public int getRequiredPages() {
 		return requiredPages;
 	}
 
+	/**
+	 * If you want to cache the items in own class.
+	 *
+	 * @return
+	 */
+
 	public Map<Integer, ItemStack> getMenuButtonsOwnCache() {
-		return generateInventories();
+		addItemsToCache();
+		return addItemsToCache();
 	}
 
+
 	/**
-	 * Get metadataKey you has set on player.
+	 * Get metadataKey some are set on player.
 	 *
 	 * @return key you has used.
 	 */
@@ -196,6 +304,12 @@ public abstract class MenuHolder {
 	public MenuHolder getMenuholder(Player player) {
 		return getMenuholder(player, MenuMetadataKey.MENU_OPEN.name());
 	}
+
+	/**
+	 * Get previous menuholder instance from player metadata.
+	 *
+	 * @return older menuholder instance.
+	 */
 
 	public MenuHolder getPreviousMenuholder(Player player) {
 		return getMenuholder(player, MenuMetadataKey.MENU_OPEN_PREVIOUS.name());
@@ -219,44 +333,92 @@ public abstract class MenuHolder {
 		return object;
 	}
 
+	/**
+	 * Get a array of slots some are used as fillslots.
+	 *
+	 * @return list of slots it will fill with items.
+	 */
+
 	public List<Integer> getFillSpace() {
 		return fillSpace;
 	}
 
-	public Inventory[] getInventories() {
-		return inventories;
-	}
+	/**
+	 * get list of fill items you added to menu.
+	 *
+	 * @return items you have added.
+	 */
 
 	public List<?> getListOfFillItems() {
 		return listOfFillItems;
 	}
 
-	public void onMenuClose(InventoryCloseEvent event) {
-		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
-			player.removeMetadata(MenuMetadataKey.MENU_OPEN.name(), plugin);
+	/**
+	 * Get inventory size.
+	 *
+	 * @return inventory size.
+	 */
+
+	public int getInventorySize() {
+		return inventorySize;
 	}
 
-	public void onMenuOpen(final Location location) {
-		onMenuOpen(null, location, true);
+	/**
+	 * When you close the menu
+	 *
+	 * @param event close inventory
+	 * @param menu  some are closed.
+	 */
+
+	public void menuClose(InventoryCloseEvent event, Inventory menu) {
 	}
+
+	/**
+	 * open menu and make one instance in cache.
+	 * Will be clered on server restart.
+	 *
+	 * @param player   some open menu.
+	 * @param location location you open menu.
+	 */
+	public void onMenuOpen(final Player player, final Location location) {
+		onMenuOpen(player, location, true);
+	}
+
+	/**
+	 * open menu and make one instance, will be removed
+	 * when you close menu.
+	 *
+	 * @param player some open menu.
+	 */
 
 	public void onMenuOpen(final Player player) {
 		onMenuOpen(player, null, false);
 	}
 
+	/**
+	 * open menu and make one instance. If you set location to null, it will be removed
+	 * when you close menu.
+	 *
+	 * @param player     some open menu.
+	 * @param location   location you open menu.
+	 * @param loadToCahe if it shall load menu to cache.
+	 */
 	private void onMenuOpen(final Player player, final Location location, final boolean loadToCahe) {
 		this.player = player;
 		this.location = location;
 		this.loadToCahe = loadToCahe;
 
-		if (!hasLoadMenuButtons) {
-			registerFields();
-			if (!shallCacheItems) {
-				generateInventories();
-			}
-			hasLoadMenuButtons = true;
+		if (location != null)
+			setPlayermetadata(player, location);
+
+		registerFields();
+		if (!shallCacheItems) {
+			addItemsToCache();
 		}
+		reddrawInventory();
+		//}
 		final Inventory menu = loadInventory(player, loadToCahe);
+
 		if (menu == null) return;
 
 		player.openInventory(menu);
@@ -264,19 +426,20 @@ public abstract class MenuHolder {
 		if (this.title != null && !this.title.equals(""))
 			UpdateTittleContainers.update(player, this.title, Material.CHEST, menu.getSize());
 		onMenuOpenPlaySound();
-		if (location != null)
-			setPlayermetadata(player, location);
 
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
-
+		amountOfViwers++;
 	}
 
-	public boolean isStartLoadMenuButtons() {
-		return startLoadMenuButtons;
-	}
+	/**
+	 * get the number it currently fill
+	 * items in.
+	 *
+	 * @return curent number it will fill with one item.
+	 */
 
 	public int getSlotIndex() {
-		return slotIndex;
+		return this.slotIndex;
 	}
 
 	/**
@@ -287,15 +450,16 @@ public abstract class MenuHolder {
 
 		pageNumber -= 1;
 		if (pageNumber < 0) {
-			pageNumber = inventories.length - 1;
-		} else if (pageNumber >= inventories.length) {
+			pageNumber = addedButtons.size() - 1;
+		} else if (pageNumber >= addedButtons.size()) {
 			pageNumber = 0;
 		}
 		if (pageNumber == -1) {
 			pageNumber = 0;
 		}
 		this.pageNumber = pageNumber;
-		onMenuOpen(this.player, this.location, this.loadToCahe);
+
+		updateButtons();
 	}
 
 	/**
@@ -306,38 +470,56 @@ public abstract class MenuHolder {
 
 		pageNumber += 1;
 		if (pageNumber < 0) {
-			pageNumber = inventories.length - 1;
-		} else if (pageNumber >= inventories.length) {
+			pageNumber = addedButtons.size() - 1;
+		} else if (pageNumber >= addedButtons.size()) {
 			pageNumber = 0;
 		}
 		if (pageNumber == -1) {
 			pageNumber = 0;
 		}
 		this.pageNumber = pageNumber;
-		onMenuOpen(this.player, this.location, this.loadToCahe);
+
+		updateButtons();
 	}
+
+	/**
+	 * Update buttons inside the menu.
+	 */
 
 	public void updateButtons() {
 		registerFields();
-		generateInventories();
-		onMenuOpen(this.player, this.location, this.loadToCahe);
+		addItemsToCache();
+		reddrawInventory();
 	}
 
+	//========================================================
+
+	/**
+	 * Do not try use methods below.
+	 */
 
 	private Object toMenuCache(Player player, Location location) {
 		Object obj = null;
-
-		if (location != null) {
+		if (player != null && location != null) {
 			obj = location;
 		}
-		if (player != null) {
+		if (player != null && location == null) {
 			obj = player;
 		}
 		return obj;
 	}
 
-	private void saveMenuCache(Player player, Location location) {
-		menuCache.setMenusChached(toMenuCache(player, location), this);
+	protected void saveMenuCache(Player player, Location location) {
+		menuCache.setMenusChached(location, this);
+	}
+
+	private boolean checkLastOpenMenu() {
+		if (getPreviousMenuholder(this.player) != null) {
+			if (this.player.hasMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()))
+				this.player.removeMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), plugin);
+			return false;
+		}
+		return true;
 	}
 
 	private void setPlayermetadata(Player player, Location location) {
@@ -357,23 +539,32 @@ public abstract class MenuHolder {
 			this.player.playSound(player.getLocation(), menuOpenSound, 1, 1);
 	}
 
+	protected void onMenuClose(InventoryCloseEvent event) {
+		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
+			player.removeMetadata(MenuMetadataKey.MENU_OPEN.name(), plugin);
+
+		amountOfViwers--;
+		if (amountOfViwers < 0)
+			amountOfViwers = 0;
+	}
 
 	private Inventory loadInventory(Player player, boolean loadToCahe) {
 		Inventory menu = null;
 		if (loadToCahe) {
-			if (menuCache.getMenuInCache(player) == null || menuCache.getMenuInCache(player).getMenu() == null) {
-				saveMenuCache(player, location);
+			if (!checkLastOpenMenu() || menuCache.getMenuInCache(this.location) == null || menuCache.getMenuInCache(this.location).getMenu() == null) {
+				saveMenuCache(player, this.location);
 			}
-			menu = menuCache.getMenuInCache(player).getMenu();
+			menu = menuCache.getMenuInCache(this.location).getMenu();
 		} else {
 			MenuHolder previous = getMenuholder(this.player);
-			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
+			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
 				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
-			else if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
+				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
+			} else {
+				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
 				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
 				menu = ((MenuHolder) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
-			} else if (player.hasMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()))
-				menu = ((MenuHolder) player.getMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()).get(0).value()).getMenu();
+			}
 		}
 		return menu;
 	}
@@ -405,6 +596,7 @@ public abstract class MenuHolder {
 		}
 	}
 
+	//todo fix this so it detect better how many pages needed.
 	private double amountpages() {
 
 		if (this.itemsPerPage > 0) {
@@ -414,48 +606,58 @@ public abstract class MenuHolder {
 				return (double) this.fillSpace.size() / this.itemsPerPage;
 			} else if (this.listOfFillItems != null && !this.listOfFillItems.isEmpty())
 				return (double) this.listOfFillItems.size() / this.itemsPerPage;
-
+			else
+				return (double) (this.buttons.size() + this.itemsPerPage) / this.inventorySize;
 		}
 		if (this.listOfFillItems != null && !this.listOfFillItems.isEmpty()) {
 			return (double) this.listOfFillItems.size() / this.fillSpace.size();
-		} else {
-			return (double) this.buttons.size() / this.inventorySize;
-		}
+		} else return (double) this.buttons.size() / this.inventorySize;
 	}
 
-	private Map<Integer, ItemStack> generateInventories() {
-
-		Map<Integer, ItemStack> addedButtons = new HashMap<>();
+	private Map<Integer, ItemStack> addItemsToCache() {
+		Map<Integer, ItemStack> addedButtonss = new HashMap<>();
 		this.requiredPages = Math.max((int) Math.ceil(amountpages()), 1);
-		//We need more pages if statically positioned object you add are placed at a higher page index an one page can hold.
-		if (this.inventories == null || (this.inventories.length < this.requiredPages)) {
-			this.inventories = new Inventory[this.requiredPages];
-		}
 		for (int i = 0; i < this.requiredPages; i++) {
-			if (this.inventories[i] == null) {
-				this.inventories[i] = createInventory();
-			}
-			for (int slot = 0; slot < this.inventories[i].getSize(); slot++) {
+			Map<Integer, ItemStack> addedButtons = new HashMap<>();
+			for (int slot = 0; slot < this.inventorySize; slot++) {
 				ItemStack result;
 				if (fillSpace != null && fillSpace.contains(slot)) {
-					result = getFillItemsAt(this.slotIndex);
+					result = items();
 					this.slotIndex++;
-				} else {
+				} else
 					result = getItemAt(slot);
-				}
-				if (result == null) continue;
-				this.inventories[i].setItem(slot, result);
-				if (!this.shallCacheItems)
-					this.addedButtons.put(i * inventories[i].getSize() + slot, result);
-				else
-					addedButtons.put(i * inventories[i].getSize() + slot, result);
+
+				if (!this.shallCacheItems) {
+					addedButtons.put(i * this.inventorySize + slot, result);
+					this.addedButtons.put(i, addedButtons);
+				} else
+					addedButtonss.put(i * this.inventorySize + slot, result);
 			}
 		}
 		this.slotIndex = 0;
-		if (pageNumber >= this.inventories.length) {
-			pageNumber = this.inventories.length - 1;
+		return addedButtonss;
+	}
+
+	private ItemStack items() {
+		if (listOfFillItems != null && listOfFillItems.size() > this.slotIndex) {
+			return getFillItemsAt(listOfFillItems.get(this.slotIndex));
+		} else
+			return getFillItemsAt(this.slotIndex);
+	}
+
+	private void reddrawInventory() {
+		if (this.inventory == null)
+			this.inventory = createInventory();
+
+		for (int i = getFillSpace().stream().findFirst().orElse(0); i < getFillSpace().size(); i++) {
+			this.inventory.setItem(i, new ItemStack(Material.AIR));
 		}
-		return addedButtons;
+
+		Map<Integer, ItemStack> entity = this.addedButtons.get(pageNumber);
+		if (entity != null && !entity.isEmpty())
+			for (int i = 0; i < inventory.getSize(); i++) {
+				inventory.setItem(i, entity.get(pageNumber * inventorySize + i));
+			}
 	}
 
 	private Inventory createInventory() {
@@ -463,9 +665,13 @@ public abstract class MenuHolder {
 			System.out.println("wrong inverntory size , you has put in " + this.inventorySize + "it need to be valid number.");
 		if (this.inventorySize == 5)
 			return Bukkit.createInventory(null, InventoryType.HOPPER, this.title);
-
 		return Bukkit.createInventory(null, this.inventorySize, this.title != null ? this.title : "");
 	}
 
+	private void registerListener() {
+		if (menuHolderListener == null)
+			menuHolderListener = new MenuHolderListener();
+		Bukkit.getPluginManager().registerEvents(menuHolderListener, plugin);
+	}
 
 }

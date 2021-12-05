@@ -1,0 +1,147 @@
+
+import org.brokenarrow.storage.CustomContainersMainClass;
+import org.brokenarrow.storage.api.ContainerRegistryAPI;
+import org.brokenarrow.storage.util.GuiTempletsYaml;
+import org.brokenarrow.storage.util.ItemUtily;
+import org.brokenarrow.storage.util.YamlSettingsContainers;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class FilterMenu extends MenuHolderTest {
+
+	private final MenuButton infoButton;
+	private final MenuButton backButton;
+	private final MenuButton placeholders;
+	private final MenuButton fillSlots;
+	private final ContainerRegistryAPI registry = ContainerRegistryAPI.getInstance();
+
+	public FilterMenu(Location location) {
+		super(CustomContainersMainClass.getInstance(), 36);
+
+		setSlotsYouCanAddItems(true);
+		setFillSpace(IntStream.rangeClosed(0, 26).boxed().collect(Collectors.toList()));
+		System.out.println("location " + location);
+
+		infoButton = new MenuButton() {
+			@Override
+			public void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object) {
+				updateButtons();
+			}
+
+			@Override
+			public ItemStack getItem() {
+				return ItemUtily.createItemStack(GuiTempletsYaml.getIcon("Crafting_Filtergui", "Info_Button", null),
+						GuiTempletsYaml.getDisplayName("Crafting_Filtergui", "Info_Button"), GuiTempletsYaml.getLore("Crafting_Filtergui", "Info_Button"),
+						"Guimatrial", "GuiPlaceholders");
+			}
+		};
+
+		backButton = new MenuButton() {
+			@Override
+			public void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object) {
+				player.closeInventory();
+			}
+
+			@Override
+			public ItemStack getItem() {
+				return ItemUtily.createItemStack(GuiTempletsYaml.getIcon("Crafting_Filtergui", "Back_button", null),
+						GuiTempletsYaml.getDisplayName("Crafting_Filtergui", "Back_button"), GuiTempletsYaml.getLore("Crafting_Filtergui", "Back_button"),
+						"Guimatrial", "GuiPlaceholders");
+			}
+		};
+
+		placeholders = new MenuButton() {
+			@Override
+			public void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object) {
+
+			}
+
+			@Override
+			public ItemStack getItem() {
+				return ItemUtily.createItemStack(GuiTempletsYaml.getIcon("Crafting_Filtergui", "Placeholders", null),
+						GuiTempletsYaml.getDisplayName("Crafting_Filtergui", "Placeholders"), GuiTempletsYaml.getLore("Crafting_Filtergui", "Placeholders"),
+						"Guimatrial", "GuiPlaceholders");
+			}
+		};
+		fillSlots = new MenuButton() {
+			@Override
+			public void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object) {
+
+			}
+
+			@Override
+			public ItemStack getItem() {
+				return null;
+			}
+
+			@Override
+			public ItemStack getItem(int slot, Object object) {
+				if (convertToArray(location).size() > slot) {
+					return convertToArray(location).get(slot);
+				}
+				return null;
+
+			}
+		};
+
+	}
+
+	@Override
+	public ItemStack getFillItemsAt(int slot) {
+		return fillSlots.getItem(slot, null);
+	}
+
+	@Override
+	public ItemStack getItemAt(int slot) {
+
+		if (GuiTempletsYaml.getSlot("Crafting_Filtergui", "Info_Button").contains(slot))
+			return infoButton.getItem();
+		if (GuiTempletsYaml.getSlot("Crafting_Filtergui", "Back_button").contains(slot))
+			return backButton.getItem();
+		if (GuiTempletsYaml.getSlot("Crafting_Filtergui", "Placeholders").contains(slot))
+			return placeholders.getItem();
+
+		return null;
+	}
+
+	@Override
+	public void menuClose(InventoryCloseEvent event, Inventory inventory) {
+		Player player = (Player) event.getPlayer();
+		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name())) {
+			Object object = player.getMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name()).get(0).value();
+			if (object instanceof Location) {
+				Location location = (Location) object;
+				List<String> blacklistedItems = YamlSettingsContainers.getBlacklistedItems(ContainerRegistryAPI.getInstance().getContainerFileName(location), ContainerRegistryAPI.getInstance().getCurrentUpdate(location));
+				Map<Integer, ItemStack> map = new CheckDuplicatedItems(blacklistedItems).getItemsExceptBottomBar(inventory, player);
+
+				registry.setFiltreritems(location, map.values().toArray(new ItemStack[]{}));
+				if (getAmountOfViwers() <= 0) {
+					updateButtons();
+					for (int i = 0; i < inventory.getSize(); i++) {
+						if (getFillSpace().contains(i))
+							inventory.setItem(i, map.get(i));
+					}
+				}
+			}
+		}
+
+	}
+
+	public List<ItemStack> convertToArray(Location location) {
+		if (registry.getFiltreritems(location) != null) {
+			return Arrays.stream(registry.getFiltreritems(location)).collect(Collectors.toList());
+		} else System.out.println("test convertToArray");
+		return new ArrayList<>();
+	}
+}

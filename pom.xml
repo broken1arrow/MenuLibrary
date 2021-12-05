@@ -6,9 +6,9 @@
 
 
     <groupId>brokenarrow.menu.lib</groupId>
-    <artifactId>brokenarrow</artifactId>
+    <artifactId>menulibrary</artifactId>
     <name>menulibrary</name>
-    <version>0.0.20</version>
+    <version>0.0.10</version>
 
     <!-- ############################################################################### -->
 
@@ -23,10 +23,8 @@
     <properties>
 
         <!-- The full path to your plugin's main class, so that Spigot can find and load it -->
-        <main.class>org.brokenarrow.storage.CustomContainersMainClass</main.class>
+        <main.class>org.brokenarrow.menu.lib.MenuHolder</main.class>
 
-        <!-- The Foundation version - change to latest version from https://github.com/kangarko/Foundation/releases -->
-        <foundation.version>5.11.1</foundation.version>
 
         <!-- The Java version your plugin uses, see bstats.org for what most servers have and use that -->
         <java.version>11</java.version>
@@ -172,7 +170,6 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
                         </goals>
                         <!--
                             By default we configure the Foundation to include itself and all classes when
@@ -196,17 +193,9 @@
                                    <shadedPattern>${project.groupId}.${project.artifactId}.adventure</shadedPattern>
                                </relocation>-->
                                 <relocation>
-                                    <pattern>net.kyori</pattern>
-                                    <shadedPattern>${project.groupId}.${project.artifactId}.minimsg</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.mineacademy</pattern>
-                                    <shadedPattern>${project.groupId}.${project.artifactId}.lib</shadedPattern>
                                     <excludes>
-                                        <exclude>org.mineacademy.${project.artifactId}.*</exclude>
-                                        <exclude>org.mineacademy.gameapi.*</exclude>
-                                        <exclude>org.mineacademy.boss.*</exclude>
-                                        <exclude>org.mineacademy.worldeditbridge.*</exclude>
                                     </excludes>
                                 </relocation>
                             </relocations>

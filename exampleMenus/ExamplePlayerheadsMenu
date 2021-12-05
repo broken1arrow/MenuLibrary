@@ -1,5 +1,3 @@
-package brokenarrow.menu.lib.menuexample;
-
 import brokenarrow.menu.lib.MenuButton;
 import brokenarrow.menu.lib.MenuHolder;
 import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
@@ -14,7 +12,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.mineacademy.fo.Common;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,9 +34,7 @@ public class testMenu extends MenuHolder {
 
 
 		setTitle("test tittle for menu");
-		List<Integer> list = new ArrayList<>();
-		Collections.addAll(list, 1, 2);
-		setFillSpace(list);
+		setFillSpace(IntStream.rangeClosed(1, 2).boxed().collect(Collectors.toList()));
 		//setItemsPerPage(3);
 		LinkButton = new MenuButton() {
 			@Override
@@ -92,7 +87,7 @@ public class testMenu extends MenuHolder {
 					previousPage();
 				}
 
-				Common.runLater(() -> UpdateTittleContainers.update(player, GuiTempletsYaml.getGuiTitle("Settings_Menu", getPageNumber()), Material.CHEST, getMenu().getSize()));
+				Bukkit.getScheduler().runTaskLater("your plugin",() -> UpdateTittleContainers.update(player, GuiTempletsYaml.getGuiTitle("Settings_Menu", getPageNumber()), Material.CHEST, getMenu().getSize()));
 				updateButtons();
 			}
 
@@ -107,7 +102,7 @@ public class testMenu extends MenuHolder {
 				if (click.isLeftClick()) {
 					nextPage();
 				}
-				Common.runLater(() -> UpdateTittleContainers.update(player, GuiTempletsYaml.getGuiTitle("Settings_Menu", getPageNumber()), Material.CHEST, getMenu().getSize()));
+				Bukkit.getScheduler().runTaskLater("your plugin",() -> UpdateTittleContainers.update(player, GuiTempletsYaml.getGuiTitle("Settings_Menu", getPageNumber()), Material.CHEST, getMenu().getSize()));
 				updateButtons();
 			}
 
@@ -137,36 +132,27 @@ public class testMenu extends MenuHolder {
 			}
 
 			@Override
-			public ItemStack getItem(int slot,Object object) {
+			public ItemStack getItem(Object object) {
+				//setListOfFillItems(preferenceRegistery.getPlayers(player));
 
-				ItemStack result = null;
-				OfflinePlayer player = null;
-
-					if (!(preferenceRegistery.getPlayers(getViewer()).size() > (Integer) object)) return null;
-					result = preferenceRegistery.getPlayers(getViewer()) != null ? ItemUtily.createItemStack(GuiTempletsYaml.getIcon("PartylistMenu", "Players_List", preferenceRegistery.getPlayers(getViewer()).get( slot))) : null;
-					player = preferenceRegistery.getPlayers(getViewer()) != null ? Bukkit.getOfflinePlayer(preferenceRegistery.getPlayers(getViewer()).get( slot)) : null;
-
-				setListOfFillItems(preferenceRegistery.getPlayers(getViewer()));
-
+				if (object instanceof UUID) {
+					return ItemUtily.createItemStack(GuiTempletsYaml.getIcon("PartylistMenu", "Players_List", (UUID) object),
+							GuiTempletsYaml.getDisplayName("PartylistMenu", "Players_List", Bukkit.getOfflinePlayer((UUID) object).getName()),
+							GuiTempletsYaml.getLore("PartylistMenu", "Players_List"));
+				}
 				if (object instanceof ItemStack) {
 					if (((ItemStack) object).getType() == Material.PLAYER_HEAD) {
 						SkullMeta meta = (SkullMeta) ((ItemStack) object).getItemMeta();
-						if (meta.getOwningPlayer() != null)
-							for (UUID players : preferenceRegistery.getPlayers(getViewer())) {
-								UUID OfflinePlayer = meta.getOwningPlayer().getUniqueId();
-								if (OfflinePlayer.equals(players)) {
-									result = ItemUtily.createItemStack(GuiTempletsYaml.getIcon("PartylistMenu", "Players_List", players));
-									return ItemUtily.createItemStack(result,
-											GuiTempletsYaml.getDisplayName("PartylistMenu", "Players_List", meta.getOwningPlayer().getName()),
-											GuiTempletsYaml.getLore("PartylistMenu", "Players_List"));
-								}
-							}
+						if (meta.getOwningPlayer() != null) {
+							ItemStack result = ItemUtily.createItemStack(GuiTempletsYaml.getIcon("PartylistMenu", "Players_List", meta.getOwningPlayer().getUniqueId()));
+							return ItemUtily.createItemStack(result,
+									GuiTempletsYaml.getDisplayName("PartylistMenu", "Players_List", meta.getOwningPlayer().getName()),
+									GuiTempletsYaml.getLore("PartylistMenu", "Players_List"));
+						}
 					}
-				}
-				return ItemUtily.createItemStack(result,
-						GuiTempletsYaml.getDisplayName("PartylistMenu", "Players_List", player != null ? player.getName() : null),
-						GuiTempletsYaml.getLore("PartylistMenu", "Players_List"));
 
+				}
+				return null;
 			}
 		};
 

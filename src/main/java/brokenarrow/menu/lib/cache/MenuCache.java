@@ -1,4 +1,6 @@
-package brokenarrow.menu.lib;
+package brokenarrow.menu.lib.cache;
+
+import brokenarrow.menu.lib.MenuHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,14 +15,9 @@ public class MenuCache {
 
 	}
 
-
 	/**
 	 * You can get a menu with {@link org.bukkit.entity.Player} or
-	 * custom methods like location and/or clazz you exstend from.
-	 * format look like this.
-	 * <p>
-	 * player + "*__*" + clazz
-	 * location + "*__*" + clazz
+	 * custom methods like location .
 	 *
 	 * @param object use player name or the custom methods abow.
 	 * @return a cached menu.
