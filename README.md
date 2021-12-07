@@ -1,6 +1,9 @@
 # MenuLibrary
 
 ### How to use api
+ First in your main class (I only use an example name for the main class). You register for the menu event. 
+ And you are done, only you have to do is extend MenuHolder.
+
 
 ```
 	public class MenuMain extends JavaPlugin {
@@ -30,7 +33,7 @@
 
 ```
 
-	public class MainMenu extends MenuHolderTest {
+	public class MainMenu extends MenuHolder {
 
 		private final MenuButton examplebutton;
 		private final MenuButton examplebutton1;
@@ -102,7 +105,7 @@ Have also added code as an example of how I use it (not 100% complete).
 
 ```
 
-public class PartyListMenu extends MenuHolderTest {
+public class PartyListMenu extends MenuHolder {
 
 	private final MenuButton removeAllPlayers;
 	private final MenuButton addPlayers;
