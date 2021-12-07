@@ -37,7 +37,6 @@ public abstract class MenuHolder {
 		this.inventorySize = inventorySize;
 		this.plugin = plugin;
 		registerFields();
-		registerListener();
 	}
 
 	/**
@@ -53,7 +52,6 @@ public abstract class MenuHolder {
 		this.plugin = plugin;
 		this.shallCacheItems = shallCacheItems;
 		registerFields();
-		registerListener();
 	}
 
 	private static MenuHolderListener menuHolderListener = null;
@@ -668,10 +666,5 @@ public abstract class MenuHolder {
 		return Bukkit.createInventory(null, this.inventorySize, this.title != null ? this.title : "");
 	}
 
-	private void registerListener() {
-		if (menuHolderListener == null)
-			menuHolderListener = new MenuHolderListener();
-		Bukkit.getPluginManager().registerEvents(menuHolderListener, plugin);
-	}
 
 }
