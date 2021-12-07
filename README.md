@@ -101,7 +101,7 @@
 ```
 
 ## Make severalpage menu
-Have also added code as an example of how I use it. 
+Have also added code as an example of how I use it (I have removed some code I use because make it easier to read). 
 
 ```
 
