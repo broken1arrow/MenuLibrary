@@ -117,12 +117,12 @@ public class PartyListMenu extends MenuHolder {
 	private final PreferenceSettingsRegisteryApi preferenceRegistery = PreferenceSettingsRegisteryApi.getInstance();
 
 	public PartyListMenu(Player player) {
-		super(CustomContainersMainClass.getInstance(), 45);
+		super(CustomContainersMainClass.getInstance(), 45,PreferenceSettingsRegisteryApi.getInstance().getPlayers(player));
 
 		setTitle("players in party");
-   // Witch slot you want to fill with items in.
+                  // Witch slot you want to fill with items in.
 		setFillSpace(IntStream.rangeClosed(0, 35).boxed().collect(Collectors.toList()));
-		setListOfFillItems(preferenceRegistery.getPlayers(player));
+	
 
 		removeAllPlayers = new MenuButton() {
 			@Override
