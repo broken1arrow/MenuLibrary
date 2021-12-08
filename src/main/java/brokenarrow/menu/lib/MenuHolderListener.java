@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -38,6 +39,9 @@ public class MenuHolderListener implements Listener {
 			int clickedSlot = event.getSlot();
 			int clickedPos = menu.getPageNumber() * menu.getMenu().getSize() + clickedSlot;
 			if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+			if (menu.isAllowShiftClick() && (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT))
+				return;
+
 			if (menu.isSlotsYouCanAddItems()) {
 				if (menu.getFillSpace().contains(clickedPos))
 					return;
