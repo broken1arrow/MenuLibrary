@@ -15,7 +15,9 @@ public class SendMsg {
 
 	/**
 	 * Set message for when player have added item some are blacklisted.
-	 * Suport both hex and & colorcodes.
+	 * Suport both hex and & colorcodes and have this placeholders:
+	 *
+	 * {0} = item type
 	 *
 	 * @param blacklistMessage set a message.
 	 */
@@ -26,7 +28,11 @@ public class SendMsg {
 
 	/**
 	 * Set message for when player have added item some are dublicated.
-	 * Suport both hex and & colorcodes.
+	 * Suport both hex and & colorcodes and have this placeholders:
+	 *
+	 * {0} = item type
+	 * {1} = amount of stacks
+	 * {2} = item amount
 	 *
 	 * @param dublicatedMessage set a message.
 	 */

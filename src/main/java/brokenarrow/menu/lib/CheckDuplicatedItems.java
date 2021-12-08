@@ -96,7 +96,7 @@ public class CheckDuplicatedItems {
 			if (!ifInventorFull.isEmpty() && player.getLocation().getWorld() != null)
 				player.getLocation().getWorld().dropItemNaturally(player.getLocation(), ifInventorFull.get(0));
 			SendMsg.sendDublicatedMessage(player,entitys.getKey().getType(), duplicatedItems.size(), entitys.getValue());
-			SendMsg.sendMessage(player,"You have added dublicated items");
+
 			conter++;
 			if (conter >= CheckDuplicatedItems.duplicatedItems.size()) {
 				CheckDuplicatedItems.duplicatedItems.remove(entitys.getKey());
