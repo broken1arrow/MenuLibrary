@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 
 public abstract class MenuHolder {
 
+
 	/**
 	 * Create menu instance.
 	 *
@@ -42,6 +43,22 @@ public abstract class MenuHolder {
 	/**
 	 * Create menu instance.
 	 *
+	 * @param plugin        Your main class.
+	 * @param inventorySize Size if menu.
+	 * @param fillItems     List of items you want parse inside gui on one or several pages.
+	 */
+	public MenuHolder(Plugin plugin, int inventorySize, List<?> fillItems) {
+		this.plugin = plugin;
+		this.inventorySize = inventorySize;
+		this.itemsPerPage = inventorySize;
+		this.listOfFillItems = fillItems;
+		registerFields();
+	}
+
+
+	/**
+	 * Create menu instance.
+	 *
 	 * @param plugin          your main class.
 	 * @param inventorySize   size if menu.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
@@ -54,7 +71,24 @@ public abstract class MenuHolder {
 		registerFields();
 	}
 
-	private static MenuHolderListener menuHolderListener = null;
+
+	/**
+	 * Create menu instance.
+	 *
+	 * @param plugin          Your main class.
+	 * @param inventorySize   Size if menu.
+	 * @param fillItems       List of items you want parse inside gui.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 */
+	public MenuHolder(Plugin plugin, int inventorySize, List<?> fillItems, boolean shallCacheItems) {
+		this.plugin = plugin;
+		this.inventorySize = inventorySize;
+		this.itemsPerPage = inventorySize;
+		this.listOfFillItems = fillItems;
+		this.shallCacheItems = shallCacheItems;
+		registerFields();
+	}
+
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttons = new ArrayList<>();
 	private final Map<Integer, Map<Integer, ItemStack>> addedButtons = new HashMap<>();
@@ -63,6 +97,7 @@ public abstract class MenuHolder {
 	private boolean shallCacheItems;
 	private boolean slotsYouCanAddItems;
 	private boolean loadToCahe;
+	private boolean allowShiftClick;
 	private int slotIndex = 0;
 	private int requiredPages;
 	private int itemsPerPage = this.inventorySize;
@@ -189,6 +224,27 @@ public abstract class MenuHolder {
 
 	public void setObject(Object object) {
 		this.object = object;
+	}
+
+	/**
+	 * set to true if you want to deny shift-click.
+	 *
+	 * @param allowShiftClick set to true if you want to deny shift-click
+	 */
+
+	public void setAllowShiftClick(boolean allowShiftClick) {
+		this.allowShiftClick = allowShiftClick;
+	}
+
+	/**
+	 * Get if this menu allows shift-click or not. Default will
+	 * it allows shift-click.
+	 *
+	 * @return true if shift-click shall be denied.
+	 */
+
+	public boolean isAllowShiftClick() {
+		return allowShiftClick;
 	}
 
 	/**
@@ -597,6 +653,7 @@ public abstract class MenuHolder {
 	//todo fix this so it detect better how many pages needed.
 	private double amountpages() {
 
+
 		if (this.itemsPerPage > 0) {
 			if (this.itemsPerPage >= this.inventorySize)
 				this.plugin.getLogger().log(Level.SEVERE, "Items per page are biger an Inventory size", new Throwable().fillInStackTrace());
@@ -605,7 +662,7 @@ public abstract class MenuHolder {
 			} else if (this.listOfFillItems != null && !this.listOfFillItems.isEmpty())
 				return (double) this.listOfFillItems.size() / this.itemsPerPage;
 			else
-				return (double) (this.buttons.size() + this.itemsPerPage) / this.inventorySize;
+				return (double) this.buttons.size() / this.itemsPerPage;
 		}
 		if (this.listOfFillItems != null && !this.listOfFillItems.isEmpty()) {
 			return (double) this.listOfFillItems.size() / this.fillSpace.size();
