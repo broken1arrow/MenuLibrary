@@ -13,9 +13,23 @@ public class SendMsg {
 	private static String blacklistMessage;
 	private static String dublicatedMessage;
 
+	/**
+	 * Set message for when player have added item some are blacklisted.
+	 * Suport both hex and & colorcodes.
+	 *
+	 * @param blacklistMessage set a message.
+	 */
+
 	public static void setBlacklistMessage(String blacklistMessage) {
 		SendMsg.blacklistMessage = blacklistMessage;
 	}
+
+	/**
+	 * Set message for when player have added item some are dublicated.
+	 * Suport both hex and & colorcodes.
+	 *
+	 * @param dublicatedMessage set a message.
+	 */
 
 	public static void setDublicatedMessage(String dublicatedMessage) {
 		SendMsg.dublicatedMessage = dublicatedMessage;
