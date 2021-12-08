@@ -83,7 +83,7 @@ public class CheckDuplicatedItems {
 			player.getLocation().getWorld().dropItemNaturally(player.getLocation(), ifInventorFull.get(0));
 
 		if (!this.sendMsgPlayer) {
-			SendMsg.sendMessage(player,"this item are blacklisted");
+			SendMsg.sendBlacklistMessage(player,itemStack.getType().name().toLowerCase());
 			this.sendMsgPlayer = true;
 		}
 	}
@@ -95,6 +95,7 @@ public class CheckDuplicatedItems {
 			HashMap<Integer, ItemStack> ifInventorFull = player.getInventory().addItem(entitys.getKey());
 			if (!ifInventorFull.isEmpty() && player.getLocation().getWorld() != null)
 				player.getLocation().getWorld().dropItemNaturally(player.getLocation(), ifInventorFull.get(0));
+			SendMsg.sendDublicatedMessage(player,entitys.getKey().getType(), duplicatedItems.size(), entitys.getValue());
 			SendMsg.sendMessage(player,"You have added dublicated items");
 			conter++;
 			if (conter >= CheckDuplicatedItems.duplicatedItems.size()) {
