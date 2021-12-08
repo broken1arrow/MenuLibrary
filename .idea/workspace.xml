@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5fb8fa24-d7a9-4f2a-96ed-de0366a51c11" name="Default Changelist" comment="test">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolderListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/MenuHolderListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/CheckDuplicatedItems.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/CheckDuplicatedItems.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/messages/SendMsg.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/brokenarrow/menu/lib/messages/SendMsg.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -54,7 +53,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="external.system.task.project.file.to.start" value="$USER_HOME$/IdeaProjects/WildChests1" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/java" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.selected.configurable" value="settings.saveactions" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
