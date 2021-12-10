@@ -1,5 +1,26 @@
 # MenuLibrary
 
+## import the liberary
+
+Maven
+
+```
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+	<dependency>
+	    <groupId>com.github.broken1arrow</groupId>
+	    <artifactId>MenuLibrary</artifactId>
+	    <version>typeRightVersion</version>
+	    <scope>compile</scope>
+	</dependency>
+
+```
+
 ### How to use api
  First in your main class (I only use an example name for the main class). You register for the menu event. 
  And you are done, only you have to do is extend MenuHolder.
