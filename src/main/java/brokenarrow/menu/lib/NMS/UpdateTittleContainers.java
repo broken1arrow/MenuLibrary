@@ -1,6 +1,5 @@
 package brokenarrow.menu.lib.NMS;
 
-import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,9 +22,8 @@ public class UpdateTittleContainers {
 	static Constructor<?> packetConstructor;
 
 
-	@SneakyThrows
 	public static void update(Player p, String title, Material container, int inventorySize) {
-
+		try {
 		if (p != null)
 			if (Bukkit.getServer().getClass().getPackageName().split("\\.")[3].startsWith("v1_17")) {
 				loadNmsClasses1_17();
@@ -37,7 +35,9 @@ public class UpdateTittleContainers {
 				} catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
 					e.printStackTrace();
 				}
-			}
+			}} catch (NoSuchFieldException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 
