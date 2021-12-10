@@ -1,8 +1,8 @@
 # MenuLibrary
 
-## import the liberary
+## Import the liberary
 
-Maven
+###Maven
 
 ```
 	<repositories>
@@ -11,14 +11,14 @@ Maven
 		    <url>https://jitpack.io</url>
 		</repository>
 	</repositories>
-
-	<dependency>
-	    <groupId>com.github.broken1arrow</groupId>
-	    <artifactId>MenuLibrary</artifactId>
-	    <version>typeRightVersion</version>
-	    <scope>compile</scope>
-	</dependency>
-
+    <dependencies>
+        <dependency>
+            <groupId>com.github.broken1arrow</groupId>
+            <artifactId>MenuLibrary</artifactId>
+            <version>typeRightVersion</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 ```
 
 ### How to use api
