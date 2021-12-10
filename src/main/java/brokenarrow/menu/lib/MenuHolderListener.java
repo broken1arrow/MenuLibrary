@@ -33,7 +33,7 @@ public class MenuHolderListener implements Listener {
 		if (!menu.isSlotsYouCanAddItems() && cursor != null && cursor.getType() != Material.AIR) {
 			event.setCancelled(true);
 		}
-		System.out.println("test onMenuClicking " );
+		System.out.println("test onMenuClicking ");
 		if (!menu.getButtons().isEmpty()) {
 			int clickedSlot = event.getSlot();
 			int clickedPos = menu.getPageNumber() * menu.getMenu().getSize() + clickedSlot;
@@ -121,7 +121,7 @@ public class MenuHolderListener implements Listener {
 						MenuButton menuButton = menuButtons.next();
 						Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : cursor;
 
-						System.out.println("test onInventoryDragTop " );
+						System.out.println("test onInventoryDragTop ");
 						if (menuButton.getItem() == null) {
 							if (!menu.getAddedButtons().containsKey(menu.getPageNumber()) && menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos) == null && !menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos).isSimilar(cursor)) {
 								event.setCancelled(true);
@@ -148,7 +148,10 @@ public class MenuHolderListener implements Listener {
 					return skullMetaClicked.getOwningPlayer() == skullMetaItem.getOwningPlayer();
 				else return skullMetaClicked.getOwningPlayer() == skullMetaItem.getOwningPlayer();
 
-			} else item.isSimilar(clickedItem);
+			} else {
+				System.out.println("isItemSimilar " + (item.isSimilar(clickedItem)));
+				item.isSimilar(clickedItem);
+			}
 
 		return false;
 	}
