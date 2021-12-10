@@ -11,6 +11,8 @@
 		    <url>https://jitpack.io</url>
 		</repository>
 	</repositories>
+	
+	
     <dependencies>
         <dependency>
             <groupId>com.github.broken1arrow</groupId>
