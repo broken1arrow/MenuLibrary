@@ -33,7 +33,6 @@ public class MenuHolderListener implements Listener {
 		if (!menu.isSlotsYouCanAddItems() && cursor != null && cursor.getType() != Material.AIR) {
 			event.setCancelled(true);
 		}
-		System.out.println("test onMenuClicking ");
 		if (!menu.getButtons().isEmpty()) {
 			int clickedSlot = event.getSlot();
 			int clickedPos = menu.getPageNumber() * menu.getMenu().getSize() + clickedSlot;
@@ -43,7 +42,7 @@ public class MenuHolderListener implements Listener {
 			if (menu.isSlotsYouCanAddItems()) {
 				if (menu.getFillSpace().contains(clickedPos))
 					return;
-				else
+				else if (event.getClickedInventory().getType() != InventoryType.PLAYER)
 					event.setCancelled(true);
 			} else if (!menu.isSlotsYouCanAddItems()) {
 				if (event.getClickedInventory().getType() == InventoryType.PLAYER)
@@ -52,13 +51,12 @@ public class MenuHolderListener implements Listener {
 					} else
 						event.setCancelled(true);
 			}
-
 			if (clickedItem != null)
 				for (ListIterator<MenuButton> menuButtons = menu.getButtons().listIterator(); menuButtons.hasNext(); ) {
 					MenuButton menuButton = menuButtons.next();
 					Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : clickedItem;
 
-					if (menuButton.getItem() != null && menuButton.getItem().isSimilar(clickedItem)) {
+					if (menuButton.getItem(objectData) == null && menuButton.getItem() != null && menuButton.getItem().isSimilar(clickedItem)) {
 						if (menu.getAddedButtons().containsKey(menu.getPageNumber()) && menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos) != null && menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos).isSimilar(clickedItem)) {
 							menuButton.onClickInsideMenu(player, menu.getMenu(), event.getClick(), clickedItem, objectData);
 							event.setCancelled(true);
@@ -121,7 +119,6 @@ public class MenuHolderListener implements Listener {
 						MenuButton menuButton = menuButtons.next();
 						Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : cursor;
 
-						System.out.println("test onInventoryDragTop ");
 						if (menuButton.getItem() == null) {
 							if (!menu.getAddedButtons().containsKey(menu.getPageNumber()) && menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos) == null && !menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos).isSimilar(cursor)) {
 								event.setCancelled(true);
@@ -147,10 +144,8 @@ public class MenuHolderListener implements Listener {
 				else if (item.getItemMeta().getLore() == clickedItem.getItemMeta().getLore())
 					return skullMetaClicked.getOwningPlayer() == skullMetaItem.getOwningPlayer();
 				else return skullMetaClicked.getOwningPlayer() == skullMetaItem.getOwningPlayer();
-
 			} else {
-				System.out.println("isItemSimilar " + (item.isSimilar(clickedItem)));
-				item.isSimilar(clickedItem);
+				return item.isSimilar(clickedItem);
 			}
 
 		return false;
