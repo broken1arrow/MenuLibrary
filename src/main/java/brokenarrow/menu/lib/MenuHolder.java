@@ -1,7 +1,5 @@
 package brokenarrow.menu.lib;
 
-import brokenarrow.menu.lib.MenuButton;
-import brokenarrow.menu.lib.MenuMetadataKey;
 import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
 import brokenarrow.menu.lib.cache.MenuCache;
 import com.google.common.base.Enums;
@@ -44,14 +42,13 @@ public abstract class MenuHolder {
 	/**
 	 * Create menu instance.
 	 *
-	 * @param plugin        Your main class.
-	 * @param inventorySize Size if menu.
-	 * @param fillItems     List of items you want parse inside gui on one or several pages.
+	 * @param plugin    Your main class.
+	 * @param fillSlots Witch slots you want fill with items.
+	 * @param fillItems List of items you want parse inside gui on one or several pages.
 	 */
-	public MenuHolder(Plugin plugin, int inventorySize, List<?> fillItems) {
+	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems) {
 		this.plugin = plugin;
-		this.inventorySize = inventorySize;
-		this.itemsPerPage = inventorySize;
+		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		registerFields();
 	}
@@ -77,18 +74,18 @@ public abstract class MenuHolder {
 	 * Create menu instance.
 	 *
 	 * @param plugin          Your main class.
-	 * @param inventorySize   Size if menu.
+	 * @param fillSlots       Witch slots you want fill with items.
 	 * @param fillItems       List of items you want parse inside gui.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
 	 */
-	public MenuHolder(Plugin plugin, int inventorySize, List<?> fillItems, boolean shallCacheItems) {
+	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
 		this.plugin = plugin;
-		this.inventorySize = inventorySize;
-		this.itemsPerPage = inventorySize;
+		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		this.shallCacheItems = shallCacheItems;
 		registerFields();
 	}
+
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttons = new ArrayList<>();
 	private final Map<Integer, Map<Integer, ItemStack>> addedButtons = new HashMap<>();
@@ -143,6 +140,16 @@ public abstract class MenuHolder {
 
 	public ItemStack getFillItemsAt(int slot) {
 		return null;
+	}
+
+	/**
+	 * set invetory size
+	 *
+	 * @param inventorySize size of this menu
+	 */
+
+	public void setInventorySize(int inventorySize) {
+		this.inventorySize = inventorySize;
 	}
 
 	/**
