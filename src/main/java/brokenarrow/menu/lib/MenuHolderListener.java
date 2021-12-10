@@ -33,7 +33,7 @@ public class MenuHolderListener implements Listener {
 		if (!menu.isSlotsYouCanAddItems() && cursor != null && cursor.getType() != Material.AIR) {
 			event.setCancelled(true);
 		}
-
+		System.out.println("test onMenuClicking " );
 		if (!menu.getButtons().isEmpty()) {
 			int clickedSlot = event.getSlot();
 			int clickedPos = menu.getPageNumber() * menu.getMenu().getSize() + clickedSlot;
@@ -121,12 +121,13 @@ public class MenuHolderListener implements Listener {
 						MenuButton menuButton = menuButtons.next();
 						Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : cursor;
 
+						System.out.println("test onInventoryDragTop " );
 						if (menuButton.getItem() == null) {
 							if (!menu.getAddedButtons().containsKey(menu.getPageNumber()) && menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos) == null && !menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos).isSimilar(cursor)) {
 								event.setCancelled(true);
 								break;
 							}
-						} else if (menuButton.getItem(objectData) == null && !isItemSimilar(menuButton.getItem(objectData), cursor) && !menu.getAddedButtons().containsKey(menu.getPageNumber()) && !isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), cursor)) {
+						} else if (menuButton.getItem(objectData) != null && !isItemSimilar(menuButton.getItem(objectData), cursor) && !menu.getAddedButtons().containsKey(menu.getPageNumber()) && !isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), cursor)) {
 							event.setCancelled(true);
 							break;
 						}

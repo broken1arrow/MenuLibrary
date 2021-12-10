@@ -148,7 +148,7 @@ public abstract class MenuHolder {
 	 * @param inventorySize size of this menu
 	 */
 
-	public void setInventorySize(int inventorySize) {
+	public void setMenuSize(int inventorySize) {
 		this.inventorySize = inventorySize;
 	}
 
