@@ -1,7 +1,9 @@
 package brokenarrow.menu.lib;
 
-import brokenarrow.menu.lib.cache.MenuCache;
+import brokenarrow.menu.lib.MenuButton;
+import brokenarrow.menu.lib.MenuMetadataKey;
 import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
+import brokenarrow.menu.lib.cache.MenuCache;
 import com.google.common.base.Enums;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,7 +27,6 @@ import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 public abstract class MenuHolder {
-
 
 	/**
 	 * Create menu instance.
@@ -88,7 +89,6 @@ public abstract class MenuHolder {
 		this.shallCacheItems = shallCacheItems;
 		registerFields();
 	}
-
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttons = new ArrayList<>();
 	private final Map<Integer, Map<Integer, ItemStack>> addedButtons = new HashMap<>();
@@ -199,10 +199,11 @@ public abstract class MenuHolder {
 	 *
 	 * @param listOfFillItems list of items some shall be added.
 	 */
-
+/*
 	public <T> void setListOfFillItems(List<T> listOfFillItems) {
 		this.listOfFillItems = listOfFillItems;
 	}
+*/
 
 	/**
 	 * set this to true if you whant players has option to add or remove items
@@ -226,10 +227,11 @@ public abstract class MenuHolder {
 		this.object = object;
 	}
 
+
 	/**
 	 * set to true if you want to deny shift-click.
 	 *
-	 * @param allowShiftClick set to true if you want to deny shift-click
+	 * @param allowShiftClick set to true if you want to deny shiftclick
 	 */
 
 	public void setAllowShiftClick(boolean allowShiftClick) {
@@ -237,10 +239,10 @@ public abstract class MenuHolder {
 	}
 
 	/**
-	 * Get if this menu allows shift-click or not. Default will
-	 * it allows shift-click.
+	 * Get if this menu allow shiftclick or not. Defult will
+	 * it allow shiftclick.
 	 *
-	 * @return true if shift-click shall be denied.
+	 * @return true if shiftclick shall be denyded.
 	 */
 
 	public boolean isAllowShiftClick() {
@@ -394,7 +396,7 @@ public abstract class MenuHolder {
 	 */
 
 	public List<Integer> getFillSpace() {
-		return fillSpace;
+		return fillSpace != null ? fillSpace : new ArrayList<>();
 	}
 
 	/**
@@ -434,8 +436,8 @@ public abstract class MenuHolder {
 	 * @param player   some open menu.
 	 * @param location location you open menu.
 	 */
-	public void onMenuOpen(final Player player, final Location location) {
-		onMenuOpen(player, location, true);
+	public void menuOpen(final Player player, final Location location) {
+		menuOpen(player, location, true);
 	}
 
 	/**
@@ -445,8 +447,8 @@ public abstract class MenuHolder {
 	 * @param player some open menu.
 	 */
 
-	public void onMenuOpen(final Player player) {
-		onMenuOpen(player, null, false);
+	public void menuOpen(final Player player) {
+		menuOpen(player, null, false);
 	}
 
 	/**
@@ -457,10 +459,13 @@ public abstract class MenuHolder {
 	 * @param location   location you open menu.
 	 * @param loadToCahe if it shall load menu to cache.
 	 */
-	private void onMenuOpen(final Player player, final Location location, final boolean loadToCahe) {
+	private void menuOpen(final Player player, final Location location, final boolean loadToCahe) {
 		this.player = player;
 		this.location = location;
 		this.loadToCahe = loadToCahe;
+
+		if (player.getOpenInventory().getTopInventory().getHolder() != null)
+			player.closeInventory();
 
 		if (location != null)
 			setPlayermetadata(player, location);
@@ -474,11 +479,10 @@ public abstract class MenuHolder {
 		final Inventory menu = loadInventory(player, loadToCahe);
 
 		if (menu == null) return;
-
 		player.openInventory(menu);
 
 		if (this.title != null && !this.title.equals(""))
-			UpdateTittleContainers.update(player, this.title, Material.CHEST, menu.getSize());
+			UpdateTittleContainers.update(player, this.title, inventorySize == 5 ? Material.HOPPER : Material.CHEST, menu.getSize());
 		onMenuOpenPlaySound();
 
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
@@ -593,6 +597,13 @@ public abstract class MenuHolder {
 			this.player.playSound(player.getLocation(), menuOpenSound, 1, 1);
 	}
 
+	/**
+	 * Do not use this method, use {@link #menuClose}
+	 *
+	 * @param event some get fierd.
+	 * @deprecated is only for internal use, do not override this.
+	 */
+	@Deprecated
 	protected void onMenuClose(InventoryCloseEvent event) {
 		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
 			player.removeMetadata(MenuMetadataKey.MENU_OPEN.name(), plugin);
@@ -605,7 +616,7 @@ public abstract class MenuHolder {
 	private Inventory loadInventory(Player player, boolean loadToCahe) {
 		Inventory menu = null;
 		if (loadToCahe) {
-			if (!checkLastOpenMenu() || menuCache.getMenuInCache(this.location) == null || menuCache.getMenuInCache(this.location).getMenu() == null) {
+			if (menuCache.getMenuInCache(this.location) == null || menuCache.getMenuInCache(this.location).getMenu() == null) {
 				saveMenuCache(player, this.location);
 			}
 			menu = menuCache.getMenuInCache(this.location).getMenu();
@@ -613,7 +624,8 @@ public abstract class MenuHolder {
 			MenuHolder previous = getMenuholder(this.player);
 			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
 				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
-				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
+				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
+				menu = ((MenuHolder) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
 			} else {
 				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
 				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
@@ -650,13 +662,11 @@ public abstract class MenuHolder {
 		}
 	}
 
-	//todo fix this so it detect better how many pages needed.
 	private double amountpages() {
 
-
 		if (this.itemsPerPage > 0) {
-			if (this.itemsPerPage >= this.inventorySize)
-				this.plugin.getLogger().log(Level.SEVERE, "Items per page are biger an Inventory size", new Throwable().fillInStackTrace());
+			if (this.itemsPerPage > this.inventorySize)
+				this.plugin.getLogger().log(Level.SEVERE, "Items per page are biger an Inventory size, items items per page " + this.itemsPerPage + ". Inventory size " + this.inventorySize, new Throwable().fillInStackTrace());
 			if (this.fillSpace != null && !this.fillSpace.isEmpty()) {
 				return (double) this.fillSpace.size() / this.itemsPerPage;
 			} else if (this.listOfFillItems != null && !this.listOfFillItems.isEmpty())
@@ -679,9 +689,9 @@ public abstract class MenuHolder {
 				if (fillSpace != null && fillSpace.contains(slot)) {
 					result = items();
 					this.slotIndex++;
-				} else
+				} else {
 					result = getItemAt(slot);
-
+				}
 				if (!this.shallCacheItems) {
 					addedButtons.put(i * this.inventorySize + slot, result);
 					this.addedButtons.put(i, addedButtons);
@@ -701,10 +711,12 @@ public abstract class MenuHolder {
 	}
 
 	private void reddrawInventory() {
-		if (this.inventory == null)
+		if (this.inventory == null || this.inventorySize > this.inventory.getSize())
 			this.inventory = createInventory();
 
-		for (int i = getFillSpace().stream().findFirst().orElse(0); i < getFillSpace().size(); i++) {
+		int fillSpace = getFillSpace() != null ? getFillSpace().size() : this.inventory.getSize();
+
+		for (int i = getFillSpace().stream().findFirst().orElse(0); i < fillSpace; i++) {
 			this.inventory.setItem(i, new ItemStack(Material.AIR));
 		}
 
@@ -722,6 +734,4 @@ public abstract class MenuHolder {
 			return Bukkit.createInventory(null, InventoryType.HOPPER, this.title);
 		return Bukkit.createInventory(null, this.inventorySize, this.title != null ? this.title : "");
 	}
-
-
 }
