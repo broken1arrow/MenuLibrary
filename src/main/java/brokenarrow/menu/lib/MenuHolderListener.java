@@ -52,23 +52,12 @@ public class MenuHolderListener implements Listener {
 				if (cursor != null && cursor.getType() != Material.AIR)
 					event.setCancelled(true);
 			}
-			if (clickedItem != null)
-				for (ListIterator<MenuButton> menuButtons = menu.getButtons().listIterator(); menuButtons.hasNext(); ) {
-					MenuButton menuButton = menuButtons.next();
-					Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : clickedItem;
-
-					if (menuButton.getItem(objectData) == null && menuButton.getItem() != null && menuButton.getItem().isSimilar(clickedItem)) {
-						if (menu.getAddedButtons().containsKey(menu.getPageNumber()) && menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos) != null && menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos).isSimilar(clickedItem)) {
-							menuButton.onClickInsideMenu(player, menu.getMenu(), event.getClick(), clickedItem, objectData);
-							event.setCancelled(true);
-							break;
-						}
-					} else if (menuButton.getItem(objectData) != null && isItemSimilar(menuButton.getItem(objectData), clickedItem) && menu.getAddedButtons().containsKey(menu.getPageNumber()) && isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), clickedItem)) {
-						menuButton.onClickInsideMenu(player, menu.getMenu(), event.getClick(), clickedItem, objectData);
-						event.setCancelled(true);
-						break;
-					}
-				}
+			MenuButton menuButton = getClickedButton(menu, cursor, clickedPos);
+			if (menuButton != null) {
+				event.setCancelled(true);
+				Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : clickedItem;
+				menuButton.onClickInsideMenu(player, menu.getMenu(), event.getClick(), clickedItem, objectData);
+			}
 		}
 	}
 
@@ -114,24 +103,28 @@ public class MenuHolderListener implements Listener {
 				} else if (!menu.isSlotsYouCanAddItems()) {
 					event.setCancelled(true);
 				}
-
-				if (cursor != null)
-					for (ListIterator<MenuButton> menuButtons = menu.getButtons().listIterator(); menuButtons.hasNext(); ) {
-						MenuButton menuButton = menuButtons.next();
-						Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : cursor;
-
-						if (menuButton.getItem() == null) {
-							if (!menu.getAddedButtons().containsKey(menu.getPageNumber()) && menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos) == null && !menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos).isSimilar(cursor)) {
-								event.setCancelled(true);
-								break;
-							}
-						} else if (menuButton.getItem(objectData) != null && !isItemSimilar(menuButton.getItem(objectData), cursor) && !menu.getAddedButtons().containsKey(menu.getPageNumber()) && !isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), cursor)) {
-							event.setCancelled(true);
-							break;
-						}
-					}
+				if (getClickedButton(menu, cursor, clickedPos) == null)
+					event.setCancelled(true);
 			}
 		}
+	}
+
+	public MenuButton getClickedButton(MenuHolder menu, ItemStack cursor, int clickedPos) {
+		if (cursor != null)
+			for (ListIterator<MenuButton> menuButtons = menu.getButtons().listIterator(); menuButtons.hasNext(); ) {
+				MenuButton menuButton = menuButtons.next();
+				Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : cursor;
+
+				if (menuButton.getItem(objectData) == null && menuButton.getItem() != null && menu.getAddedButtons().containsKey(menu.getPageNumber())) {
+					if (menuButton.getItem().isSimilar(cursor) && isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), cursor)) {
+						return menuButton;
+					}
+				} else if (menuButton.getItem(objectData) != null && menu.getAddedButtons().containsKey(menu.getPageNumber()))
+					if (isItemSimilar(menuButton.getItem(objectData), cursor) && isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), cursor)) {
+						return menuButton;
+					}
+			}
+		return null;
 	}
 
 	public boolean isItemSimilar(ItemStack item, ItemStack clickedItem) {
