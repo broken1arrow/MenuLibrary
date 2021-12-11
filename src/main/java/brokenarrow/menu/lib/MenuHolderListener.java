@@ -109,7 +109,7 @@ public class MenuHolderListener implements Listener {
 		}
 	}
 
-	
+
 	public MenuButton getClickedButton(MenuHolder menu, ItemStack item, int clickedPos) {
 		if (item != null)
 			for (ListIterator<MenuButton> menuButtons = menu.getButtons().listIterator(); menuButtons.hasNext(); ) {
