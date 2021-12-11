@@ -52,7 +52,7 @@ public class MenuHolderListener implements Listener {
 				if (cursor != null && cursor.getType() != Material.AIR)
 					event.setCancelled(true);
 			}
-			MenuButton menuButton = getClickedButton(menu, cursor, clickedPos);
+			MenuButton menuButton = getClickedButton(menu, clickedItem, clickedPos);
 			if (menuButton != null) {
 				event.setCancelled(true);
 				Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : clickedItem;
@@ -109,18 +109,18 @@ public class MenuHolderListener implements Listener {
 		}
 	}
 
-	public MenuButton getClickedButton(MenuHolder menu, ItemStack cursor, int clickedPos) {
-		if (cursor != null)
+	public MenuButton getClickedButton(MenuHolder menu, ItemStack item, int clickedPos) {
+		if (item != null)
 			for (ListIterator<MenuButton> menuButtons = menu.getButtons().listIterator(); menuButtons.hasNext(); ) {
 				MenuButton menuButton = menuButtons.next();
-				Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : cursor;
+				Object objectData = menu.getObject() != null && !menu.getObject().equals("") ? menu.getObject() : item;
 
 				if (menuButton.getItem(objectData) == null && menuButton.getItem() != null && menu.getAddedButtons().containsKey(menu.getPageNumber())) {
-					if (menuButton.getItem().isSimilar(cursor) && isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), cursor)) {
+					if (menuButton.getItem().isSimilar(item) && isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), item)) {
 						return menuButton;
 					}
 				} else if (menuButton.getItem(objectData) != null && menu.getAddedButtons().containsKey(menu.getPageNumber()))
-					if (isItemSimilar(menuButton.getItem(objectData), cursor) && isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), cursor)) {
+					if (isItemSimilar(menuButton.getItem(objectData), item) && isItemSimilar(menu.getAddedButtons().get(menu.getPageNumber()).get(clickedPos), item)) {
 						return menuButton;
 					}
 			}
