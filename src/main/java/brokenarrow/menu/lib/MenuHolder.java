@@ -94,7 +94,7 @@ public abstract class MenuHolder {
 	private boolean shallCacheItems;
 	private boolean slotsYouCanAddItems;
 	private boolean loadToCahe;
-	private boolean allowShiftClick;
+	private boolean allowShiftClick = true;
 	private int slotIndex = 0;
 	private int requiredPages;
 	private int itemsPerPage = this.inventorySize;
@@ -236,9 +236,11 @@ public abstract class MenuHolder {
 
 
 	/**
-	 * set to true if you want to deny shift-click.
+	 * Set to false if you want to deny shift-click.
+	 * You dont need set this to true, becuse it allow
+	 * shiftclick as defult.
 	 *
-	 * @param allowShiftClick set to true if you want to deny shiftclick
+	 * @param allowShiftClick set to false if you want to deny shiftclick
 	 */
 
 	public void setAllowShiftClick(boolean allowShiftClick) {
@@ -249,7 +251,7 @@ public abstract class MenuHolder {
 	 * Get if this menu allow shiftclick or not. Defult will
 	 * it allow shiftclick.
 	 *
-	 * @return true if shiftclick shall be denyded.
+	 * @return true if shiftclick shall be allowd.
 	 */
 
 	public boolean isAllowShiftClick() {
