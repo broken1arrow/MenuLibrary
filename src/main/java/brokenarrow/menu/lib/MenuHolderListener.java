@@ -30,15 +30,14 @@ public class MenuHolderListener implements Listener {
 		if (menu == null) return;
 		if (!event.getView().getTopInventory().equals(menu.getMenu())) return;
 
-		if (!menu.isSlotsYouCanAddItems() && cursor != null && cursor.getType() != Material.AIR) {
-			event.setCancelled(true);
-		}
 		if (!menu.getButtons().isEmpty()) {
 			int clickedSlot = event.getSlot();
 			int clickedPos = menu.getPageNumber() * menu.getMenu().getSize() + clickedSlot;
 
-			if (menu.isAllowShiftClick() && (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT))
+			if (!menu.isAllowShiftClick() && event.getClick().isShiftClick()) {
+				event.setCancelled(true);
 				return;
+			}
 			if (menu.isSlotsYouCanAddItems()) {
 				if (menu.getFillSpace().contains(clickedPos))
 					return;
@@ -46,10 +45,12 @@ public class MenuHolderListener implements Listener {
 					event.setCancelled(true);
 			} else if (!menu.isSlotsYouCanAddItems()) {
 				if (event.getClickedInventory().getType() == InventoryType.PLAYER)
-					if (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT) {
+					if (event.getClick().isShiftClick()) {
 						event.setCancelled(true);
 					} else
 						event.setCancelled(true);
+				if (cursor != null && cursor.getType() != Material.AIR)
+					event.setCancelled(true);
 			}
 			if (clickedItem != null)
 				for (ListIterator<MenuButton> menuButtons = menu.getButtons().listIterator(); menuButtons.hasNext(); ) {
