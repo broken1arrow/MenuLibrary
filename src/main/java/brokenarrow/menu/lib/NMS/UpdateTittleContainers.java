@@ -189,7 +189,7 @@ public class UpdateTittleContainers {
 	}
 
 	private static void updateInventory1_18(Player p, String title, Material container, int inventorySize) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
-		
+
 		Object player = p.getClass().getMethod("getHandle").invoke(p);
 		Object activeContainer = player.getClass().getField("bW").get(player);
 		Object windowId = activeContainer.getClass().getField("j").get(activeContainer);
