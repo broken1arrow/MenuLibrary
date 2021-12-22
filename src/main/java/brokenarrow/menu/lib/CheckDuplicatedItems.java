@@ -9,6 +9,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 
@@ -141,6 +142,7 @@ public class CheckDuplicatedItems {
 					return true;
 			}
 		return false;
+
 	}
 
 	public static boolean isAir(final Material material) {
