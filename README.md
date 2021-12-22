@@ -26,7 +26,8 @@
 ### How to use api
  First in your main class (I only use an example name for the main class). You register for the menu event. 
  And you are done, only you have to do is extend MenuHolder.
-
+ 
+ This is updated.
 
 ```
 	public class MenuMain extends JavaPlugin {
@@ -34,8 +35,8 @@
 
 		@Override
 		public void onEnable() {
-			Bukkit.getPluginManager().registerEvents(new MenuHolderListener(), this);
-
+			// this = your main class.
+			RegisterClass(this); 
 			// own code here
 		}
 
@@ -44,7 +45,7 @@
 			// own code here
 		}
 		public static MenuMain getInstance() {
-			return MenuMain.getPlugin(CustomContainersMainClass.class);
+			return MenuMain.getPlugin(MenuMain.class);
 		}
 
 	}
