@@ -13,8 +13,9 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ListIterator;
 
-public class MenuHolderListener implements Listener {
+public final class MenuHolderListener implements Listener {
 
+/*
 	private final MenuCache menuCache = MenuCache.getInstance();
 
 	@EventHandler(priority = EventPriority.LOW)
@@ -169,5 +170,6 @@ public class MenuHolderListener implements Listener {
 		return menu;
 	}
 
+*/
 
 }
