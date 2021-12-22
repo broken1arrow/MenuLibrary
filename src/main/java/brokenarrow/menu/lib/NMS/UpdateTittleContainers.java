@@ -1,5 +1,6 @@
 package brokenarrow.menu.lib.NMS;
 
+import org.broken.lib.rbg.TextTranslator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -120,9 +121,8 @@ public class UpdateTittleContainers {
 		Object activeContainer = player.getClass().getField("activeContainer").get(player);
 		Object windowId = activeContainer.getClass().getField("windowId").get(activeContainer);
 
-		Method declaredMethodChat = chatCompenentSubClass.getMethod("b", String.class);
-		Object inventoryTittle = declaredMethodChat.invoke(null, "'" + title + "'");
-
+		Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
+		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
 
 		Object inventoryType = null;
 		if (container == Material.HOPPER)
@@ -151,10 +151,9 @@ public class UpdateTittleContainers {
 		Object activeContainer = player.getClass().getField("bV").get(player);
 		Object windowId = activeContainer.getClass().getField("j").get(activeContainer);
 
-		Method declaredMethodChat = chatCompenentSubClass.getMethod("b", String.class);
-		Object inventoryTittle = declaredMethodChat.invoke(null, "'" + title + "'");
-
-
+		Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
+		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
+		
 		Object inventoryType;
 		String fieldName = "c";
 		if (container == Material.HOPPER)
@@ -194,8 +193,8 @@ public class UpdateTittleContainers {
 		Object activeContainer = player.getClass().getField("bW").get(player);
 		Object windowId = activeContainer.getClass().getField("j").get(activeContainer);
 
-		Method declaredMethodChat = chatCompenentSubClass.getMethod("b", String.class);
-		Object inventoryTittle = declaredMethodChat.invoke(null, "'" + title + "'");
+		Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
+		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
 
 		Object inventoryType;
 		String fieldName = "c";
