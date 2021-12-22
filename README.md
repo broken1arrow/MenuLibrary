@@ -27,7 +27,7 @@
  First in your main class (I only use an example name for the main class). You register for the menu event. 
  And you are done, only you have to do is extend MenuHolder.
  
- This is updated.
+ I have updated register method 2021:12:22.
 
 ```
 	public class MenuMain extends JavaPlugin {
