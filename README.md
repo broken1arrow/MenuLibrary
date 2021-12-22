@@ -37,6 +37,7 @@
 		public void onEnable() {
 			// this = your main class.
 			RegisterClass(this); 
+			
 			// own code here
 		}
 
