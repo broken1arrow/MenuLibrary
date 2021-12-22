@@ -1,6 +1,6 @@
 package brokenarrow.menu.lib.cache;
 
-import brokenarrow.menu.lib.MenuHolder;
+import brokenarrow.menu.lib.CreateMenus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,22 +11,22 @@ public class MenuCache {
 	private static final MenuCache instance = new MenuCache();
 
 
-	private final Map<Object, MenuHolder> menusChached = new HashMap<>();
+	private final Map<Object, CreateMenus> menusChached = new HashMap<>();
 
-	public void setMenusChached(Object object, MenuHolder menusChached) {
+	public void setMenusChached(Object object, CreateMenus menusChached) {
 		this.menusChached.put(object, menusChached);
 
 	}
 
 	/**
-	 * You can get a menu with {@link org.bukkit.entity.Player} or
+	 * You can get a createMenus with {@link org.bukkit.entity.Player} or
 	 * location.
 	 *
 	 * @param object use player name or the custom methods abow.
-	 * @return a cached menu.
+	 * @return a cached createMenus.
 	 */
 
-	public MenuHolder getMenuInCache(Object object) {
+	public CreateMenus getMenuInCache(Object object) {
 		if (this.menusChached.get(object) != null)
 			return this.menusChached.get(object);
 		return null;
@@ -49,7 +49,7 @@ public class MenuCache {
 		return null;
 	}
 
-	public Map<Object, MenuHolder> getMenusCached() {
+	public Map<Object, CreateMenus> getMenusCached() {
 		return menusChached;
 	}
 /*
@@ -75,7 +75,7 @@ public class MenuCache {
 
 	public static class ChachedData {
 
-		private MenuHolder menuHolder;
+		private CreateMenus createMenus;
 		private int amountOfViwers;
 		private List<?> listOfFillItems;
 
@@ -83,16 +83,16 @@ public class MenuCache {
 
 		}
 
-		public ChachedData(MenuHolder inventory, int amountOfViwers, List<?> listOfFillItems) {
-			this.menuHolder = inventory;
+		public ChachedData(CreateMenus inventory, int amountOfViwers, List<?> listOfFillItems) {
+			this.createMenus = inventory;
 			this.amountOfViwers = amountOfViwers;
 			this.listOfFillItems = listOfFillItems;
 		}
 
-		public static ChachedData of(MenuHolder inventory, int amountOfViwers, List<?> listOfFillItems) {
+		public static ChachedData of(CreateMenus inventory, int amountOfViwers, List<?> listOfFillItems) {
 			ChachedData chachedData = new ChachedData();
 
-			chachedData.menuHolder = inventory;
+			chachedData.createMenus = inventory;
 			chachedData.amountOfViwers = amountOfViwers;
 			chachedData.listOfFillItems = listOfFillItems;
 
@@ -103,8 +103,8 @@ public class MenuCache {
 			return listOfFillItems;
 		}
 
-		public MenuHolder getMenuHolder() {
-			return menuHolder;
+		public CreateMenus getMenuHolder() {
+			return createMenus;
 		}
 
 		public int getAmountOfViwers() {
