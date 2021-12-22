@@ -104,10 +104,11 @@
            -->
             <scope>provided</scope>
         </dependency>
-
-        <!--
-           Import the Foundation library to kickstart our plugin development
-       -->
+        <dependency>
+            <groupId>com.github.broken1arrow</groupId>
+            <artifactId>RBG-Gradients</artifactId>
+            <version>0.16</version>
+        </dependency>
 
 
     </dependencies>
