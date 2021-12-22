@@ -24,6 +24,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 
+/**
+ *  Methods to create menu as you want it.
+ *
+ */
+
 public abstract class MenuHolder {
 
 	/**
@@ -31,11 +36,12 @@ public abstract class MenuHolder {
 	 *
 	 * @param plugin        your main class.
 	 * @param inventorySize size if menu.
+	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
+	@Deprecated(since = "in later release")
 	public MenuHolder(Plugin plugin, int inventorySize) {
 		this.inventorySize = inventorySize;
-		this.plugin = plugin;
 		registerFields();
 	}
 
@@ -45,9 +51,11 @@ public abstract class MenuHolder {
 	 * @param plugin    Your main class.
 	 * @param fillSlots Witch slots you want fill with items.
 	 * @param fillItems List of items you want parse inside gui on one or several pages.
+	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
+
+	@Deprecated(since = "in later release")
 	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems) {
-		this.plugin = plugin;
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		registerFields();
@@ -60,15 +68,16 @@ public abstract class MenuHolder {
 	 * @param plugin          your main class.
 	 * @param inventorySize   size if menu.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
+
+	@Deprecated(since = "in later release")
 	public MenuHolder(Plugin plugin, int inventorySize, boolean shallCacheItems) {
 		this.inventorySize = inventorySize;
 		this.itemsPerPage = inventorySize;
-		this.plugin = plugin;
 		this.shallCacheItems = shallCacheItems;
 		registerFields();
 	}
-
 
 	/**
 	 * Create menu instance.
@@ -77,9 +86,64 @@ public abstract class MenuHolder {
 	 * @param fillSlots       Witch slots you want fill with items.
 	 * @param fillItems       List of items you want parse inside gui.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
+
+	@Deprecated(since = "in later release")
 	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
-		this.plugin = plugin;
+		this.fillSpace = fillSlots;
+		this.listOfFillItems = fillItems;
+		this.shallCacheItems = shallCacheItems;
+		registerFields();
+	}
+//################## new contractors ###################################
+//######################################################################
+	/**
+	 * Create menu instance.
+	 *
+	 */
+
+	public MenuHolder() {
+		registerFields();
+	}
+
+	/**
+	 * Create menu instance.
+	 *
+	 * @param fillSlots Witch slots you want fill with items.
+	 * @param fillItems List of items you want parse inside gui on one or several pages.
+	 */
+
+
+	public MenuHolder( List<Integer> fillSlots, List<?> fillItems) {
+		this.fillSpace = fillSlots;
+		this.listOfFillItems = fillItems;
+		registerFields();
+	}
+
+	/**
+	 * Create menu instance.
+	 *
+	 * @param inventorySize   size if menu.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 */
+
+	public MenuHolder( int inventorySize, boolean shallCacheItems) {
+		this.inventorySize = inventorySize;
+		this.itemsPerPage = inventorySize;
+		this.shallCacheItems = shallCacheItems;
+		registerFields();
+	}
+
+	/**
+	 * Create menu instance.
+	 *
+	 * @param fillSlots       Witch slots you want fill with items.
+	 * @param fillItems       List of items you want parse inside gui.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 */
+
+	public MenuHolder(List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		this.shallCacheItems = shallCacheItems;
@@ -89,7 +153,7 @@ public abstract class MenuHolder {
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttons = new ArrayList<>();
 	private final Map<Integer, Map<Integer, ItemStack>> addedButtons = new HashMap<>();
-	private final Plugin plugin;
+	private final Plugin plugin = RegisterClass.getPLUGIN();
 	private Inventory inventory;
 	private boolean shallCacheItems;
 	private boolean slotsYouCanAddItems;
@@ -200,17 +264,6 @@ public abstract class MenuHolder {
 	public void setMenuOpenSound(Sound sound) {
 		this.menuOpenSound = sound;
 	}
-
-	/**
-	 * Set list of items you want to add in the menu.
-	 *
-	 * @param listOfFillItems list of items some shall be added.
-	 */
-/*
-	public <T> void setListOfFillItems(List<T> listOfFillItems) {
-		this.listOfFillItems = listOfFillItems;
-	}
-*/
 
 	/**
 	 * set this to true if you whant players has option to add or remove items
@@ -738,9 +791,9 @@ public abstract class MenuHolder {
 
 	private Inventory createInventory() {
 		if (!(this.inventorySize == 5 || this.inventorySize % 9 == 0))
-			System.out.println("wrong inverntory size , you has put in " + this.inventorySize + "it need to be valid number.");
+			plugin.getLogger().log(Level.WARNING, "wrong inverntory size , you has put in " + this.inventorySize + "it need to be valid number.");
 		if (this.inventorySize == 5)
 			return Bukkit.createInventory(null, InventoryType.HOPPER, this.title);
-		return Bukkit.createInventory(null, this.inventorySize, this.title != null ? this.title : "");
+		return Bukkit.createInventory(null, this.inventorySize % 9 == 0? this.inventorySize: 9, this.title != null ? this.title : "");
 	}
 }
