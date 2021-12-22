@@ -23,7 +23,7 @@
     <properties>
 
         <!-- The full path to your plugin's main class, so that Spigot can find and load it -->
-        <main.class>org.brokenarrow.menu.lib.MenuHolder</main.class>
+        <main.class>org.brokenarrow.menu.lib.CreateMenus</main.class>
 
 
         <!-- The Java version your plugin uses, see bstats.org for what most servers have and use that -->

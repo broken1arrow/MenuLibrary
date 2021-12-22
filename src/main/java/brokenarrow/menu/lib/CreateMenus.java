@@ -25,11 +25,10 @@ import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 /**
- *  Methods to create menu as you want it.
- *
+ * Methods to create menu as you want it.
  */
 
-public abstract class MenuHolder {
+public abstract class CreateMenus {
 
 	/**
 	 * Create menu instance.
@@ -40,7 +39,7 @@ public abstract class MenuHolder {
 	 */
 
 	@Deprecated(since = "in later release")
-	public MenuHolder(Plugin plugin, int inventorySize) {
+	public CreateMenus(Plugin plugin, int inventorySize) {
 		this.inventorySize = inventorySize;
 		registerFields();
 	}
@@ -55,7 +54,7 @@ public abstract class MenuHolder {
 	 */
 
 	@Deprecated(since = "in later release")
-	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems) {
+	public CreateMenus(Plugin plugin, List<Integer> fillSlots, List<?> fillItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		registerFields();
@@ -67,12 +66,12 @@ public abstract class MenuHolder {
 	 *
 	 * @param plugin          your main class.
 	 * @param inventorySize   size if menu.
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to cache it own class.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
 	@Deprecated(since = "in later release")
-	public MenuHolder(Plugin plugin, int inventorySize, boolean shallCacheItems) {
+	public CreateMenus(Plugin plugin, int inventorySize, boolean shallCacheItems) {
 		this.inventorySize = inventorySize;
 		this.itemsPerPage = inventorySize;
 		this.shallCacheItems = shallCacheItems;
@@ -85,12 +84,12 @@ public abstract class MenuHolder {
 	 * @param plugin          Your main class.
 	 * @param fillSlots       Witch slots you want fill with items.
 	 * @param fillItems       List of items you want parse inside gui.
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to cache it own class.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
 	@Deprecated(since = "in later release")
-	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
+	public CreateMenus(Plugin plugin, List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		this.shallCacheItems = shallCacheItems;
@@ -98,12 +97,12 @@ public abstract class MenuHolder {
 	}
 //################## new contractors ###################################
 //######################################################################
+
 	/**
 	 * Create menu instance.
-	 *
 	 */
 
-	public MenuHolder() {
+	public CreateMenus() {
 		registerFields();
 	}
 
@@ -115,7 +114,7 @@ public abstract class MenuHolder {
 	 */
 
 
-	public MenuHolder( List<Integer> fillSlots, List<?> fillItems) {
+	public CreateMenus(List<Integer> fillSlots, List<?> fillItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		registerFields();
@@ -125,10 +124,10 @@ public abstract class MenuHolder {
 	 * Create menu instance.
 	 *
 	 * @param inventorySize   size if menu.
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to  cache it own class.
 	 */
 
-	public MenuHolder( int inventorySize, boolean shallCacheItems) {
+	public CreateMenus(int inventorySize, boolean shallCacheItems) {
 		this.inventorySize = inventorySize;
 		this.itemsPerPage = inventorySize;
 		this.shallCacheItems = shallCacheItems;
@@ -140,10 +139,10 @@ public abstract class MenuHolder {
 	 *
 	 * @param fillSlots       Witch slots you want fill with items.
 	 * @param fillItems       List of items you want parse inside gui.
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsOwnCache()} ot cache it own class.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to cache it own class.
 	 */
 
-	public MenuHolder(List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
+	public CreateMenus(List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		this.shallCacheItems = shallCacheItems;
@@ -258,7 +257,7 @@ public abstract class MenuHolder {
 	 * Defult it is BLOCK_NOTE_BLOCK_BASEDRUM , if you set this
 	 * to null it will not play any sound.
 	 *
-	 * @param sound
+	 * @param sound set open sound iin menu or null to disable.
 	 */
 
 	public void setMenuOpenSound(Sound sound) {
@@ -366,7 +365,6 @@ public abstract class MenuHolder {
 	 *
 	 * @return menu some are curent created.
 	 */
-
 	public Inventory getMenu() {
 		return inventory;
 	}
@@ -394,11 +392,10 @@ public abstract class MenuHolder {
 	/**
 	 * If you want to cache the items in own class.
 	 *
-	 * @return
+	 * @return map with slot number (can be over one inventory size) and itemstack.
 	 */
 
-	public Map<Integer, ItemStack> getMenuButtonsOwnCache() {
-		addItemsToCache();
+	public Map<Integer, ItemStack> getMenuButtonsCache() {
 		return addItemsToCache();
 	}
 
@@ -419,7 +416,7 @@ public abstract class MenuHolder {
 	 * @return menuholder instance.
 	 */
 
-	public MenuHolder getMenuholder(Player player) {
+	public CreateMenus getMenuholder(Player player) {
 		return getMenuholder(player, MenuMetadataKey.MENU_OPEN.name());
 	}
 
@@ -429,14 +426,14 @@ public abstract class MenuHolder {
 	 * @return older menuholder instance.
 	 */
 
-	public MenuHolder getPreviousMenuholder(Player player) {
+	public CreateMenus getPreviousMenuholder(Player player) {
 		return getMenuholder(player, MenuMetadataKey.MENU_OPEN_PREVIOUS.name());
 	}
 
-	private MenuHolder getMenuholder(Player player, final String metadataKey) {
+	private CreateMenus getMenuholder(Player player, final String metadataKey) {
 
 		if (player.hasMetadata(metadataKey))
-			return (MenuHolder) player.getMetadata(metadataKey).get(0).value();
+			return (CreateMenus) player.getMetadata(metadataKey).get(0).value();
 
 		return null;
 	}
@@ -629,7 +626,7 @@ public abstract class MenuHolder {
 		return obj;
 	}
 
-	protected void saveMenuCache(Player player, Location location) {
+	private void saveMenuCache(Player player, Location location) {
 		menuCache.setMenusChached(location, this);
 	}
 
@@ -683,15 +680,15 @@ public abstract class MenuHolder {
 			}
 			menu = menuCache.getMenuInCache(this.location).getMenu();
 		} else {
-			MenuHolder previous = getMenuholder(this.player);
+			CreateMenus previous = getMenuholder(this.player);
 			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
 				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
 				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
-				menu = ((MenuHolder) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
+				menu = ((CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
 			} else {
 				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
 				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
-				menu = ((MenuHolder) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
+				menu = ((CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
 			}
 		}
 		return menu;
@@ -794,6 +791,6 @@ public abstract class MenuHolder {
 			plugin.getLogger().log(Level.WARNING, "wrong inverntory size , you has put in " + this.inventorySize + "it need to be valid number.");
 		if (this.inventorySize == 5)
 			return Bukkit.createInventory(null, InventoryType.HOPPER, this.title);
-		return Bukkit.createInventory(null, this.inventorySize % 9 == 0? this.inventorySize: 9, this.title != null ? this.title : "");
+		return Bukkit.createInventory(null, this.inventorySize % 9 == 0 ? this.inventorySize : 9, this.title != null ? this.title : "");
 	}
 }
