@@ -1,6 +1,5 @@
 package brokenarrow.menu.lib;
 
-import brokenarrow.menu.lib.MenuHoler.testings;
 import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
 import brokenarrow.menu.lib.cache.MenuCache;
 import com.google.common.base.Enums;
@@ -29,7 +28,7 @@ import java.util.stream.IntStream;
  * Methods to create menu as you want it.
  */
 
-public class CreateMenus implements testings {
+public class CreateMenus {
 
 	/**
 	 * Create menu instance.
