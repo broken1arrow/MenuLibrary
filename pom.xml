@@ -160,6 +160,7 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
+                            <goal>shade</goal>
                         </goals>
                         <!--
                             By default we configure the Foundation to include itself and all classes when
@@ -173,15 +174,16 @@
                             <finalName>${project.name}-${project.version}</finalName>
                             <artifactSet>
                                 <includes>
+                                    <include>com.github.broken1arrow:*</include>
                                 </includes>
                                 <excludes>
                                 </excludes>
                             </artifactSet>
                             <relocations>
-                                <!-- <relocation>
-                                   <pattern>net.kyori.adventure</pattern>
-                                   <shadedPattern>${project.groupId}.${project.artifactId}.adventure</shadedPattern>
-                               </relocation>-->
+                                <relocation>
+                                    <pattern>org.broken.lib</pattern>
+                                    <shadedPattern>${project.groupId}.${project.artifactId}.rbglib</shadedPattern>
+                                </relocation>
                                 <relocation>
                                 </relocation>
                                 <relocation>

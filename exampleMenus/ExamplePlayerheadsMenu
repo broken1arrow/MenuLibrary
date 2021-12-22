@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class testMenu extends MenuHolder {
+public class testMenu extends MenuHolder im{
 	private final MenuButton LinkButton;
 	private final MenuButton otherTest;
 	private final MenuButton tett;

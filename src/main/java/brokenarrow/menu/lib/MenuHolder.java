@@ -20,6 +20,7 @@ import java.util.stream.IntStream;
 
 public class MenuHolder extends CreateMenus {
 
+
 	/**
 	 * Create menu instance.
 	 *
@@ -93,11 +94,10 @@ public class MenuHolder extends CreateMenus {
 	/**
 	 * Create menu instance.
 	 *
-	 * @param inventorySize   size if menu.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
 	 */
-	public MenuHolder(int inventorySize, boolean shallCacheItems) {
-		super(inventorySize, shallCacheItems);
+	public MenuHolder( boolean shallCacheItems) {
+		super( shallCacheItems);
 	}
 
 	/**

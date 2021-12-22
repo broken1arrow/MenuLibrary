@@ -1,5 +1,6 @@
 package brokenarrow.menu.lib;
 
+import brokenarrow.menu.lib.MenuHoler.testings;
 import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
 import brokenarrow.menu.lib.cache.MenuCache;
 import com.google.common.base.Enums;
@@ -28,7 +29,7 @@ import java.util.stream.IntStream;
  * Methods to create menu as you want it.
  */
 
-public abstract class CreateMenus {
+public class CreateMenus implements testings {
 
 	/**
 	 * Create menu instance.
@@ -123,13 +124,10 @@ public abstract class CreateMenus {
 	/**
 	 * Create menu instance.
 	 *
-	 * @param inventorySize   size if menu.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to  cache it own class.
 	 */
 
-	public CreateMenus(int inventorySize, boolean shallCacheItems) {
-		this.inventorySize = inventorySize;
-		this.itemsPerPage = inventorySize;
+	public CreateMenus( boolean shallCacheItems) {
 		this.shallCacheItems = shallCacheItems;
 		registerFields();
 	}
