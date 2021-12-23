@@ -1,5 +1,5 @@
 # MenuLibrary
-
+[![](https://jitpack.io/v/broken1arrow/MenuLibrary.svg)](https://jitpack.io/#broken1arrow/MenuLibrary)
 ## Import the liberary
 
 ### Maven
