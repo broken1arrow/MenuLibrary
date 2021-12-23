@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <groupId>brokenarrow.menu.lib</groupId>
+    <groupId>brokenarrow.menu.library</groupId>
     <artifactId>menulibrary</artifactId>
     <name>menulibrary</name>
     <version>0.0.10</version>
@@ -23,8 +23,7 @@
     <properties>
 
         <!-- The full path to your plugin's main class, so that Spigot can find and load it -->
-        <main.class>org.brokenarrow.menu.lib.CreateMenus</main.class>
-
+        <main.class>org.brokenarrow.menu.lib.RegisterClass</main.class>
 
         <!-- The Java version your plugin uses, see bstats.org for what most servers have and use that -->
         <java.version>11</java.version>
@@ -108,6 +107,7 @@
             <groupId>com.github.broken1arrow</groupId>
             <artifactId>RBG-Gradients</artifactId>
             <version>0.16</version>
+            <scope>compile</scope>
         </dependency>
 
 
@@ -133,6 +133,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+
                 <!--
                    You want to check and update the latest version periodically from
                    https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin
@@ -141,6 +142,7 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+
                 </configuration>
             </plugin>
 
@@ -151,11 +153,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+
                 <!--
                    You want to check and update the latest version periodically from
                    https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin
                -->
-                <version>3.2.2</version>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -181,14 +184,8 @@
                             </artifactSet>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.broken.lib</pattern>
+                                    <pattern>org.broken.lib.rbg</pattern>
                                     <shadedPattern>${project.groupId}.${project.artifactId}.rbglib</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                </relocation>
-                                <relocation>
-                                    <excludes>
-                                    </excludes>
                                 </relocation>
                             </relocations>
                         </configuration>
