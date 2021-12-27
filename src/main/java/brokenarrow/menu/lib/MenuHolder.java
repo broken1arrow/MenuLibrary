@@ -75,10 +75,29 @@ public class MenuHolder extends CreateMenus {
 
 	/**
 	 * Create menu instance. With out any aguments. Recomend you set al lest inventory/menu size.
-	 *
 	 */
 	public MenuHolder() {
 		super();
+	}
+
+	/**
+	 * Create menu instance. You have to set {@link #setFillSpace(List)} or it will as defult fill
+	 * all slots but not 9 on the bottom.
+	 *
+	 * @param fillItems List of items you want parse inside gui on one or several pages.
+	 */
+
+	public MenuHolder(List<?> fillItems) {
+		super(fillItems);
+	}
+	
+	/**
+	 * Create menu instance.
+	 *
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
+	 */
+	public MenuHolder(boolean shallCacheItems) {
+		super(shallCacheItems);
 	}
 
 	/**
@@ -89,15 +108,6 @@ public class MenuHolder extends CreateMenus {
 	 */
 	public MenuHolder(List<Integer> fillSlots, List<?> fillItems) {
 		super(fillSlots, fillItems);
-	}
-
-	/**
-	 * Create menu instance.
-	 *
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
-	 */
-	public MenuHolder( boolean shallCacheItems) {
-		super( shallCacheItems);
 	}
 
 	/**
@@ -213,7 +223,7 @@ public class MenuHolder extends CreateMenus {
 
 	/**
 	 * I don´t know if it usefull in current form or need rework.
-	 *
+	 * <p>
 	 * Set own data it shall check or it will use
 	 * the clicked item. It are both use in
 	 * {@link MenuButton#getItem(Object)} and {@link MenuButton#onClickInsideMenu(Player, Inventory, ClickType, ItemStack, Object)}

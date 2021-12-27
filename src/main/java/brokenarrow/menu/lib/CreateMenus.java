@@ -106,6 +106,30 @@ public class CreateMenus {
 		registerFields();
 	}
 
+
+	/**
+	 * Create menu instance. You have to set {@link #setFillSpace(List)} or it will as defult fill
+	 * all slots but not 9 on the bottom.
+	 *
+	 * @param fillItems List of items you want parse inside gui on one or several pages.
+	 */
+
+	public CreateMenus(List<?> fillItems) {
+		this.listOfFillItems = fillItems;
+		registerFields();
+	}
+
+	/**
+	 * Create menu instance.
+	 *
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to  cache it own class.
+	 */
+
+	public CreateMenus(boolean shallCacheItems) {
+		this.shallCacheItems = shallCacheItems;
+		registerFields();
+	}
+
 	/**
 	 * Create menu instance.
 	 *
@@ -117,17 +141,6 @@ public class CreateMenus {
 	public CreateMenus(List<Integer> fillSlots, List<?> fillItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
-		registerFields();
-	}
-
-	/**
-	 * Create menu instance.
-	 *
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to  cache it own class.
-	 */
-
-	public CreateMenus( boolean shallCacheItems) {
-		this.shallCacheItems = shallCacheItems;
 		registerFields();
 	}
 
@@ -731,7 +744,7 @@ public class CreateMenus {
 				return (double) this.buttons.size() / this.itemsPerPage;
 		}
 		if (this.listOfFillItems != null && !this.listOfFillItems.isEmpty()) {
-			return (double) this.listOfFillItems.size() / this.fillSpace.size();
+			return (double) this.listOfFillItems.size() / (this.fillSpace == null || this.fillSpace.isEmpty() ? this.inventorySize - 9 : this.fillSpace.size());
 		} else return (double) this.buttons.size() / this.inventorySize;
 	}
 
