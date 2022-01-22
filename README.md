@@ -52,7 +52,12 @@
 	}
 
 ```
-
+## If you want to clear one value from cache (if you use location).
+You only need do this in your code. I have not right now added a clear metod
+(if that are something you need I can add that to). 
+ ```
+MenuCache.getInstance().removeMenuChached(location);
+```
 
 ## Make simple onepage menu
 
