@@ -23,7 +23,7 @@
     <properties>
 
         <!-- The full path to your plugin's main class, so that Spigot can find and load it -->
-        <main.class>org.brokenarrow.menu.lib.RegisterClass</main.class>
+        <main.class>org.brokenarrow.menu.lib.RegisterMenuAPI</main.class>
 
         <!-- The Java version your plugin uses, see bstats.org for what most servers have and use that -->
         <java.version>11</java.version>
@@ -106,7 +106,7 @@
         <dependency>
             <groupId>com.github.broken1arrow</groupId>
             <artifactId>RBG-Gradients</artifactId>
-            <version>0.17</version>
+            <version>0.18</version>
             <scope>compile</scope>
         </dependency>
 
