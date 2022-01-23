@@ -18,24 +18,27 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.ListIterator;
 
-public class RegisterClass {
+public class RegisterMenuAPI {
 
 	private static Plugin PLUGIN;
 
-	private RegisterClass()  {
+	private RegisterMenuAPI() {
 		throw new UnsupportedOperationException("You need specify your main class");
 	}
-	public RegisterClass(Plugin plugin) {
+
+	public RegisterMenuAPI(Plugin plugin) {
 		PLUGIN = plugin;
 		registerMenuEvent();
 	}
+
 	protected static Plugin getPLUGIN() {
 		return PLUGIN;
 	}
 
-	private void registerMenuEvent(){
-		Bukkit.getPluginManager().registerEvents(new  MenuHolderListener(),PLUGIN);
+	private void registerMenuEvent() {
+		Bukkit.getPluginManager().registerEvents(new MenuHolderListener(), PLUGIN);
 	}
+
 	private static class MenuHolderListener implements Listener {
 
 		private final MenuCache menuCache = MenuCache.getInstance();

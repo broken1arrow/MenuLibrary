@@ -162,7 +162,7 @@ public class CreateMenus {
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttons = new ArrayList<>();
 	private final Map<Integer, Map<Integer, ItemStack>> addedButtons = new HashMap<>();
-	private final Plugin plugin = RegisterClass.getPLUGIN();
+	private final Plugin plugin = RegisterMenuAPI.getPLUGIN();
 	private Inventory inventory;
 	private boolean shallCacheItems;
 	private boolean slotsYouCanAddItems;
