@@ -78,8 +78,9 @@ MenuCache.getInstance().removeMenuChached(location);
 		private final MenuButton examplebutton2;
 
 		public MainMenu() {
-			super(MenuMain.getInstance(), 54);
-
+			super();
+                        setMenuSize(45);
+		        setTitle("Example menu");
 			setTitle("menu titel");
 
 			examplebutton = new MenuButton() {
