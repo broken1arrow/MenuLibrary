@@ -27,7 +27,7 @@ public class MenuCache {
 	 */
 
 	public CreateMenus getMenuInCache(Object object) {
-		if (this.menusChached.get(object) != null)
+		if (object != null)
 			return this.menusChached.get(object);
 		return null;
 	}
