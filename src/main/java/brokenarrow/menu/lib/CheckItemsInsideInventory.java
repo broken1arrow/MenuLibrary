@@ -16,21 +16,35 @@ import java.util.*;
  * Simple check if player add items some are ether blacklisted or add more an 1 item or duplicated item.
  */
 
-public class CheckDuplicatedItems {
+public class CheckItemsInsideInventory {
 
 	//todo fix this to only create on instance? and add player to cache.
 	private static final Map<UUID, Map<ItemStack, Integer>> duplicatedItems = new HashMap<>();
 	private boolean sendMsgPlayer = false;
-	private final List<String> blacklistedItems;
+	private final List<String> blacklistedItems = new ArrayList<>();
+
 
 	/**
 	 * set blacklisted items player not shall add to inventory/menu.
 	 *
-	 * @param blacklistedItems list of items some are not alloed.
+	 * @param blacklistedItems list of items some are not allowed.
 	 */
+	public void setBlacklistedItems(List<String> blacklistedItems) {
+		this.blacklistedItems.addAll(blacklistedItems);
+	}
 
-	public CheckDuplicatedItems(List<String> blacklistedItems) {
-		this.blacklistedItems = blacklistedItems;
+	/**
+	 * Metohd to check items inside inventory and remove items
+	 * it it more an 1 (giv rest back to player or drop it on grund
+	 * if inventory is full).
+	 *
+	 * @param inv                  inventory you want to check
+	 * @param player               player some use menu/inventory
+	 * @param shallCheckDuplicates if it shall check if added items are dublicates or more 1 one item.
+	 * @return all items add in menu, but only 1 of each if shallCheckDuplicates are set to true.
+	 */
+	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player, boolean shallCheckDuplicates) {
+		return getItemsExceptBottomBar(inv, player, null, shallCheckDuplicates);
 	}
 
 	/**
@@ -42,22 +56,37 @@ public class CheckDuplicatedItems {
 	 * @param player player some use menu/inventory
 	 * @return all items add in menu, but only 1 of each.
 	 */
-
-	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player){
-		return getItemsExceptBottomBar(inv,  player,null);
+	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player) {
+		return getItemsExceptBottomBar(inv, player, null, true);
 	}
+
 	/**
 	 * Metohd to check items inside inventory and remove items
 	 * it it more an 1 (giv rest back to player or drop it on grund
 	 * if inventory is full).
 	 *
-	 * @param inv    inventory you want to check
-	 * @param player player some use menu/inventory
+	 * @param inv      inventory you want to check
+	 * @param player   player some use menu/inventory
 	 * @param location if player is offline or null, can you return a location where items shall drop.
 	 * @return all items add in menu, but only 1 of each.
 	 */
-
 	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player, Location location) {
+		return getItemsExceptBottomBar(inv, player, location, true);
+	}
+
+	/**
+	 * Metohd to check items inside inventory and remove items
+	 * it it more an 1 (giv rest back to player or drop it on grund
+	 * if inventory is full).
+	 *
+	 * @param inv                  inventory you want to check
+	 * @param player               player some use menu/inventory
+	 * @param location             if player is offline or null, can you return a location where items shall drop.
+	 * @param shallCheckDuplicates if it shall check if added items are dublicates or more 1 one item.
+	 * @return all items add in menu, but only 1 of each.
+	 */
+
+	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player, Location location, boolean shallCheckDuplicates) {
 		final Map<Integer, ItemStack> items = new HashMap<>();
 
 		for (int i = 0; i < inv.getSize() - 9; i++) {
@@ -69,11 +98,12 @@ public class CheckDuplicatedItems {
 				items.put(i, item != null && !isAir(item.getType()) ? item : null);
 			}
 		}
-
-		return addToMuchItems(items, player, inv,location);
+		if (shallCheckDuplicates)
+			return addToMuchItems(items, player, inv, location);
+		else return items;
 	}
 
-	private Map<Integer, ItemStack> addToMuchItems(final Map<Integer, ItemStack> items, Player player, Inventory inventory,Location location) {
+	private Map<Integer, ItemStack> addToMuchItems(final Map<Integer, ItemStack> items, Player player, Inventory inventory, Location location) {
 		Map<Integer, ItemStack> itemStacksNoDubbleEntity = new HashMap<>();
 		Map<ItemStack, Integer> chachedDuplicatedItems = new HashMap<>();
 		Set<ItemStack> set = new HashSet<>();
@@ -112,23 +142,23 @@ public class CheckDuplicatedItems {
 
 	private void addItemsBackToPlayer(Location location) {
 
-		for (final UUID playerUUID : CheckDuplicatedItems.duplicatedItems.keySet()) {
+		for (final UUID playerUUID : CheckItemsInsideInventory.duplicatedItems.keySet()) {
 			for (final Map.Entry<ItemStack, Integer> items : duplicatedItems.get(playerUUID).entrySet()) {
 				ItemStack itemStack = items.getKey();
 				int amount = items.getValue();
 
 				itemStack.setAmount(amount);
-				OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer (playerUUID);
+				OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
 				if (offlinePlayer.getPlayer() != null) {
 					HashMap<Integer, ItemStack> ifInventorFull = offlinePlayer.getPlayer().getInventory().addItem(itemStack);
 					if (!ifInventorFull.isEmpty() && offlinePlayer.getPlayer().getLocation().getWorld() != null)
 						offlinePlayer.getPlayer().getLocation().getWorld().dropItemNaturally(offlinePlayer.getPlayer().getLocation(), ifInventorFull.get(0));
 
-					SendMsgDuplicatedItems.sendDublicatedMessage(offlinePlayer.getPlayer() , itemStack.getType(), duplicatedItems.size(), amount);
-				}else if (location != null && location.getWorld() != null)
-					location.getWorld().dropItemNaturally(location,itemStack);
+					SendMsgDuplicatedItems.sendDublicatedMessage(offlinePlayer.getPlayer(), itemStack.getType(), duplicatedItems.size(), amount);
+				} else if (location != null && location.getWorld() != null)
+					location.getWorld().dropItemNaturally(location, itemStack);
 			}
-			CheckDuplicatedItems.duplicatedItems.remove(playerUUID);
+			CheckItemsInsideInventory.duplicatedItems.remove(playerUUID);
 		}
 
 	}
