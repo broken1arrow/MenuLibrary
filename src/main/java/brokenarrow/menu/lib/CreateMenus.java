@@ -642,15 +642,15 @@ public class CreateMenus {
 
 	private boolean checkLastOpenMenu() {
 		if (getPreviousMenuholder(this.player) != null) {
-			if (this.player.hasMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name()))
-				this.player.removeMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), plugin);
+			if (this.player.hasMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name() + "_" + plugin))
+				this.player.removeMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name() + "_" + plugin, plugin);
 			return false;
 		}
 		return true;
 	}
 
 	private void setPlayermetadata(Player player, Location location) {
-		player.setMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name(), new FixedMetadataValue(plugin, location));
+		player.setMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name() + "_" + plugin, new FixedMetadataValue(plugin, location));
 	}
 
 	private void setPlayermetadata(Player player, String setPlayerMetadataKey, String setPlayerMetadataValue) {
@@ -674,8 +674,8 @@ public class CreateMenus {
 	 */
 	@Deprecated
 	protected void onMenuClose(InventoryCloseEvent event) {
-		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name()))
-			player.removeMetadata(MenuMetadataKey.MENU_OPEN.name(), plugin);
+		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin))
+			player.removeMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin, plugin);
 
 		amountOfViwers--;
 		if (amountOfViwers < 0)
@@ -691,14 +691,14 @@ public class CreateMenus {
 			menu = menuCache.getMenuInCache(this.location).getMenu();
 		} else {
 			CreateMenus previous = getMenuholder(this.player);
-			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
-				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
-				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
-				menu = ((CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
+			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin)) {
+				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name() + "_" + plugin, new FixedMetadataValue(plugin, this));
+				player.setMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin, new FixedMetadataValue(plugin, this));
+				menu = ((CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin).get(0).value()).getMenu();
 			} else {
-				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name(), new FixedMetadataValue(plugin, this));
-				player.setMetadata(MenuMetadataKey.MENU_OPEN.name(), new FixedMetadataValue(plugin, this));
-				menu = ((CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value()).getMenu();
+				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name() + "_" + plugin, new FixedMetadataValue(plugin, this));
+				player.setMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin, new FixedMetadataValue(plugin, this));
+				menu = ((CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin).get(0).value()).getMenu();
 			}
 		}
 		return menu;
