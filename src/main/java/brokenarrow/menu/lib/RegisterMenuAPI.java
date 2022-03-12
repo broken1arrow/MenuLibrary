@@ -180,15 +180,15 @@ public class RegisterMenuAPI {
 
 			Location location = null;
 			Object object;
-			if (player.hasMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name())) {
-				object = player.getMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name()).get(0).value();
+			if (player.hasMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name() + "_" + PLUGIN)) {
+				object = player.getMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name() + "_" + PLUGIN).get(0).value();
 				if (object instanceof Location)
 					location = (Location) object;
 			}
 
 			CreateMenus createMenus;
-			if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name())) {
-				createMenus = (CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name()).get(0).value();
+			if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + PLUGIN)) {
+				createMenus = (CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + PLUGIN).get(0).value();
 			} else {
 				createMenus = menuCache.getMenuInCache(location);
 			}
