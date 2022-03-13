@@ -1,8 +1,8 @@
-package brokenarrow.menu.lib;
+package org.brokenarrow.menu.library;
 
-import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
-import brokenarrow.menu.lib.cache.MenuCache;
 import com.google.common.base.Enums;
+import org.brokenarrow.menu.library.NMS.UpdateTittleContainers;
+import org.brokenarrow.menu.library.cache.MenuCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
+
+import static org.brokenarrow.menu.library.utility.SetMetadata.*;
 
 /**
  * Methods to create menu as you want it.
@@ -427,7 +429,7 @@ public class CreateMenus {
 	 */
 
 	public CreateMenus getMenuholder(Player player) {
-		return getMenuholder(player, MenuMetadataKey.MENU_OPEN.name());
+		return getMenuholder(player, MenuMetadataKey.MENU_OPEN);
 	}
 
 	/**
@@ -437,14 +439,13 @@ public class CreateMenus {
 	 */
 
 	public CreateMenus getPreviousMenuholder(Player player) {
-		return getMenuholder(player, MenuMetadataKey.MENU_OPEN_PREVIOUS.name());
+		return getMenuholder(player, MenuMetadataKey.MENU_OPEN_PREVIOUS);
 	}
 
-	private CreateMenus getMenuholder(Player player, final String metadataKey) {
+	private CreateMenus getMenuholder(Player player, final MenuMetadataKey metadataKey) {
 
-		if (player.hasMetadata(metadataKey))
-			return (CreateMenus) player.getMetadata(metadataKey).get(0).value();
-
+		if (hasPlayerMetadata(player, metadataKey))
+			return getPlayerMenuMetadata(player, metadataKey);
 		return null;
 	}
 
@@ -642,18 +643,18 @@ public class CreateMenus {
 
 	private boolean checkLastOpenMenu() {
 		if (getPreviousMenuholder(this.player) != null) {
-			if (this.player.hasMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name() + "_" + plugin))
-				this.player.removeMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name() + "_" + plugin, plugin);
+			if (hasPlayerMetadata(this.player, MenuMetadataKey.MENU_OPEN_PREVIOUS))
+				removePlayerMenuMetadata(this.player, MenuMetadataKey.MENU_OPEN_PREVIOUS);
 			return false;
 		}
 		return true;
 	}
 
 	private void setPlayermetadata(Player player, Location location) {
-		player.setMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name() + "_" + plugin, new FixedMetadataValue(plugin, location));
+		setPlayerLocationMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION, location);
 	}
 
-	private void setPlayermetadata(Player player, String setPlayerMetadataKey, String setPlayerMetadataValue) {
+	private void setPlayermetadata(Player player, String setPlayerMetadataKey, Object setPlayerMetadataValue) {
 		player.setMetadata(setPlayerMetadataKey, new FixedMetadataValue(plugin, setPlayerMetadataValue));
 	}
 
@@ -674,8 +675,9 @@ public class CreateMenus {
 	 */
 	@Deprecated
 	protected void onMenuClose(InventoryCloseEvent event) {
-		if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin))
-			player.removeMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin, plugin);
+
+		if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN))
+			removePlayerMenuMetadata(this.player, MenuMetadataKey.MENU_OPEN);
 
 		amountOfViwers--;
 		if (amountOfViwers < 0)
@@ -691,14 +693,14 @@ public class CreateMenus {
 			menu = menuCache.getMenuInCache(this.location).getMenu();
 		} else {
 			CreateMenus previous = getMenuholder(this.player);
-			if (previous != null && !player.hasMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin)) {
-				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name() + "_" + plugin, new FixedMetadataValue(plugin, this));
-				player.setMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin, new FixedMetadataValue(plugin, this));
-				menu = ((CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin).get(0).value()).getMenu();
+			if (previous != null && !hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN)) {
+				setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN_PREVIOUS, this);
+				setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN, this);
+				menu = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN).getMenu();
 			} else {
-				player.setMetadata(MenuMetadataKey.MENU_OPEN_PREVIOUS.name() + "_" + plugin, new FixedMetadataValue(plugin, this));
-				player.setMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin, new FixedMetadataValue(plugin, this));
-				menu = ((CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + plugin).get(0).value()).getMenu();
+				setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN_PREVIOUS, this);
+				setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN, this);
+				menu = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN).getMenu();
 			}
 		}
 		return menu;

@@ -1,11 +1,10 @@
-package brokenarrow.menu.lib.NMS;
+package org.brokenarrow.menu.library.NMS;
 
 import org.broken.lib.rbg.TextTranslator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -153,7 +152,7 @@ public class UpdateTittleContainers {
 
 		Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
 		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
-		
+
 		Object inventoryType;
 		String fieldName = "c";
 		if (container == Material.HOPPER)

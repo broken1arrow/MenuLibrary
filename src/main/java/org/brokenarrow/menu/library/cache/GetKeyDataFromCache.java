@@ -1,6 +1,5 @@
-package brokenarrow.menu.lib.cache;
+package org.brokenarrow.menu.library.cache;
 
-import brokenarrow.menu.lib.cache.MenuCache;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

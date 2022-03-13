@@ -1,4 +1,4 @@
-package brokenarrow.menu.lib;
+package org.brokenarrow.menu.library;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -10,11 +10,11 @@ public abstract class MenuButton {
 	/**
 	 * when you click inside the menu.
 	 *
-	 * @param player player some clicked in the menu.
-	 * @param menu menu some are curently open.
-	 * @param click clicktype (right,left or shift click)
+	 * @param player      player some clicked in the menu.
+	 * @param menu        menu some are curently open.
+	 * @param click       clicktype (right,left or shift click)
 	 * @param clickedItem item some are clicked on
-	 * @param object object some are clicked on (defult is it itemstack).
+	 * @param object      object some are clicked on (defult is it itemstack).
 	 */
 
 	public abstract void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object);
@@ -41,7 +41,7 @@ public abstract class MenuButton {
 	/**
 	 * get the item some are added in your menu
 	 *
-	 * @param slot curent slot it add item too.
+	 * @param slot   curent slot it add item too.
 	 * @param object is your list of fill items some get returned
 	 * @return itemstack
 	 */

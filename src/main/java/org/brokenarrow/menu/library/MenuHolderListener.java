@@ -1,17 +1,6 @@
-package brokenarrow.menu.lib;
+package org.brokenarrow.menu.library;
 
-import brokenarrow.menu.lib.cache.MenuCache;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.*;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
-
-import java.util.ListIterator;
 
 public final class MenuHolderListener implements Listener {
 

@@ -1,7 +1,7 @@
-package brokenarrow.menu.lib;
+package org.brokenarrow.menu.library;
 
-import brokenarrow.menu.lib.messages.SendMsgDuplicatedItems;
-import brokenarrow.menu.lib.utility.Item.ItemUtily;
+import org.brokenarrow.menu.library.messages.SendMsgDuplicatedItems;
+import org.brokenarrow.menu.library.utility.Item.ItemUtily;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -167,7 +167,7 @@ public class CheckItemsInsideInventory {
 		List<String> itemStacks = blacklistedItems;
 		if (itemStack != null && itemStacks != null)
 			for (String item : itemStacks) {
-				if (ItemUtily.createItemStack(item).isSimilar(itemStack))
+				if (ItemUtily.of(item).makeItemStack().isSimilar(itemStack))
 					return true;
 			}
 		return false;

@@ -1,6 +1,6 @@
-package brokenarrow.menu.lib.cache;
+package org.brokenarrow.menu.library.cache;
 
-import brokenarrow.menu.lib.CreateMenus;
+import org.brokenarrow.menu.library.CreateMenus;
 
 import java.util.HashMap;
 import java.util.List;

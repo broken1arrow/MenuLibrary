@@ -1,6 +1,6 @@
-package brokenarrow.menu.lib;
+package org.brokenarrow.menu.library;
 
-import brokenarrow.menu.lib.cache.MenuCache;
+import org.brokenarrow.menu.library.cache.MenuCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,6 +18,8 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.ListIterator;
 
+import static org.brokenarrow.menu.library.utility.SetMetadata.*;
+
 public class RegisterMenuAPI {
 
 	private static Plugin PLUGIN;
@@ -31,7 +33,7 @@ public class RegisterMenuAPI {
 		registerMenuEvent();
 	}
 
-	protected static Plugin getPLUGIN() {
+	public static Plugin getPLUGIN() {
 		return PLUGIN;
 	}
 
@@ -180,15 +182,16 @@ public class RegisterMenuAPI {
 
 			Location location = null;
 			Object object;
-			if (player.hasMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name() + "_" + PLUGIN)) {
-				object = player.getMetadata(MenuMetadataKey.MENU_OPEN_LOCATION.name() + "_" + PLUGIN).get(0).value();
+
+			if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION)) {
+				object = getPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION);
 				if (object instanceof Location)
 					location = (Location) object;
 			}
 
 			CreateMenus createMenus;
-			if (player.hasMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + PLUGIN)) {
-				createMenus = (CreateMenus) player.getMetadata(MenuMetadataKey.MENU_OPEN.name() + "_" + PLUGIN).get(0).value();
+			if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN)) {
+				createMenus = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
 			} else {
 				createMenus = menuCache.getMenuInCache(location);
 			}

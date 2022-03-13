@@ -1,4 +1,4 @@
-package brokenarrow.menu.lib;
+package org.brokenarrow.menu.library;
 
 public enum MenuMetadataKey {
 

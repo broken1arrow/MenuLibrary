@@ -1,4 +1,4 @@
-package brokenarrow.menu.lib;
+package org.brokenarrow.menu.library;
 
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -90,7 +90,7 @@ public class MenuHolder extends CreateMenus {
 	public MenuHolder(List<?> fillItems) {
 		super(fillItems);
 	}
-	
+
 	/**
 	 * Create menu instance.
 	 *
