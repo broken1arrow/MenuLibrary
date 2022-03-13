@@ -1,6 +1,6 @@
-import brokenarrow.menu.lib.MenuButton;
-import brokenarrow.menu.lib.MenuHolder;
-import brokenarrow.menu.lib.NMS.UpdateTittleContainers;
+import MenuButton;
+import MenuHolder;
+import UpdateTittleContainers;
 import org.brokenarrow.storage.api.PreferenceSettingsRegisteryApi;
 import org.brokenarrow.storage.util.GuiTempletsYaml;
 import org.brokenarrow.storage.util.ItemUtily;
