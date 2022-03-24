@@ -273,9 +273,24 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @return map with current amount of pages and slots every item are placed and items.
 	 */
+
 	@Override
-	public Map<Integer, Map<Integer, ItemStack>> getAddedButtons() {
-		return super.getAddedButtons();
+	public Map<Integer, Map<Integer, MenuData>> getAddedButtonsCache() {
+		return super.getAddedButtonsCache();
+	}
+
+	/**
+	 * Get both object and itemstack for current page and slot.
+	 * If you set @link {@see #listOfFillItems} in the constructor super,
+	 * can you get the objects from the list too.
+	 *
+	 * @param pageNumber with page you want to get.
+	 * @param slotIndex  the slot you want to get both the object and/or the itemstack stored in cache.
+	 * @return Menudata with itemstack and/or object
+	 */
+	@Override
+	public MenuData getAddedButtons(int pageNumber, int slotIndex) {
+		return super.getAddedButtons(pageNumber, slotIndex);
 	}
 
 	/**
@@ -344,7 +359,7 @@ public class MenuHolder extends CreateMenus {
 	 * @return map with slot number (can be over one inventory size) and itemstack.
 	 */
 	@Override
-	public Map<Integer, ItemStack> getMenuButtonsCache() {
+	public Map<Integer, MenuData> getMenuButtonsCache() {
 		return super.getMenuButtonsCache();
 	}
 
@@ -381,13 +396,14 @@ public class MenuHolder extends CreateMenus {
 	}
 
 	/**
-	 * Get the objekt you have set.
+	 * Get the Object/entity from the {@link #getListOfFillItems()}.
 	 *
-	 * @return objekt or null if no are set.
+	 * @param clickedPos the curent pos player clicking on, you need also add the page player currently have open.
+	 * @return Object/entity from the listOfFillItems list.
 	 */
 	@Override
-	public Object getObject() {
-		return super.getObject();
+	public Object getObjectFromList(int clickedPos) {
+		return super.getObjectFromList(clickedPos);
 	}
 
 	/**
