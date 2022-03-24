@@ -771,11 +771,8 @@ public class CreateMenus {
 		Map<Integer, MenuData> addedButtons = new HashMap<>();
 		this.requiredPages = Math.max((int) Math.ceil(amountpages()), 1);
 		for (int i = 0; i < this.requiredPages; i++) {
-			Map<Integer, MenuData> addedMenuData = new HashMap<>();
-			
-			for (int slot = 0; slot < this.inventorySize; slot++) {
-				addedMenuData.putAll(cacheMenuData(i, slot));
-			}
+
+			Map<Integer, MenuData> addedMenuData = cacheMenuData(i);
 			if (!this.shallCacheItems) {
 				this.addedButtons.put(i, addedMenuData);
 			} else
@@ -785,28 +782,30 @@ public class CreateMenus {
 		return addedButtons;
 	}
 
-	private Map<Integer, MenuData> cacheMenuData(int pageNumber, int slot) {
+	private Map<Integer, MenuData> cacheMenuData(int pageNumber) {
 		Map<Integer, MenuData> addedButtons = new HashMap<>();
-		ItemStack result;
-		Object objectFromlistOfFillItems = "";
-		if (fillSpace != null && fillSpace.contains(slot)) {
-			objectFromlistOfFillItems = getObjectFromlistOfFillItems(this.slotIndex);
-			if (objectFromlistOfFillItems != null && !objectFromlistOfFillItems.equals(""))
-				result = getFillItemsAt(getObjectFromlistOfFillItems(this.slotIndex));
-			else
-				result = getFillItemsAt(this.slotIndex);
-			this.slotIndex++;
-		} else {
-			result = getItemAt(slot);
+		for (int slot = 0; slot < this.inventorySize; slot++) {
+			ItemStack result;
+			Object objectFromlistOfFillItems = "";
+			if (fillSpace != null && fillSpace.contains(slot)) {
+				objectFromlistOfFillItems = getObjectFromlistOfFillItems(this.slotIndex);
+				if (objectFromlistOfFillItems != null && !objectFromlistOfFillItems.equals(""))
+					result = getFillItemsAt(getObjectFromlistOfFillItems(this.slotIndex));
+				else
+					result = getFillItemsAt(this.slotIndex);
+				this.slotIndex++;
+			} else {
+				result = getItemAt(slot);
+			}
+			addedButtons.put(pageNumber * this.inventorySize + slot, new MenuData(result, objectFromlistOfFillItems));
 		}
-		addedButtons.put(pageNumber * this.inventorySize + slot, new MenuData(result, objectFromlistOfFillItems));
 		return addedButtons;
 	}
 
 	private Object getObjectFromlistOfFillItems(int slotIndex) {
 		if (listOfFillItems != null && listOfFillItems.size() > this.slotIndex)
 			return listOfFillItems.get(slotIndex);
-		else return "";
+		else return null;
 	}
 
 	private void reddrawInventory() {
