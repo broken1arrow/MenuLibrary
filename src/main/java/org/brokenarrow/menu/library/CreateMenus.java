@@ -163,7 +163,7 @@ public class CreateMenus {
 
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttons = new ArrayList<>();
-	private final Map<Integer, Map<Integer, ItemStack>> addedButtons = new HashMap<>();
+	private final Map<Integer, Map<Integer, MenuData>> addedButtons = new HashMap<>();
 	private final Plugin plugin = RegisterMenuAPI.getPLUGIN();
 	private Inventory inventory;
 	private boolean shallCacheItems;
@@ -338,8 +338,24 @@ public class CreateMenus {
 	 * @return map with current amount of pages and slots every item are placed and items.
 	 */
 
-	public Map<Integer, Map<Integer, ItemStack>> getAddedButtons() {
+	public Map<Integer, Map<Integer, MenuData>> getAddedButtonsCache() {
 		return addedButtons;
+	}
+
+	/**
+	 * Get both object and itemstack for current page and slot.
+	 * If you set @link {@link #listOfFillItems} in the constructor super,
+	 * can you get the objects from the list too.
+	 *
+	 * @param pageNumber with page you want to get.
+	 * @param slotIndex  the slot you want to get both the object and/or the itemstack stored in cache.
+	 * @return Menudata with itemstack and/or object
+	 */
+	public MenuData getAddedButtons(int pageNumber, int slotIndex) {
+		Map<Integer, MenuData> data = addedButtons.get(pageNumber);
+		if (data != null)
+			return data.get(slotIndex);
+		return new MenuData(null, "");
 	}
 
 	/**
@@ -407,7 +423,7 @@ public class CreateMenus {
 	 * @return map with slot number (can be over one inventory size) and itemstack.
 	 */
 
-	public Map<Integer, ItemStack> getMenuButtonsCache() {
+	public Map<Integer, MenuData> getMenuButtonsCache() {
 		return addItemsToCache();
 	}
 
@@ -450,13 +466,13 @@ public class CreateMenus {
 	}
 
 	/**
-	 * Get the objekt you have set.
+	 * Get the Object/entity from the @link {@link #listOfFillItems}.
 	 *
-	 * @return objekt or null if no are set.
+	 * @param clickedPos the curent pos player clicking on, you need also add the page player currently have open and inventory size.
+	 * @return Object/entity from the listOfFillItems list.
 	 */
-
-	public Object getObject() {
-		return object;
+	public Object getObjectFromList(int clickedPos) {
+		return getAddedButtons(this.pageNumber, clickedPos).getObject();
 	}
 
 	/**
@@ -551,8 +567,9 @@ public class CreateMenus {
 		if (menu == null) return;
 		player.openInventory(menu);
 
-		if (this.title != null && !this.title.equals(""))
-			UpdateTittleContainers.update(player, this.title, inventorySize == 5 ? Material.HOPPER : Material.CHEST, menu.getSize());
+		if (this.title == null || this.title.equals(""))
+			this.title = "Menu";
+		UpdateTittleContainers.update(player, this.title, inventorySize == 5 ? Material.HOPPER : Material.CHEST, menu.getSize());
 		onMenuOpenPlaySound();
 
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
@@ -750,35 +767,46 @@ public class CreateMenus {
 		} else return (double) this.buttons.size() / this.inventorySize;
 	}
 
-	private Map<Integer, ItemStack> addItemsToCache() {
-		Map<Integer, ItemStack> addedButtonss = new HashMap<>();
+	private Map<Integer, MenuData> addItemsToCache() {
+		Map<Integer, MenuData> addedButtons = new HashMap<>();
 		this.requiredPages = Math.max((int) Math.ceil(amountpages()), 1);
 		for (int i = 0; i < this.requiredPages; i++) {
-			Map<Integer, ItemStack> addedButtons = new HashMap<>();
+			Map<Integer, MenuData> addedMenuData = new HashMap<>();
+			
 			for (int slot = 0; slot < this.inventorySize; slot++) {
-				ItemStack result;
-				if (fillSpace != null && fillSpace.contains(slot)) {
-					result = items();
-					this.slotIndex++;
-				} else {
-					result = getItemAt(slot);
-				}
-				if (!this.shallCacheItems) {
-					addedButtons.put(i * this.inventorySize + slot, result);
-					this.addedButtons.put(i, addedButtons);
-				} else
-					addedButtonss.put(i * this.inventorySize + slot, result);
+				addedMenuData.putAll(cacheMenuData(i, slot));
 			}
+			if (!this.shallCacheItems) {
+				this.addedButtons.put(i, addedMenuData);
+			} else
+				addedButtons = addedMenuData;
 		}
 		this.slotIndex = 0;
-		return addedButtonss;
+		return addedButtons;
 	}
 
-	private ItemStack items() {
-		if (listOfFillItems != null && listOfFillItems.size() > this.slotIndex) {
-			return getFillItemsAt(listOfFillItems.get(this.slotIndex));
-		} else
-			return getFillItemsAt(this.slotIndex);
+	private Map<Integer, MenuData> cacheMenuData(int pageNumber, int slot) {
+		Map<Integer, MenuData> addedButtons = new HashMap<>();
+		ItemStack result;
+		Object objectFromlistOfFillItems = "";
+		if (fillSpace != null && fillSpace.contains(slot)) {
+			objectFromlistOfFillItems = getObjectFromlistOfFillItems(this.slotIndex);
+			if (objectFromlistOfFillItems != null && !objectFromlistOfFillItems.equals(""))
+				result = getFillItemsAt(getObjectFromlistOfFillItems(this.slotIndex));
+			else
+				result = getFillItemsAt(this.slotIndex);
+			this.slotIndex++;
+		} else {
+			result = getItemAt(slot);
+		}
+		addedButtons.put(pageNumber * this.inventorySize + slot, new MenuData(result, objectFromlistOfFillItems));
+		return addedButtons;
+	}
+
+	private Object getObjectFromlistOfFillItems(int slotIndex) {
+		if (listOfFillItems != null && listOfFillItems.size() > this.slotIndex)
+			return listOfFillItems.get(slotIndex);
+		else return "";
 	}
 
 	private void reddrawInventory() {
@@ -791,10 +819,10 @@ public class CreateMenus {
 			this.inventory.setItem(i, new ItemStack(Material.AIR));
 		}
 
-		Map<Integer, ItemStack> entity = this.addedButtons.get(pageNumber);
+		Map<Integer, MenuData> entity = this.addedButtons.get(pageNumber);
 		if (entity != null && !entity.isEmpty())
 			for (int i = 0; i < inventory.getSize(); i++) {
-				inventory.setItem(i, entity.get(pageNumber * inventorySize + i));
+				inventory.setItem(i, entity.get(pageNumber * inventorySize + i).getItemStack());
 			}
 	}
 
@@ -802,7 +830,27 @@ public class CreateMenus {
 		if (!(this.inventorySize == 5 || this.inventorySize % 9 == 0))
 			plugin.getLogger().log(Level.WARNING, "wrong inverntory size , you has put in " + this.inventorySize + "it need to be valid number.");
 		if (this.inventorySize == 5)
-			return Bukkit.createInventory(null, InventoryType.HOPPER, this.title);
+			return Bukkit.createInventory(null, InventoryType.HOPPER, this.title != null ? this.title : "");
 		return Bukkit.createInventory(null, this.inventorySize % 9 == 0 ? this.inventorySize : 9, this.title != null ? this.title : "");
+	}
+
+
+	protected class MenuData {
+
+		private final ItemStack itemStack;
+		private final Object object;
+
+		public MenuData(ItemStack itemStack, Object object) {
+			this.itemStack = itemStack;
+			this.object = object;
+		}
+
+		public ItemStack getItemStack() {
+			return itemStack;
+		}
+
+		public Object getObject() {
+			return object;
+		}
 	}
 }
