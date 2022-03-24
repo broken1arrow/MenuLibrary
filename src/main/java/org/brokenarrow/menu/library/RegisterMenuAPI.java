@@ -80,10 +80,10 @@ public class RegisterMenuAPI {
 					if (cursor != null && cursor.getType() != Material.AIR)
 						event.setCancelled(true);
 				}
-				MenuButton menuButton = getClickedButton(createMenus, clickedItem, clickedPos);
+				MenuButton menuButton = getClickedButton(createMenus, clickedItem, clickedPos, clickedSlot);
 				if (menuButton != null) {
 					event.setCancelled(true);
-					Object objectData = createMenus.getObject() != null && !createMenus.getObject().equals("") ? createMenus.getObject() : clickedItem;
+					Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : clickedItem;
 					menuButton.onClickInsideMenu(player, createMenus.getMenu(), event.getClick(), clickedItem, objectData);
 				}
 			}
@@ -124,34 +124,36 @@ public class RegisterMenuAPI {
 
 					final ItemStack cursor = checkIfNull(event.getCursor(), event.getOldCursor());
 					if (createMenus.isSlotsYouCanAddItems()) {
-						if (createMenus.getFillSpace().contains(clickedPos))
+						if (createMenus.getFillSpace().contains(clickedSlot))
 							return;
 						else
 							event.setCancelled(true);
 					} else if (!createMenus.isSlotsYouCanAddItems()) {
 						event.setCancelled(true);
 					}
-					if (getClickedButton(createMenus, cursor, clickedPos) == null)
+					if (getClickedButton(createMenus, cursor, clickedPos, clickedSlot) == null)
 						event.setCancelled(true);
 				}
 			}
 		}
 
 
-		public MenuButton getClickedButton(CreateMenus createMenus, ItemStack item, int clickedPos) {
+		public MenuButton getClickedButton(CreateMenus createMenus, ItemStack item, int clickedPos, int clickedSlot) {
 			if (item != null)
 				for (ListIterator<MenuButton> menuButtons = createMenus.getButtons().listIterator(); menuButtons.hasNext(); ) {
 					MenuButton menuButton = menuButtons.next();
-					Object objectData = createMenus.getObject() != null && !createMenus.getObject().equals("") ? createMenus.getObject() : item;
+					Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : item;
+					if (createMenus.getAddedButtonsCache().containsKey(createMenus.getPageNumber())) {
+						ItemStack itemStack;
+						if (!createMenus.getFillSpace().contains(clickedSlot)) {
+							itemStack = menuButton.getItem();
+						} else
+							itemStack = menuButton.getItem(objectData);
 
-					if (menuButton.getItem(objectData) == null && menuButton.getItem() != null && createMenus.getAddedButtons().containsKey(createMenus.getPageNumber())) {
-						if (menuButton.getItem().isSimilar(item) && isItemSimilar(createMenus.getAddedButtons().get(createMenus.getPageNumber()).get(clickedPos), item)) {
+						if (isItemSimilar(itemStack, item) && isItemSimilar(createMenus.getAddedButtons(createMenus.getPageNumber(), clickedPos).getItemStack(), item)) {
 							return menuButton;
 						}
-					} else if (menuButton.getItem(objectData) != null && createMenus.getAddedButtons().containsKey(createMenus.getPageNumber()))
-						if (isItemSimilar(menuButton.getItem(objectData), item) && isItemSimilar(createMenus.getAddedButtons().get(createMenus.getPageNumber()).get(clickedPos), item)) {
-							return menuButton;
-						}
+					}
 				}
 			return null;
 		}
