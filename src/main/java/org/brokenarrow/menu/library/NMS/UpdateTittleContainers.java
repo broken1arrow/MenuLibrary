@@ -124,6 +124,7 @@ public class UpdateTittleContainers {
 		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
 
 		Object inventoryType = null;
+		//todo add this instead of use arguments in method p.getOpenInventory().getTopInventory().getType()
 		if (container == Material.HOPPER)
 			inventoryType = containersClass.getField("HOPPER").get(null);
 		if (container == Material.CHEST)
