@@ -8,15 +8,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.brokenarrow.menu.library.utility.SetMetadata.*;
 
@@ -44,6 +44,7 @@ public class RegisterMenuAPI {
 	private static class MenuHolderListener implements Listener {
 
 		private final MenuCache menuCache = MenuCache.getInstance();
+		private final Map<UUID, SwapData> cacheData = new HashMap<>();
 
 		@EventHandler(priority = EventPriority.LOW)
 		public void onMenuClicking(InventoryClickEvent event) {
@@ -85,10 +86,29 @@ public class RegisterMenuAPI {
 					event.setCancelled(true);
 					Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : clickedItem;
 					menuButton.onClickInsideMenu(player, createMenus.getMenu(), event.getClick(), clickedItem, objectData);
+
+					if (event.getClick() == ClickType.SWAP_OFFHAND) {
+						SwapData data = cacheData.get(player.getUniqueId());
+						ItemStack item = null;
+						if (data != null) {
+							item = data.getItemInOfBeforeOpenMenuHand();
+						}
+						cacheData.put(player.getUniqueId(), new SwapData(true, item));
+					}
 				}
 			}
 		}
 
+		@EventHandler(priority = EventPriority.LOW)
+		public void onMenuOpen(InventoryOpenEvent event) {
+			final Player player = (Player) event.getPlayer();
+
+			CreateMenus createMenus = getMenuHolder(player);
+			if (createMenus == null) return;
+
+			this.cacheData.put(player.getUniqueId(), new SwapData(false, player.getInventory().getItemInOffHand()));
+
+		}
 
 		@EventHandler(priority = EventPriority.LOW)
 		public void onMenuClose(InventoryCloseEvent event) {
@@ -96,6 +116,14 @@ public class RegisterMenuAPI {
 
 			CreateMenus createMenus = getMenuHolder(player);
 			if (createMenus == null) return;
+
+			SwapData data = cacheData.get(player.getUniqueId());
+			if (data != null && data.isPlayerUseSwapoffhand())
+				if (data.getItemInOfBeforeOpenMenuHand() != null && data.getItemInOfBeforeOpenMenuHand().getType() != Material.AIR)
+					player.getInventory().setItemInOffHand(data.getItemInOfBeforeOpenMenuHand());
+				else
+					player.getInventory().setItemInOffHand(null);
+			cacheData.remove(player.getUniqueId());
 
 			if (!event.getView().getTopInventory().equals(createMenus.getMenu()))
 				return;
@@ -200,6 +228,24 @@ public class RegisterMenuAPI {
 			return createMenus;
 		}
 
+		private static class SwapData {
+
+			boolean playerUseSwapoffhand;
+			ItemStack itemInOfBeforeOpenMenuHand;
+
+			public SwapData(boolean playerUseSwapoffhand, ItemStack itemInOfBeforeOpenMenuHand) {
+				this.playerUseSwapoffhand = playerUseSwapoffhand;
+				this.itemInOfBeforeOpenMenuHand = itemInOfBeforeOpenMenuHand;
+			}
+
+			public boolean isPlayerUseSwapoffhand() {
+				return playerUseSwapoffhand;
+			}
+
+			public ItemStack getItemInOfBeforeOpenMenuHand() {
+				return itemInOfBeforeOpenMenuHand;
+			}
+		}
 
 	}
 }
