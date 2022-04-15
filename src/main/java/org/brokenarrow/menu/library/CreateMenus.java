@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 
-import static org.brokenarrow.menu.library.utility.SetMetadata.*;
+import static org.brokenarrow.menu.library.utility.Metadata.*;
 
 /**
  * Methods to create menu as you want it.

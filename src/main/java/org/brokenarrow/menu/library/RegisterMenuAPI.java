@@ -18,7 +18,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.brokenarrow.menu.library.utility.SetMetadata.*;
+import static org.brokenarrow.menu.library.utility.Metadata.*;
 
 public class RegisterMenuAPI {
 
