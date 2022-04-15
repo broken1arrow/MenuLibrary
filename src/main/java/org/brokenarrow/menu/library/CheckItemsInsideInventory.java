@@ -83,7 +83,7 @@ public class CheckItemsInsideInventory {
 	 * @param player               player some use menu/inventory
 	 * @param location             if player is offline or null, can you return a location where items shall drop.
 	 * @param shallCheckDuplicates if it shall check if added items are dublicates or more 1 one item.
-	 * @return all items add in menu, but only 1 of each.
+	 * @return all items add in menu, but only 1 of each if shallCheckDuplicates is true .
 	 */
 
 	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player, Location location, boolean shallCheckDuplicates) {
