@@ -175,8 +175,12 @@ public class RegisterMenuAPI {
 						ItemStack itemStack;
 						if (!createMenus.getFillSpace().contains(clickedSlot)) {
 							itemStack = menuButton.getItem();
-						} else
+						} else {
 							itemStack = menuButton.getItem(objectData);
+							if (itemStack == null) {
+								itemStack = menuButton.getItem();
+							}
+						}
 
 						if (isItemSimilar(itemStack, item) && isItemSimilar(createMenus.getAddedButtons(createMenus.getPageNumber(), clickedPos).getItemStack(), item)) {
 							return menuButton;
