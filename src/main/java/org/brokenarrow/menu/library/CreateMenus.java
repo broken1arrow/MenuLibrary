@@ -179,7 +179,7 @@ public class CreateMenus {
 	private List<Integer> fillSpace;
 	private List<?> listOfFillItems;
 	private Player player;
-	private Sound menuOpenSound = Sound.BLOCK_NOTE_BLOCK_BASEDRUM;
+	private Sound menuOpenSound = Sound.valueOf("BLOCK_NOTE_BLOCK_BASEDRUM");
 	private String title;
 	private String playermetadataKey;
 	private Object object;
@@ -680,8 +680,10 @@ public class CreateMenus {
 	}
 
 	private void onMenuOpenPlaySound() {
-		if (Enums.getIfPresent(Sound.class, menuOpenSound.name()).orNull() != null)
-			this.player.playSound(player.getLocation(), menuOpenSound, 1, 1);
+		if (this.menuOpenSound == null) return;
+
+		if (Enums.getIfPresent(Sound.class, this.menuOpenSound.name()).orNull() != null)
+			this.player.playSound(player.getLocation(), this.menuOpenSound, 1, 1);
 	}
 
 	/**
