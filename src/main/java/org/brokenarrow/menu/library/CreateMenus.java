@@ -179,7 +179,7 @@ public class CreateMenus {
 	private List<Integer> fillSpace;
 	private List<?> listOfFillItems;
 	private Player player;
-	private Sound menuOpenSound = Sound.valueOf("BLOCK_NOTE_BLOCK_BASEDRUM");
+	private Sound menuOpenSound = Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull() == null ? Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BASEDRUM").orNull() : Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull();
 	private String title;
 	private String playermetadataKey;
 	private Object object;
