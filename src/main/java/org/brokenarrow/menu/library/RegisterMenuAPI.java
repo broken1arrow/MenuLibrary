@@ -1,5 +1,6 @@
 package org.brokenarrow.menu.library;
 
+import com.google.common.base.Enums;
 import org.brokenarrow.menu.library.cache.MenuCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -192,7 +193,8 @@ public class RegisterMenuAPI {
 
 		public boolean isItemSimilar(ItemStack item, ItemStack clickedItem) {
 			if (item != null && clickedItem != null)
-				if (clickedItem.getType() == Material.PLAYER_HEAD && clickedItem.getType() == item.getType()) {
+				if (Enums.getIfPresent(Material.class, "PLAYER_HEAD").orNull() != null &&
+						clickedItem.getType() == Material.PLAYER_HEAD && clickedItem.getType() == item.getType()) {
 					SkullMeta skullMetaClicked = (SkullMeta) clickedItem.getItemMeta();
 					SkullMeta skullMetaItem = (SkullMeta) item.getItemMeta();
 
