@@ -26,7 +26,7 @@ public enum ServerVersion {
 	public static boolean equals(ServerVersion version) {
 		return serverVersion(version) == 0;
 	}
-
+	
 	public static boolean newerThan(ServerVersion version) {
 		return serverVersion(version) > 0;
 	}
