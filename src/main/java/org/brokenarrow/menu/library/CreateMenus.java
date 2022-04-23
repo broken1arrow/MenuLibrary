@@ -569,7 +569,7 @@ public class CreateMenus {
 
 		if (this.title == null || this.title.equals(""))
 			this.title = "Menu";
-		UpdateTittleContainers.update(player, this.title, inventorySize == 5 ? Material.HOPPER : Material.CHEST, menu.getSize());
+		UpdateTittleContainers.update(player, this.title);
 		onMenuOpenPlaySound();
 
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
