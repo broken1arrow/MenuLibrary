@@ -3,9 +3,8 @@ package org.brokenarrow.menu.library.NMS;
 import org.broken.lib.rbg.TextTranslator;
 import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
-import org.bukkit.block.Hopper;
-import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import java.lang.reflect.Constructor;
@@ -39,7 +38,7 @@ public class UpdateTittleContainers {
 				} else if (ServerVersion.newerThan(ServerVersion.v1_17)) {
 					loadNmsClasses1_18();
 					updateInventory1_18(p, title, inventory, size);
-				} else {
+				} else if (ServerVersion.olderThan(ServerVersion.v1_17)) {
 					try {
 						loadNmsClasses();
 						updateInventory1_16AndLower(p, title, inventory, size);
@@ -138,9 +137,9 @@ public class UpdateTittleContainers {
 			Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
 			Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
 
-			if (inventory instanceof Hopper)
+			if (inventory.getType() == InventoryType.HOPPER)
 				inventoryType = containersClass.getField("HOPPER").get(null);
-			if (inventory instanceof Chest) {
+			if (inventory.getType() == InventoryType.CHEST) {
 				if (size % 9 == 0)
 					inventoryType = containersClass.getField("GENERIC_9X" + size / 9).get(null);
 				else
@@ -175,9 +174,9 @@ public class UpdateTittleContainers {
 
 		Object inventoryType;
 		String fieldName = "c";
-		if (inventory instanceof Hopper)
+		if (inventory.getType() == InventoryType.HOPPER)
 			fieldName = "p";
-		if (inventory instanceof Chest)
+		if (inventory.getType() == InventoryType.CHEST)
 			if (inventorySize / 9 == 1)
 				fieldName = "a";
 			else if (inventorySize / 9 == 2)
@@ -217,11 +216,10 @@ public class UpdateTittleContainers {
 
 		Object inventoryType;
 		String fieldName = "c";
-		System.out.println("inventoryType " + inventory);
 		System.out.println("inventorySize " + inventorySize);
-		if (inventory instanceof Hopper)
+		if (inventory.getType() == InventoryType.HOPPER)
 			fieldName = "p";
-		if (inventory instanceof Chest)
+		if (inventory.getType() == InventoryType.CHEST)
 			if (inventorySize / 9 == 1)
 				fieldName = "a";
 			else if (inventorySize / 9 == 2)
