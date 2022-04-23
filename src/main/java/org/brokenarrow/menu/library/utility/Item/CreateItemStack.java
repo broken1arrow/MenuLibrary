@@ -2,7 +2,6 @@ package org.brokenarrow.menu.library.utility.Item;
 
 import com.google.common.base.Enums;
 import org.broken.lib.rbg.TextTranslator;
-import org.brokenarrow.menu.library.RegisterMenuAPI;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -17,12 +16,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import static org.brokenarrow.menu.library.RegisterMenuAPI.getPLUGIN;
+
 /**
  * Create items and also count number of items of
  * specific type.
  */
 
-public class ItemUtily {
+public class CreateItemStack {
 
 	private final ItemStack itemStack;
 	private final Material matrial;
@@ -30,7 +31,8 @@ public class ItemUtily {
 	private final Iterable<?> itemArray;
 	private final String displayName;
 	private final List<String> lore;
-	private List<String> enchantments;
+	private final List<Enchantment> enchantments = new ArrayList<>();
+	private final List<ItemFlag> visibleItemFlags = new ArrayList<>();
 	private String itemMetaKey;
 	private String itemMetaValue;
 	private Map<String, String> itemMetaMap;
@@ -40,7 +42,7 @@ public class ItemUtily {
 	private boolean showEnchantments;
 	private boolean ignoreLevelRestrictions;
 
-	private ItemUtily(final Bulider bulider) {
+	private CreateItemStack(final Bulider bulider) {
 		this.itemStack = bulider.itemStack;
 		this.matrial = bulider.matrial;
 		this.stringItem = bulider.stringItem;
@@ -56,7 +58,7 @@ public class ItemUtily {
 	 * @param item String name,Matrial or Itemstack.
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static ItemUtily of(final Object item) {
+	public static CreateItemStack of(final Object item) {
 		return of(item, null, (List<String>) null);
 	}
 
@@ -69,7 +71,7 @@ public class ItemUtily {
 	 * @param itemMetaValue set metadata value
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static ItemUtily of(final Object item, final String itemMetaKey, String itemMetaValue) {
+	public static CreateItemStack of(final Object item, final String itemMetaKey, String itemMetaValue) {
 		return of(item).setItemMetaData(itemMetaKey, itemMetaValue);
 	}
 
@@ -84,7 +86,7 @@ public class ItemUtily {
 	 * @param lore        as varargs.
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static ItemUtily of(final Object item, final String displayName, final String... lore) {
+	public static CreateItemStack of(final Object item, final String displayName, final String... lore) {
 		return of(item, displayName, Arrays.asList(lore));
 	}
 
@@ -97,7 +99,7 @@ public class ItemUtily {
 	 * @param lore        on the item.
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static ItemUtily of(final Object item, final String displayName, final List<String> lore) {
+	public static CreateItemStack of(final Object item, final String displayName, final List<String> lore) {
 
 		if (item instanceof ItemStack)
 			return new Bulider((ItemStack) item, displayName, lore).build();
@@ -120,7 +122,7 @@ public class ItemUtily {
 	 * @param lore        as varargs.
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static <T> ItemUtily of(final Iterable<T> itemArray, final String displayName, final String... lore) {
+	public static <T> CreateItemStack of(final Iterable<T> itemArray, final String displayName, final String... lore) {
 		return of(itemArray, displayName, Arrays.asList(lore));
 	}
 
@@ -132,7 +134,7 @@ public class ItemUtily {
 	 * @param lore        on the item.
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static <T> ItemUtily of(final Iterable<T> itemArray, final String displayName, final List<String> lore) {
+	public static <T> CreateItemStack of(final Iterable<T> itemArray, final String displayName, final List<String> lore) {
 		return new Bulider(itemArray, displayName, lore).build();
 	}
 
@@ -142,20 +144,20 @@ public class ItemUtily {
 	 * @param amoutOfItems item amount.
 	 * @return this class.
 	 */
-	public ItemUtily setAmoutOfItems(final int amoutOfItems) {
+	public CreateItemStack setAmoutOfItems(final int amoutOfItems) {
 		this.amoutOfItems = amoutOfItems;
 		return this;
 	}
 
 	/**
 	 * Set glow on item and will not show the enchantments.
-	 * Use {@link #addEnchantments(List)} or {@link #addEnchantments(String...)}, for set custom
+	 * Use {@link #addEnchantments(List)} or {@link #addEnchantments(Enchantment...)}, for set custom
 	 * enchants.
 	 *
 	 * @param glow set it true and the item will glow.
 	 * @return this class.
 	 */
-	public ItemUtily isglow(final boolean glow) {
+	public CreateItemStack setGlow(final boolean glow) {
 		this.glow = glow;
 		return this;
 	}
@@ -169,7 +171,7 @@ public class ItemUtily {
 	 * @return this class.
 	 */
 
-	public ItemUtily setEnchantmentsLevel(final int enchantmentsLevel) {
+	public CreateItemStack setEnchantmentsLevel(final int enchantmentsLevel) {
 		this.enchantmentsLevel = enchantmentsLevel;
 		return this;
 	}
@@ -184,7 +186,7 @@ public class ItemUtily {
 	 * @return this class.
 	 */
 
-	public ItemUtily addEnchantments(final String... enchantments) {
+	public CreateItemStack addEnchantments(final Enchantment... enchantments) {
 		return addEnchantments(Arrays.asList(enchantments));
 	}
 
@@ -196,8 +198,20 @@ public class ItemUtily {
 	 * @return this class.
 	 */
 
-	public ItemUtily addEnchantments(final List<String> enchantments) {
-		this.enchantments = enchantments;
+	public CreateItemStack addEnchantments(final List<Object> enchantments) {
+		Enchantment enchantment = null;
+		for (Object enchant : enchantments) {
+
+			if (enchant instanceof String)
+				enchantment = Enchantment.getByKey(NamespacedKey.minecraft((String) enchant));
+			else if (enchant instanceof Enchantment)
+				enchantment = (Enchantment) enchant;
+
+			if (enchantment != null)
+				this.enchantments.add(enchantment);
+			else
+				getPLUGIN().getLogger().log(Level.INFO, "your enchantment: " + enchant + " ,are not valid.");
+		}
 		return this;
 	}
 
@@ -207,20 +221,20 @@ public class ItemUtily {
 	 * @param ignoreLevelRestrictions true if you want to bypass level restrictions;
 	 * @return this class.
 	 */
-	public ItemUtily isignoreLevelRestrictions(final boolean ignoreLevelRestrictions) {
+	public CreateItemStack isignoreLevelRestrictions(final boolean ignoreLevelRestrictions) {
 		this.ignoreLevelRestrictions = ignoreLevelRestrictions;
 		return this;
 	}
 
 	/**
-	 * When use {@link #addEnchantments(List)} or {@link #addEnchantments(String...)} and
-	 * want to hide enchants set it to true. When use {@link #isglow(boolean)} it will defult hide
-	 * enchants, but if you set this to true it will show the enchant.
+	 * When use {@link #addEnchantments(List)} or {@link #addEnchantments(Enchantment...)} and
+	 * want to not show enchants set it to true. When use {@link #setGlow(boolean)} it will defult hide
+	 * enchants, if you set #setGlow to true and set this to true it will show the enchantments.
 	 *
 	 * @param showEnchantments true and will show enchants.
 	 * @return this class.
 	 */
-	public ItemUtily isShowEnchantments(final boolean showEnchantments) {
+	public CreateItemStack isShowEnchantments(final boolean showEnchantments) {
 		this.showEnchantments = showEnchantments;
 		return this;
 	}
@@ -232,7 +246,7 @@ public class ItemUtily {
 	 * @param itemMetaValue value you want to set.
 	 * @return this class.
 	 */
-	public ItemUtily setItemMetaData(final String itemMetaKey, final String itemMetaValue) {
+	public CreateItemStack setItemMetaData(final String itemMetaKey, final String itemMetaValue) {
 		this.itemMetaKey = itemMetaKey;
 		this.itemMetaValue = itemMetaValue;
 		return this;
@@ -245,8 +259,19 @@ public class ItemUtily {
 	 * @param itemMetaMap map of values.
 	 * @return this class.
 	 */
-	public ItemUtily setItemMetaDataList(final Map<String, String> itemMetaMap) {
+	public CreateItemStack setItemMetaDataList(final Map<String, String> itemMetaMap) {
 		this.itemMetaMap = itemMetaMap;
+		return this;
+	}
+
+	/**
+	 * Hide one or several metadata values on a itemstack.
+	 *
+	 * @param itemFlags add one or several flags you not want to hide.
+	 * @return this class.
+	 */
+	public CreateItemStack setItemFlags(ItemFlag... itemFlags) {
+		this.visibleItemFlags.addAll(Arrays.asList(itemFlags));
 		return this;
 	}
 
@@ -297,7 +322,8 @@ public class ItemUtily {
 
 		if (this.itemArray != null)
 			for (final Object itemStringName : this.itemArray) {
-				if (!(itemStringName instanceof String)) continue;
+				itemstack = checkTypeOfItem(itemStringName);
+				if (itemstack == null) continue;
 
 				itemstack = new ItemStack(Enums.getIfPresent(Material.class, (String) itemStringName).orNull() == null ? Material.AIR : Material.valueOf((String) itemStringName));
 
@@ -341,32 +367,44 @@ public class ItemUtily {
 		return null;
 	}
 
+	private ItemStack checkTypeOfItem(Object object) {
+		if (object instanceof ItemStack)
+			return (ItemStack) object;
+		else if (object instanceof Material)
+			return new ItemStack((Material) object);
+		else if (object instanceof String)
+			return new ItemStack(Enums.getIfPresent(Material.class, (String) object).orNull() == null ? Material.AIR : Material.valueOf((String) object));
+
+		return null;
+	}
+
 	private void addEnchantments(final ItemMeta itemMeta) {
-		if (this.enchantments != null && !this.enchantments.isEmpty()) {
-			for (final String enchant : this.enchantments) {
-				final Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchant));
-				if (enchantment != null)
-					itemMeta.addEnchant(enchantment, this.enchantmentsLevel, this.ignoreLevelRestrictions);
-				else
-					RegisterMenuAPI.getPLUGIN().getLogger().log(Level.INFO, "your enchantment: " + enchant + " ,are not valid.");
+		if (!this.enchantments.isEmpty()) {
+			for (final Enchantment enchant : this.enchantments) {
+				if (enchant == null) {
+					getPLUGIN().getLogger().log(Level.INFO, "Your enchantment are null.");
+					continue;
+				}
+				boolean haveEnchant = itemMeta.addEnchant(enchant, this.enchantmentsLevel, this.ignoreLevelRestrictions);
 			}
-			if (this.showEnchantments)
+			if (isShowEnchantments())
 				hideEnchantments(itemMeta);
 		} else if (this.glow) {
-			itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, false);
-			if (!this.showEnchantments)
+			if (!isShowEnchantments())
+				itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, false);
+			if (isShowEnchantments())
 				hideEnchantments(itemMeta);
 		}
 	}
 
 	private void hideEnchantments(final ItemMeta itemMeta) {
-		itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-		itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		itemMeta.addItemFlags(ItemFlag.HIDE_DESTROYS);
-		itemMeta.addItemFlags(ItemFlag.HIDE_DYE);
-		itemMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-		itemMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		itemMeta.addItemFlags(Arrays.stream(ItemFlag.values()).filter(itemFlag -> !visibleItemFlags.contains(itemFlag)).toArray(ItemFlag[]::new));
 	}
+
+	private boolean isShowEnchantments() {
+		return showEnchantments;
+	}
+
 
 	private List<String> translateColors(final List<String> rawLore) {
 		final List<String> lores = new ArrayList<>();
@@ -620,8 +658,8 @@ public class ItemUtily {
 		 *
 		 * @return CreateItemUtily class with your data you have set.
 		 */
-		public ItemUtily build() {
-			return new ItemUtily(this);
+		public CreateItemStack build() {
+			return new CreateItemStack(this);
 		}
 	}
 }
