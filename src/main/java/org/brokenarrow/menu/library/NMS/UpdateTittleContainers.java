@@ -215,7 +215,7 @@ public class UpdateTittleContainers {
 		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
 
 		Object inventoryType;
-		String fieldName = "c";
+		String fieldName = "f";
 		System.out.println("inventorySize " + inventorySize);
 		if (inventory.getType() == InventoryType.HOPPER)
 			fieldName = "p";
