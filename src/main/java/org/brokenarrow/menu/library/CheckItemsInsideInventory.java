@@ -1,7 +1,7 @@
 package org.brokenarrow.menu.library;
 
 import org.brokenarrow.menu.library.messages.SendMsgDuplicatedItems;
-import org.brokenarrow.menu.library.utility.Item.ItemUtily;
+import org.brokenarrow.menu.library.utility.Item.CreateItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -113,14 +113,14 @@ public class CheckItemsInsideInventory {
 			if (entitys.getValue() != null) {
 
 				if (entitys.getValue().getAmount() > 1) {
-					chachedDuplicatedItems.put(ItemUtily.createItemStackAsOne(entitys.getValue()), (ItemUtily.countItemStacks(entitys.getValue(), inventory)) - 1);
+					chachedDuplicatedItems.put(CreateItemStack.createItemStackAsOne(entitys.getValue()), (CreateItemStack.countItemStacks(entitys.getValue(), inventory)) - 1);
 					duplicatedItems.put(player.getUniqueId(), chachedDuplicatedItems);
 				}
-				if (!set.add(ItemUtily.createItemStackAsOne(entitys.getValue()))) {
-					chachedDuplicatedItems.put(ItemUtily.createItemStackAsOne(entitys.getValue()), (ItemUtily.countItemStacks(entitys.getValue(), inventory)) - 1);
+				if (!set.add(CreateItemStack.createItemStackAsOne(entitys.getValue()))) {
+					chachedDuplicatedItems.put(CreateItemStack.createItemStackAsOne(entitys.getValue()), (CreateItemStack.countItemStacks(entitys.getValue(), inventory)) - 1);
 					duplicatedItems.put(player.getUniqueId(), chachedDuplicatedItems);
 				} else {
-					itemStacksNoDubbleEntity.put(entitys.getKey(), ItemUtily.createItemStackAsOne(entitys.getValue()));
+					itemStacksNoDubbleEntity.put(entitys.getKey(), CreateItemStack.createItemStackAsOne(entitys.getValue()));
 				}
 			}
 		}
@@ -167,7 +167,7 @@ public class CheckItemsInsideInventory {
 		List<String> itemStacks = blacklistedItems;
 		if (itemStack != null && itemStacks != null)
 			for (String item : itemStacks) {
-				if (ItemUtily.of(item).makeItemStack().isSimilar(itemStack))
+				if (CreateItemStack.of(item).makeItemStack().isSimilar(itemStack))
 					return true;
 			}
 		return false;
