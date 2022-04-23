@@ -2,6 +2,7 @@ package org.brokenarrow.menu.library;
 
 import com.google.common.base.Enums;
 import org.brokenarrow.menu.library.cache.MenuCache;
+import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.brokenarrow.menu.library.utility.Metadata.*;
+import static org.brokenarrow.menu.library.utility.ServerVersion.setServerVersion;
 
 public class RegisterMenuAPI {
 
@@ -32,6 +34,7 @@ public class RegisterMenuAPI {
 	public RegisterMenuAPI(Plugin plugin) {
 		PLUGIN = plugin;
 		registerMenuEvent();
+		setServerVersion(plugin);
 	}
 
 	public static Plugin getPLUGIN() {
@@ -88,7 +91,7 @@ public class RegisterMenuAPI {
 					Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : clickedItem;
 					menuButton.onClickInsideMenu(player, createMenus.getMenu(), event.getClick(), clickedItem, objectData);
 
-					if (event.getClick() == ClickType.SWAP_OFFHAND) {
+					if (ServerVersion.newerThan(ServerVersion.v1_15) && event.getClick() == ClickType.SWAP_OFFHAND) {
 						SwapData data = cacheData.get(player.getUniqueId());
 						ItemStack item = null;
 						if (data != null) {
@@ -106,9 +109,9 @@ public class RegisterMenuAPI {
 
 			CreateMenus createMenus = getMenuHolder(player);
 			if (createMenus == null) return;
+			if (ServerVersion.olderThan(ServerVersion.v1_15)) return;
 
 			this.cacheData.put(player.getUniqueId(), new SwapData(false, player.getInventory().getItemInOffHand()));
-
 		}
 
 		@EventHandler(priority = EventPriority.LOW)
