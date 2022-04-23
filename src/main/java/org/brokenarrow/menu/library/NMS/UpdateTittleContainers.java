@@ -1,9 +1,12 @@
 package org.brokenarrow.menu.library.NMS;
 
 import org.broken.lib.rbg.TextTranslator;
+import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.block.Hopper;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -23,25 +26,28 @@ public class UpdateTittleContainers {
 	static Constructor<?> packetConstructor;
 
 
-	public static void update(Player p, String title, Material container, int inventorySize) {
+	public static void update(Player p, String title) {
 
 		try {
-			if (p != null)
-				if (Bukkit.getServer().getClass().getPackageName().split("\\.")[3].startsWith("v1_17")) {
+			if (p != null) {
+				Inventory inventory = p.getOpenInventory().getTopInventory();
+				int size = inventory.getSize();
+				if (ServerVersion.equals(ServerVersion.v1_17)) {
 					loadNmsClasses1_17();
-					updateInventory1_17(p, title, container, inventorySize);
+					updateInventory1_17(p, title, inventory, size);
 
-				} else if (Bukkit.getServer().getClass().getPackageName().split("\\.")[3].startsWith("v1_18")) {
+				} else if (ServerVersion.newerThan(ServerVersion.v1_17)) {
 					loadNmsClasses1_18();
-					updateInventory1_18(p, title, container, inventorySize);
+					updateInventory1_18(p, title, inventory, size);
 				} else {
 					try {
 						loadNmsClasses();
-						updateInventory1_16AndLower(p, title, container, inventorySize);
+						updateInventory1_16AndLower(p, title, inventory, size);
 					} catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
 						e.printStackTrace();
 					}
 				}
+			}
 		} catch (NoSuchFieldException | ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
 			e.printStackTrace();
 		}
@@ -61,7 +67,10 @@ public class UpdateTittleContainers {
 		if (chatBaseCompenent == null)
 			chatBaseCompenent = Class.forName(versionCheckNms("IChatBaseComponent"));
 		if (containersClass == null)
-			containersClass = Class.forName(versionCheckNms("Containers"));
+			if (ServerVersion.newerThan(ServerVersion.v1_13))
+				containersClass = Class.forName(versionCheckNms("Containers"));
+			else
+				containersClass = String.class;
 		if (containerClass == null)
 			containerClass = Class.forName(versionCheckNms("Container"));
 		if (chatCompenentSubClass == null)
@@ -114,26 +123,34 @@ public class UpdateTittleContainers {
 			packetConstructor = Class.forName("net.minecraft.network.protocol.game.PacketPlayOutOpenWindow").getConstructor(int.class, containersClass, chatBaseCompenent);
 	}
 
-	private static void updateInventory1_16AndLower(Player p, String title, Material container, int inventorySize) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException, InstantiationException {
+	private static void updateInventory1_16AndLower(Player p, String title, Inventory inventory, int size) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException, InstantiationException {
 
 		Object player = p.getClass().getMethod("getHandle").invoke(p);
 		Object activeContainer = player.getClass().getField("activeContainer").get(player);
 		Object windowId = activeContainer.getClass().getField("windowId").get(activeContainer);
-
-		Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
-		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
-
-		Object inventoryType = null;
 		//todo add this instead of use arguments in method p.getOpenInventory().getTopInventory().getType()
-		if (container == Material.HOPPER)
-			inventoryType = containersClass.getField("HOPPER").get(null);
-		if (container == Material.CHEST)
-			if (inventorySize % 9 == 0)
-				inventoryType = containersClass.getField("GENERIC_9X" + inventorySize / 9).get(null);
-			else
-				inventoryType = containersClass.getField("GENERIC_9X3").get(null);
+		Object methods;
+		if (ServerVersion.newerThan(ServerVersion.v1_13)) {
+			Object inventoryType = null;
+			Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
+			Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
 
-		Object methods = packetConstructor.newInstance(windowId, inventoryType, inventoryTittle);
+			if (inventory instanceof Hopper)
+				inventoryType = containersClass.getField("HOPPER").get(null);
+			if (inventory instanceof Chest) {
+				if (size % 9 == 0)
+					inventoryType = containersClass.getField("GENERIC_9X" + size / 9).get(null);
+				else
+					inventoryType = containersClass.getField("GENERIC_9X3").get(null);
+			}
+
+			methods = packetConstructor.newInstance(windowId, inventoryType, inventoryTittle);
+		} else {
+			Method declaredMethodChat = chatCompenentSubClass.getMethod(ServerVersion.newerThan(ServerVersion.v1_9) ? "b" : "a", String.class);
+			Object inventoryTittle = declaredMethodChat.invoke(null, "'" + TextTranslator.toSpigotFormat(title) + "'");
+
+			methods = packetConstructor.newInstance(windowId, "minecraft:" + inventory.getType().name().toLowerCase(), inventoryTittle, size);
+		}
 
 		Object handles = handle.invoke(p);
 		Object playerconect = playerConnection.get(handles);
@@ -144,8 +161,7 @@ public class UpdateTittleContainers {
 
 	}
 
-	private static void updateInventory1_17(Player p, String title, Material container, int inventorySize) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
-
+	private static void updateInventory1_17(Player p, String title, Inventory inventory, int inventorySize) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
 
 		Object player = p.getClass().getMethod("getHandle").invoke(p);
 		Object activeContainer = player.getClass().getField("bV").get(player);
@@ -156,9 +172,9 @@ public class UpdateTittleContainers {
 
 		Object inventoryType;
 		String fieldName = "c";
-		if (container == Material.HOPPER)
+		if (inventory instanceof Hopper)
 			fieldName = "p";
-		if (container == Material.CHEST)
+		if (inventory instanceof Chest)
 			if (inventorySize / 9 == 1)
 				fieldName = "a";
 			else if (inventorySize / 9 == 2)
@@ -187,7 +203,7 @@ public class UpdateTittleContainers {
 
 	}
 
-	private static void updateInventory1_18(Player p, String title, Material container, int inventorySize) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
+	private static void updateInventory1_18(Player p, String title, Inventory inventory, int inventorySize) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
 
 		Object player = p.getClass().getMethod("getHandle").invoke(p);
 		Object activeContainer = player.getClass().getField("bW").get(player);
@@ -198,9 +214,9 @@ public class UpdateTittleContainers {
 
 		Object inventoryType;
 		String fieldName = "c";
-		if (container == Material.HOPPER)
+		if (inventory instanceof Hopper)
 			fieldName = "p";
-		if (container == Material.CHEST)
+		if (inventory instanceof Chest)
 			if (inventorySize / 9 == 1)
 				fieldName = "a";
 			else if (inventorySize / 9 == 2)
