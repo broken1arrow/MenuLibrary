@@ -19,9 +19,11 @@ import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import static org.brokenarrow.menu.library.utility.Metadata.*;
 import static org.brokenarrow.menu.library.utility.ServerVersion.setServerVersion;
+import static org.brokenarrow.menu.library.utility.ServerVersion.v1_18;
 
 public class RegisterMenuAPI {
 
@@ -35,6 +37,17 @@ public class RegisterMenuAPI {
 		PLUGIN = plugin;
 		registerMenuEvent();
 		setServerVersion(plugin);
+		versionCheck();
+	}
+
+	public static void versionCheck() {
+		PLUGIN.getLogger().log(Level.INFO, "Now starting MenuApi. Any errors will be shown below.");
+		if (ServerVersion.newerThan(v1_18)) {
+			PLUGIN.getLogger().log(Level.WARNING, "Is untested on never minecraft versions an 1.18.2");
+		}
+		if (PLUGIN == null) {
+			Bukkit.getServer().getLogger().log(Level.WARNING, "You have not set plugin, becuse plugin is null");
+		}
 	}
 
 	public static Plugin getPLUGIN() {
