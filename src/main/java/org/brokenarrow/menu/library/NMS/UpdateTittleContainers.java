@@ -217,6 +217,8 @@ public class UpdateTittleContainers {
 
 		Object inventoryType;
 		String fieldName = "c";
+		System.out.println("inventoryType " + inventory);
+		System.out.println("inventorySize " + inventorySize);
 		if (inventory instanceof Hopper)
 			fieldName = "p";
 		if (inventory instanceof Chest)

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 
+import static org.brokenarrow.menu.library.RegisterMenuAPI.getPLUGIN;
 import static org.brokenarrow.menu.library.utility.Metadata.*;
 
 /**
@@ -164,7 +165,7 @@ public class CreateMenus {
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttons = new ArrayList<>();
 	private final Map<Integer, Map<Integer, MenuData>> addedButtons = new HashMap<>();
-	private final Plugin plugin = RegisterMenuAPI.getPLUGIN();
+	private final Plugin plugin = getPLUGIN();
 	private Inventory inventory;
 	private boolean shallCacheItems;
 	private boolean slotsYouCanAddItems;
@@ -569,7 +570,8 @@ public class CreateMenus {
 
 		if (this.title == null || this.title.equals(""))
 			this.title = "Menu";
-		UpdateTittleContainers.update(player, this.title);
+		Bukkit.getScheduler().runTaskLater(plugin, () ->
+				UpdateTittleContainers.update(player, this.title), 1);
 		onMenuOpenPlaySound();
 
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
