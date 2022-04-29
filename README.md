@@ -262,17 +262,6 @@ public class PartyListMenu extends MenuHolder {
 							GuiTempletsYaml.getDisplayName("PartylistMenu", "Players_List", Bukkit.getOfflinePlayer((UUID) object).getName()),
 							GuiTempletsYaml.getLore("PartylistMenu", "Players_List"));
 				}
-				if (object instanceof ItemStack) {
-					if (((ItemStack) object).getType() == Material.PLAYER_HEAD) {
-						SkullMeta meta = (SkullMeta) ((ItemStack) object).getItemMeta();
-						if (meta.getOwningPlayer() != null) {
-							ItemStack result = ItemUtily.createItemStack(GuiTempletsYaml.getIcon("PartylistMenu", "Players_List", meta.getOwningPlayer().getUniqueId()));
-							return ItemUtily.createItemStack(result,
-									GuiTempletsYaml.getDisplayName("PartylistMenu", "Players_List", meta.getOwningPlayer().getName()),
-									GuiTempletsYaml.getLore("PartylistMenu", "Players_List"));
-						}
-					}
-				}
 				return null;
 			}
 
