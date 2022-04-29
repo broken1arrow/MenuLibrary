@@ -143,7 +143,7 @@ public class UpdateTittleContainers {
 				if (size % 9 == 0)
 					inventoryType = containersClass.getField("GENERIC_9X" + size / 9).get(null);
 				else
-					inventoryType = containersClass.getField("GENERIC_9X3").get(null);
+					inventoryType = containersClass.getField("GENERIC_9X5").get(null);
 			}
 
 			methods = packetConstructor.newInstance(windowId, inventoryType, inventoryTittle);
@@ -173,7 +173,7 @@ public class UpdateTittleContainers {
 		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
 
 		Object inventoryType;
-		String fieldName = "c";
+		String fieldName = "f";
 		if (inventory.getType() == InventoryType.HOPPER)
 			fieldName = "p";
 		if (inventory.getType() == InventoryType.CHEST)
@@ -216,7 +216,7 @@ public class UpdateTittleContainers {
 
 		Object inventoryType;
 		String fieldName = "f";
-		System.out.println("inventorySize " + inventorySize);
+
 		if (inventory.getType() == InventoryType.HOPPER)
 			fieldName = "p";
 		if (inventory.getType() == InventoryType.CHEST)
