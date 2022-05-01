@@ -28,7 +28,6 @@ public class MenuHolder extends CreateMenus {
 	 * @param inventorySize size if menu.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
-	@Deprecated(since = "0.20")
 	public MenuHolder(Plugin plugin, int inventorySize) {
 		super(plugin, inventorySize);
 	}
@@ -41,7 +40,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param fillItems List of items you want parse inside gui on one or several pages.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
-	@Deprecated(since = "0.20")
+
 	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems) {
 		super(plugin, fillSlots, fillItems);
 	}
@@ -54,7 +53,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
-	@Deprecated(since = "0.20")
+	
 	public MenuHolder(Plugin plugin, int inventorySize, boolean shallCacheItems) {
 		super(plugin, inventorySize, shallCacheItems);
 	}
@@ -68,7 +67,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
-	@Deprecated(since = "0.20")
+
 	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
 		super(plugin, fillSlots, fillItems, shallCacheItems);
 	}

@@ -41,7 +41,6 @@ public class CreateMenus {
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
-	@Deprecated(since = "in later release")
 	public CreateMenus(Plugin plugin, int inventorySize) {
 		this.inventorySize = inventorySize;
 		registerFields();
@@ -56,7 +55,6 @@ public class CreateMenus {
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
-	@Deprecated(since = "in later release")
 	public CreateMenus(Plugin plugin, List<Integer> fillSlots, List<?> fillItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
@@ -73,7 +71,6 @@ public class CreateMenus {
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
-	@Deprecated(since = "in later release")
 	public CreateMenus(Plugin plugin, int inventorySize, boolean shallCacheItems) {
 		this.inventorySize = inventorySize;
 		this.itemsPerPage = inventorySize;
@@ -90,8 +87,7 @@ public class CreateMenus {
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to cache it own class.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
-
-	@Deprecated(since = "in later release")
+	
 	public CreateMenus(Plugin plugin, List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;

@@ -26,7 +26,7 @@
         <main.class>org.org.brokenarrow.menu.library.RegisterMenuAPI</main.class>
 
         <!-- The Java version your plugin uses, see bstats.org for what most servers have and use that -->
-        <java.version>11</java.version>
+        <java.version>8</java.version>
 
         <!-- How letters in your code should be saved on your disk, leave to UTF-8 to support all languages -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

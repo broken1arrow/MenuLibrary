@@ -250,12 +250,12 @@ public class UpdateTittleContainers {
 
 	private static String versionCheckNms(String clazzName) {
 
-		return "net.minecraft.server." + Bukkit.getServer().getClass().getPackageName().split("\\.")[3] + "." + clazzName;
+		return "net.minecraft.server." + Bukkit.getServer().getClass().toGenericString().split("\\.")[3] + "." + clazzName;
 	}
 
 	private static String versionCheckBukkit(String clazzName) {
 
-		return "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackageName().split("\\.")[3] + "." + clazzName;
+		return "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().toGenericString().split("\\.")[3] + "." + clazzName;
 	}
 
 }
