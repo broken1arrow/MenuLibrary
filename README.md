@@ -46,7 +46,7 @@ change packet name and how it set metadata on player.
 			//this will not work any more in 0.28
 			RegisterClass(this); 
 			//use this.
-			RegisterMenuAPI(this);
+			new RegisterMenuAPI(this);
 			
 			// own code here
 		}
