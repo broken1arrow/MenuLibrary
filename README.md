@@ -146,18 +146,18 @@ Have also added code as an example of how I use it (I have removed some code I u
 
 ```
 
-public class PartyListMenu extends MenuHolder {
+public class PagedMenu extends MenuHolder {
 
 	private final MenuButton removeAllPlayers;
 	private final MenuButton addPlayers;
 	private final MenuButton backButton;
 	private final MenuButton forward;
 	private final MenuButton previous;
-	private final MenuButton ListOfPlayersInParty;
+	private final MenuButton listOfObjects;
 
 	private final PreferenceSettingsRegisteryApi preferenceRegistery = PreferenceSettingsRegisteryApi.getInstance();
 
-	public PartyListMenu(Player player) {
+	public PagedMenu(Player player) {
 		super(PreferenceSettingsRegisteryApi.getInstance().getPlayers(player));
                 setMenuSize(45);
 		setTitle("players in party");
@@ -190,11 +190,12 @@ public class PartyListMenu extends MenuHolder {
 				return null;
 			}
 		};
-
+// Open menu befor this.
 		backButton = new MenuButton() {
 			@Override
 			public void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object) {
-				new MainGuiMenu().displayTo(player);
+				//example code to run.
+				new MainGuiMenu().menuOpen(player);
 			}
 
 			@Override
@@ -210,8 +211,7 @@ public class PartyListMenu extends MenuHolder {
 					previousPage();
 				}
 
-				UpdateTittleContainers.update(player, GuiTempletsYaml.getGuiTitle("Settings_Menu", getPageNumber()), Material.CHEST, getMenu().getSize());
-				updateButtons();
+				UpdateTittleContainers.update(player, GuiTempletsYaml.getGuiTitle("Settings_Menu",/*placeholder i use here*/ getPageNumber()));
 			}
 
 			@Override
@@ -225,8 +225,7 @@ public class PartyListMenu extends MenuHolder {
 				if (click.isLeftClick()) {
 					nextPage();
 				}
-				UpdateTittleContainers.update(player, GuiTempletsYaml.getGuiTitle("Settings_Menu", getPageNumber()), Material.CHEST, getMenu().getSize());
-				updateButtons();
+				UpdateTittleContainers.update(player, GuiTempletsYaml.getGuiTitle("Settings_Menu",/*placeholder i use here*/ getPageNumber()));
 			}
 
 			@Override
@@ -235,17 +234,16 @@ public class PartyListMenu extends MenuHolder {
 			}
 		};
 
-		ListOfPlayersInParty = new MenuButton() {
+		listOfObjects = new MenuButton() {
 
 			@Override
 			public void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object) {
 
-				if (clickedItem.getType() == Material.PLAYER_HEAD) {
-					SkullMeta meta = (SkullMeta) clickedItem.getItemMeta();
-					if (meta.getOwningPlayer() != null) {
+				if (object instanceof UUID) {
+				
      // your code here
-			
-				}
+			}
+	
 
 			}
 
@@ -271,7 +269,7 @@ public class PartyListMenu extends MenuHolder {
 
 	@Override
 	public ItemStack getFillItemsAt(Object o) {
-		return ListOfPlayersInParty.getItem(o);
+		return listOfObjects.getItem(o);
 	}
 
 	@Override
