@@ -163,7 +163,8 @@ public class PagedMenu extends MenuHolder {
 		setTitle("players in party");
                   // Witch slot you want to fill with items in.
 		setFillSpace(IntStream.rangeClosed(0, 35).boxed().collect(Collectors.toList()));
-	
+	        // add this if you want players add or remove items from slots you set with setFillSpace().	
+	        //setSlotsYouCanAddItems();
 
 		removeAllPlayers = new MenuButton() {
 			@Override
@@ -190,7 +191,7 @@ public class PagedMenu extends MenuHolder {
 				return null;
 			}
 		};
-// Open menu befor this.
+           // Open menu befor this.
 		backButton = new MenuButton() {
 			@Override
 			public void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object) {
