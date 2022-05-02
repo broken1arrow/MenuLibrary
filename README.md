@@ -276,6 +276,10 @@ public class PagedMenu extends MenuHolder {
 	@Override
 	public ItemStack getItemAt(int slot) {
 
+                if (slot == 36)
+	                return removeAllPlayers.getItem();
+                if (slot == 37)
+	                return addPlayers.getItem();
 		if (slot == 38)
 			return forward.getItem();
 		if (slot == 35)
