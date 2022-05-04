@@ -1,7 +1,7 @@
 # MenuLibrary
 [![](https://jitpack.io/v/broken1arrow/MenuLibrary.svg)](https://jitpack.io/#broken1arrow/MenuLibrary)
 
-# Check wiki for info how to use it.
+Check wiki for info how to use it https://github.com/broken1arrow/MenuLibrary/wiki
 
 # Important changes I made in 0.28
 You can´t use RegisterClass(this) in newest update, use RegisterMenuAPI(this).
