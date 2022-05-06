@@ -199,7 +199,7 @@ public class RegisterMenuAPI {
 							}
 						}
 
-						if (isItemSimilar(itemStack, item) && isItemSimilar(createMenus.getAddedButtons(createMenus.getPageNumber(), clickedPos).getItemStack(), item)) {
+						if (itemStack != null && itemStack.getType() == item.getType() && isItemSimilar(createMenus.getAddedButtons(createMenus.getPageNumber(), clickedPos).getItemStack(), item)) {
 							return menuButton;
 						}
 					}

@@ -3,7 +3,6 @@ package org.brokenarrow.menu.library;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -53,7 +52,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
-	
+
 	public MenuHolder(Plugin plugin, int inventorySize, boolean shallCacheItems) {
 		super(plugin, inventorySize, shallCacheItems);
 	}
@@ -218,20 +217,6 @@ public class MenuHolder extends CreateMenus {
 	@Override
 	public void setSlotsYouCanAddItems(boolean slotsYouCanAddItems) {
 		super.setSlotsYouCanAddItems(slotsYouCanAddItems);
-	}
-
-	/**
-	 * I don´t know if it usefull in current form or need rework.
-	 * <p>
-	 * Set own data it shall check or it will use
-	 * the clicked item. It are both use in
-	 * {@link MenuButton#getItem(Object)} and {@link MenuButton#onClickInsideMenu(Player, Inventory, ClickType, ItemStack, Object)}
-	 *
-	 * @param object you want to compare against.
-	 */
-	@Override
-	public void setObject(Object object) {
-		super.setObject(object);
 	}
 
 	/**

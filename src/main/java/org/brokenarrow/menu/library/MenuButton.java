@@ -49,4 +49,23 @@ public abstract class MenuButton {
 	public ItemStack getItem(int slot, Object object) {
 		return null;
 	}
+
+	/**
+	 * Set own time it shall update buttons in seconds.
+	 *
+	 * @return seconds.
+	 */
+	public long updateTime() {
+		return -1;
+	}
+
+	/**
+	 * Set this to true if you want to update buttons.
+	 *
+	 * @return true if it shall update button.
+	 */
+	public boolean updateButton() {
+		return false;
+	}
+
 }
