@@ -126,6 +126,7 @@ public class MenuHolder extends CreateMenus {
 	 * @return one itemstack;
 	 */
 	@Override
+	@Deprecated
 	public ItemStack getItemAt(int slot) {
 		return super.getItemAt(slot);
 	}
@@ -137,6 +138,7 @@ public class MenuHolder extends CreateMenus {
 	 * @return one itemstack;
 	 */
 	@Override
+	@Deprecated
 	public ItemStack getFillItemsAt(Object o) {
 		return super.getFillItemsAt(o);
 	}
@@ -148,8 +150,37 @@ public class MenuHolder extends CreateMenus {
 	 * @return one itemstack;
 	 */
 	@Override
+	@Deprecated
 	public ItemStack getFillItemsAt(int slot) {
 		return super.getFillItemsAt(slot);
+	}
+
+	@Override
+	public MenuButton getButtonAt(int slot) {
+		return super.getButtonAt(slot);
+	}
+
+	/**
+	 * Register your fill buttons.
+	 *
+	 * @param object will return object you have added as fillitems.
+	 * @return MenuButton you have set.
+	 */
+	@Override
+	public MenuButton getFillButtonAt(Object object) {
+		return super.getFillButtonAt(object);
+	}
+
+	/**
+	 * Register your fill buttons, this method will return number from 0 to
+	 * amount you want inside the inventory.
+	 *
+	 * @param slot will return current number till will add item.
+	 * @return MenuButton you have set.
+	 */
+	@Override
+	public MenuButton getFillButtonAt(int slot) {
+		return super.getFillButtonAt(slot);
 	}
 
 	/**

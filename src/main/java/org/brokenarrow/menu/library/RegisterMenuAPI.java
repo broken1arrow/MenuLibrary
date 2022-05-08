@@ -16,7 +16,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -184,10 +183,10 @@ public class RegisterMenuAPI {
 
 
 		public MenuButton getClickedButton(CreateMenus createMenus, ItemStack item, int clickedPos, int clickedSlot) {
-			if (item != null)
-				for (ListIterator<MenuButton> menuButtons = createMenus.getButtons().listIterator(); menuButtons.hasNext(); ) {
-					MenuButton menuButton = menuButtons.next();
-					Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : item;
+			if (item != null) {
+				//for (ListIterator<MenuButton> menuButtons = createMenus.getButtons().listIterator(); menuButtons.hasNext(); ) {
+				//	MenuButton menuButton = menuButtons.next();
+					/*Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : item;
 					if (createMenus.getAddedButtonsCache().containsKey(createMenus.getPageNumber())) {
 						ItemStack itemStack;
 						if (!createMenus.getFillSpace().contains(clickedSlot)) {
@@ -197,13 +196,17 @@ public class RegisterMenuAPI {
 							if (itemStack == null) {
 								itemStack = menuButton.getItem();
 							}
-						}
+						}*/
+				Map<Integer, CreateMenus.MenuData> menuDataMap = createMenus.getMenuData(createMenus.getPageNumber());
+				if (menuDataMap != null && !menuDataMap.isEmpty()) {
+					CreateMenus.MenuData menuData = menuDataMap.get(clickedPos);
+					if (menuData == null) return null;
 
-						if (itemStack != null && itemStack.getType() == item.getType() && isItemSimilar(createMenus.getAddedButtons(createMenus.getPageNumber(), clickedPos).getItemStack(), item)) {
-							return menuButton;
-						}
+					if (isItemSimilar(menuData.getItemStack(), item)) {
+						return menuData.getMenuButton();
 					}
 				}
+			}
 			return null;
 		}
 

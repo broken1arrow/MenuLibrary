@@ -181,7 +181,7 @@ public class CreateMenus {
 	private Sound menuOpenSound = Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull() == null ? Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BASEDRUM").orNull() : Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull();
 	private String title;
 	private String playermetadataKey;
-	private Object object;
+
 	private Location location;
 
 	/**
@@ -213,6 +213,37 @@ public class CreateMenus {
 	 */
 
 	public ItemStack getFillItemsAt(int slot) {
+		return null;
+	}
+
+	/**
+	 * Register your buttons you want inside the menu.
+	 *
+	 * @param slot will return slot number it will add item.
+	 * @return MenuButton you have set.
+	 */
+	public MenuButton getButtonAt(int slot) {
+		return null;
+	}
+
+	/**
+	 * Register your fill buttons.
+	 *
+	 * @param object will return object you have added as fillitems.
+	 * @return MenuButton you have set.
+	 */
+	public MenuButton getFillButtonAt(Object object) {
+		return null;
+	}
+
+	/**
+	 * Register your fill buttons, this method will return number from 0 to
+	 * amount you want inside the inventory.
+	 *
+	 * @param slot will return current number till will add item.
+	 * @return MenuButton you have set.
+	 */
+	public MenuButton getFillButtonAt(int slot) {
 		return null;
 	}
 
@@ -371,7 +402,7 @@ public class CreateMenus {
 		Map<Integer, MenuData> data = addedButtons.get(pageNumber);
 		if (data != null)
 			return data.get(slotIndex);
-		return new MenuData(null, "");
+		return new MenuData(null, null, "");
 	}
 
 	/**
@@ -593,7 +624,7 @@ public class CreateMenus {
 		player.openInventory(menu);
 
 		if (this.title == null || this.title.equals(""))
-			this.title = "Menu" + (getRequiredPages() > 0 ? " page:" : "");
+			this.title = "Menu" + (getRequiredPages() > 0 ? " page: " : "");
 
 		Bukkit.getScheduler().runTaskLater(plugin, this::updateTittle, 1);
 		onMenuOpenPlaySound();
@@ -696,7 +727,7 @@ public class CreateMenus {
 
 	private void updateTittle() {
 		if (this.title != null && !this.title.equals(""))
-			UpdateTittleContainers.update(player, this.title + (getRequiredPages() > 0 ? (getPageNumber() + 1) + "" : ""));
+			UpdateTittleContainers.update(player, this.title + (getRequiredPages() > 1 ? (getPageNumber() + 1) + "" : ""));
 	}
 
 	private Object toMenuCache(Player player, Location location) {
@@ -848,32 +879,50 @@ public class CreateMenus {
 		for (int slot = 0; slot < this.inventorySize; slot++) {
 
 			Object objectFromlistOfFillItems = "";
-			if (this.getFillSpace() != null && this.getFillSpace().contains(slot))
-				objectFromlistOfFillItems = getObjectFromlistOfFillItems(this.slotIndex);
+			int slotIndexOld = this.slotIndex;
+			if (this.getFillSpace() != null && this.getFillSpace().contains(slot)) {
+				objectFromlistOfFillItems = getObjectFromlistOfFillItems(slotIndexOld);
+				this.slotIndex++;
+			}
+			MenuButton menuButton = getMenuButtonAtSlot(slot, slotIndexOld, objectFromlistOfFillItems);
+			ItemStack result = getItemAtSlot(menuButton, slot, slotIndexOld, objectFromlistOfFillItems);
 
-			ItemStack result = getItemAtSlot(slot, objectFromlistOfFillItems);
-
-			addedButtons.put(pageNumber * this.inventorySize + slot, new MenuData(result, objectFromlistOfFillItems));
+			addedButtons.put(pageNumber * this.getInventorySize() + slot, new MenuData(result, menuButton, objectFromlistOfFillItems));
 		}
 		return addedButtons;
 	}
 
-	private ItemStack getItemAtSlot(int slot, Object objectFromlistOfFillItems) {
-		ItemStack result;
+	private MenuButton getMenuButtonAtSlot(int slot, int oldSlotIndex, Object objectFromlistOfFillItems) {
+		MenuButton result;
 		if (this.getFillSpace() != null && this.getFillSpace().contains(slot)) {
 			if (objectFromlistOfFillItems != null && !objectFromlistOfFillItems.equals(""))
-				result = getFillItemsAt(objectFromlistOfFillItems);
+				result = getFillButtonAt(objectFromlistOfFillItems);
 			else
-				result = getFillItemsAt(this.slotIndex);
-			this.slotIndex++;
+				result = getFillButtonAt(oldSlotIndex);
 		} else {
-			result = getItemAt(slot);
+			result = getButtonAt(slot);
+		}
+		return result;
+	}
+
+	private ItemStack getItemAtSlot(MenuButton menuButton, int slot, int oldSlotIndex, Object objectFromlistOfFillItems) {
+		if (menuButton == null) return null;
+
+		ItemStack result = null;
+		if (this.getFillSpace() != null && this.getFillSpace().contains(slot)) {
+			if (objectFromlistOfFillItems != null && !objectFromlistOfFillItems.equals("")) {
+				result = menuButton.getItem(objectFromlistOfFillItems);
+				if (result == null)
+					result = menuButton.getItem(oldSlotIndex, objectFromlistOfFillItems);
+			}
+		} else {
+			result = menuButton.getItem();
 		}
 		return result;
 	}
 
 	private Object getObjectFromlistOfFillItems(int slotIndex) {
-		if (listOfFillItems != null && listOfFillItems.size() > this.slotIndex)
+		if (listOfFillItems != null && listOfFillItems.size() > slotIndex)
 			return listOfFillItems.get(slotIndex);
 		else return null;
 	}
@@ -915,19 +964,19 @@ public class CreateMenus {
 
 			@Override
 			public void run() {
-				Set<Integer> itemSlots;
-				Map<Integer, MenuData> menuDataMap = getMenuData(getPageNumber());
-				if (menuDataMap == null) {
-					cancel();
-					return;
-				}
 				for (MenuButton menuButton : getButtonsToUpdate()) {
 
 					Long timeleft = timeWhenUpdatesButtons.get(menuButton);
 					if (timeleft == null || timeleft == 0)
 						timeWhenUpdatesButtons.put(menuButton, counter + getupdateTime(menuButton));
 					else if (counter >= timeleft) {
-						itemSlots = getItemSlotsMap(menuButton);
+						Map<Integer, MenuData> menuDataMap = getMenuData(getPageNumber());
+						if (menuDataMap == null) {
+							cancel();
+							return;
+						}
+
+						Set<Integer> itemSlots = getItemSlotsMap(menuButton);
 
 						if (itemSlots.isEmpty())
 							timeWhenUpdatesButtons.put(menuButton, counter + getupdateTime(menuButton));
@@ -938,8 +987,8 @@ public class CreateMenus {
 
 								MenuData menuData = menuDataMap.get(getSlotFromCache(slot));
 
-								ItemStack menuItem = getMenuButton(menuButton, menuData);
-								menuDataMap.put(getSlotFromCache(slot), new MenuData(menuItem, menuData.getObject()));
+								ItemStack menuItem = getMenuButton(menuButton, menuData, slot);
+								menuDataMap.put(getSlotFromCache(slot), new MenuData(menuItem, menuData.getMenuButton(), menuData.getObject()));
 
 								addedButtons.put(getPageNumber(), menuDataMap);
 								inventory.setItem(slot, menuItem);
@@ -955,51 +1004,68 @@ public class CreateMenus {
 
 	}
 
-	private ItemStack getMenuButton(MenuButton menuButton, MenuData cachedButtons) {
-		if (menuButton.getItem() != null && menuButton.updateButton())
+	private ItemStack getMenuButton(MenuButton menuButton, MenuData cachedButtons, int slot) {
+		if (menuButton == null) return null;
+		boolean updateButton = menuButton.updateButton();
+
+		if (menuButton.getItem() != null && updateButton)
 			return menuButton.getItem();
-		if (menuButton.getItem(cachedButtons.getObject()) != null && menuButton.updateButton())
+		if (menuButton.getItem(cachedButtons.getObject()) != null && updateButton)
 			return menuButton.getItem(cachedButtons.getObject());
-		if (menuButton.getItem(this.slotIndex, cachedButtons.getObject()) != null && menuButton.updateButton())
-			return menuButton.getItem(this.slotIndex, cachedButtons.getObject());
+		if (menuButton.getItem(getSlotFromCache(slot), cachedButtons.getObject()) != null && updateButton)
+			return menuButton.getItem(getSlotFromCache(slot), cachedButtons.getObject());
+
 		return null;
 	}
 
 	private Set<Integer> getItemSlotsMap(MenuButton menuButton) {
 		Set<Integer> slotList = new HashSet<>();
-		if (this.slotIndex > 0) this.slotIndex = 0;
+
 		for (int slot = 0; slot < this.inventorySize; slot++) {
 			MenuData addedButtons = this.getAddedButtons(this.getPageNumber(), this.getSlotFromCache(slot));
 			if (addedButtons == null) continue;
-			ItemStack itemStacks = getItemAtSlot(slot, addedButtons.getObject());
-			ItemStack menuItem = getMenuButton(menuButton, addedButtons);
-			if (menuItem != null && itemStacks != null && menuItem.isSimilar(itemStacks)) {
+
+			if (addedButtons.getMenuButton() == menuButton)
 				slotList.add(slot);
-			}
-
-			if (this.getFillSpace() != null && this.getFillSpace().contains(slot)) {
-				this.slotIndex++;
-			}
-
 		}
-		this.slotIndex = 0;
 		return slotList;
 	}
 
 	protected class MenuData {
 
 		private final ItemStack itemStack;
+		private final MenuButton menuButtonLinkedToThisItem;
 		private final Object object;
 
-		public MenuData(ItemStack itemStack, Object object) {
+		public MenuData(ItemStack itemStack, MenuButton menuButton, Object object) {
 			this.itemStack = itemStack;
+			this.menuButtonLinkedToThisItem = menuButton;
 			this.object = object;
 		}
 
+		/**
+		 * the itemstack you want to be displayed in the menu.
+		 *
+		 * @return the itemstack you added in the menu.
+		 */
 		public ItemStack getItemStack() {
 			return itemStack;
 		}
 
+		/**
+		 * The button linked to this item.
+		 *
+		 * @return menuButton.
+		 */
+		public MenuButton getMenuButton() {
+			return menuButtonLinkedToThisItem;
+		}
+
+		/**
+		 * get the data linked to this item.
+		 *
+		 * @return object data you want this item contains.
+		 */
 		public Object getObject() {
 			return object;
 		}
