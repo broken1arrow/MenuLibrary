@@ -41,14 +41,18 @@ public class CreateItemStack {
 	private boolean glow;
 	private boolean showEnchantments;
 	private boolean ignoreLevelRestrictions;
+	private static ConvertToItemStack convertItems;
 
 	private CreateItemStack(final Bulider bulider) {
+		if (convertItems == null)
+			convertItems = new ConvertToItemStack();
 		this.itemStack = bulider.itemStack;
 		this.matrial = bulider.matrial;
 		this.stringItem = bulider.stringItem;
 		this.itemArray = bulider.itemArray;
 		this.displayName = bulider.displayName;
 		this.lore = bulider.lore;
+
 	}
 
 	/**
@@ -71,8 +75,34 @@ public class CreateItemStack {
 	 * @param itemMetaValue set metadata value
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static CreateItemStack of(final Object item, final String itemMetaKey, String itemMetaValue) {
+	public static CreateItemStack of(final Object item, final String itemMetaKey, final String itemMetaValue) {
 		return of(item).setItemMetaData(itemMetaKey, itemMetaValue);
+	}
+
+	/**
+	 * Start to create simple item. Some have no displayname or
+	 * lore. Finish creation with {@link #makeItemStack()}
+	 *
+	 * @param item  String name,Matrial or Itemstack.
+	 * @param color if you use minecraft version before 1.13.
+	 * @return CreateItemUtily class or class with air item (if item are null).
+	 */
+	public static CreateItemStack of(final Object item, String color) {
+		return of(item, color, null, (List<String>) null);
+	}
+
+	/**
+	 * Start to create simple item. Some have no displayname or
+	 * lore, but have metadata. Finish creation with {@link #makeItemStack()}
+	 *
+	 * @param item          String name,Matrial or Itemstack.
+	 * @param color         if you use minecraft version before 1.13.
+	 * @param itemMetaKey   set metadata key
+	 * @param itemMetaValue set metadata value
+	 * @return CreateItemUtily class or class with air item (if item are null).
+	 */
+	public static CreateItemStack of(final Object item, String color, final String itemMetaKey, final String itemMetaValue) {
+		return of(item, color).setItemMetaData(itemMetaKey, itemMetaValue);
 	}
 
 	/**
@@ -100,15 +130,20 @@ public class CreateItemStack {
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
 	public static CreateItemStack of(final Object item, final String displayName, final List<String> lore) {
+		return new Bulider(getConvertItems().checkItem(item), displayName, lore).build();
+	}
 
-		if (item instanceof ItemStack)
-			return new Bulider((ItemStack) item, displayName, lore).build();
-		else if (item instanceof Material)
-			return new Bulider((Material) item, displayName, lore).build();
-		else if (item instanceof String)
-			return new Bulider((String) item, displayName, lore).build();
-
-		return new Bulider((String) null, displayName, lore).build();
+	/**
+	 * Start to create an item. Finish creation with {@link #makeItemStack()}
+	 *
+	 * @param item        String name,Matrial or Itemstack.
+	 * @param color       if you use minecraft version before 1.13.
+	 * @param displayName name on the item.
+	 * @param lore        on the item.
+	 * @return CreateItemUtily class or class with air item (if item are null).
+	 */
+	public static CreateItemStack of(final Object item, String color, final String displayName, final List<String> lore) {
+		return new Bulider(getConvertItems().checkItem(item, color), displayName, lore).build();
 	}
 
 	/**
@@ -368,14 +403,15 @@ public class CreateItemStack {
 	}
 
 	private ItemStack checkTypeOfItem(Object object) {
-		if (object instanceof ItemStack)
+		return getConvertItems().checkItem(object);
+	/*	if (object instanceof ItemStack)
 			return (ItemStack) object;
 		else if (object instanceof Material)
 			return new ItemStack((Material) object);
 		else if (object instanceof String)
 			return new ItemStack(Enums.getIfPresent(Material.class, (String) object).orNull() == null ? Material.AIR : Material.valueOf((String) object));
 
-		return null;
+		return null;*/
 	}
 
 	private void addEnchantments(final ItemMeta itemMeta) {
@@ -390,9 +426,8 @@ public class CreateItemStack {
 			if (isShowEnchantments())
 				hideEnchantments(itemMeta);
 		} else if (this.glow) {
-			if (!isShowEnchantments())
-				itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, false);
-			if (isShowEnchantments())
+			itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, false);
+			if (!isShowEnchantments() || !visibleItemFlags.isEmpty())
 				hideEnchantments(itemMeta);
 		}
 	}
@@ -539,6 +574,12 @@ public class CreateItemStack {
 					countItems += itemStack.getAmount();
 				}
 		return countItems;
+	}
+
+	protected static ConvertToItemStack getConvertItems() {
+		if (convertItems == null)
+			convertItems = new ConvertToItemStack();
+		return convertItems;
 	}
 
 	/**
