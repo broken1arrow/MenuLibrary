@@ -75,7 +75,7 @@ public class RegisterMenuAPI {
 			if (createMenus == null) return;
 			if (!event.getView().getTopInventory().equals(createMenus.getMenu())) return;
 
-			if (!createMenus.getButtons().isEmpty()) {
+			if (!createMenus.getButtons().isEmpty() || !createMenus.getAddedButtonsCache().isEmpty()) {
 				int clickedSlot = event.getSlot();
 				int clickedPos = createMenus.getPageNumber() * createMenus.getMenu().getSize() + clickedSlot;
 
