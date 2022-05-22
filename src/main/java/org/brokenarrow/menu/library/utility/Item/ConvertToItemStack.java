@@ -104,7 +104,7 @@ public class ConvertToItemStack {
 			if (item.contains("CONCRETE_POWDER")) {
 				return new ItemStack(Material.valueOf("CONCRETE_POWDER"), amount, (short) color);
 			}
-	
+
 			if (item.endsWith("_CONCRETE")) {
 				return new ItemStack(Material.valueOf("CONCRETE"), amount, (short) color);
 			}
@@ -112,6 +112,7 @@ public class ConvertToItemStack {
 		if ((item.endsWith("_TERRACOTTA") || item.endsWith("_STAINED_CLAY")) && !item.endsWith("GLAZED_TERRACOTTA")) {
 			return new ItemStack(Material.valueOf("STAINED_CLAY"), amount, (short) color);
 		}
+	
 		if (item.equals("TERRACOTTA")) {
 			return new ItemStack(Material.valueOf("HARD_CLAY"), amount, (short) 0);
 		} else {

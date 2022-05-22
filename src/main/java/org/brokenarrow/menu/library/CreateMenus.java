@@ -166,7 +166,7 @@ public class CreateMenus {
 	private Inventory inventory;
 	private boolean shallCacheItems;
 	private boolean slotsYouCanAddItems;
-	private boolean loadToCahe;
+	private boolean updateButtons;
 	private boolean allowShiftClick = true;
 	private int slotIndex = 0;
 	private int requiredPages;
@@ -366,6 +366,24 @@ public class CreateMenus {
 	 */
 	public void setUpdateTime(int updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	/**
+	 * Check if update buttons is on.
+	 *
+	 * @return true if you want to update all buttons.
+	 */
+	public boolean isUpdateButtons() {
+		return updateButtons;
+	}
+
+	/**
+	 * Set if you want to update buttons.
+	 *
+	 * @param updateButtons true if it shall update all buttons.
+	 */
+	public void setUpdateButtons(boolean updateButtons) {
+		this.updateButtons = updateButtons;
 	}
 
 	/**
@@ -604,7 +622,7 @@ public class CreateMenus {
 	private void menuOpen(final Player player, final Location location, final boolean loadToCahe) {
 		this.player = player;
 		this.location = location;
-		this.loadToCahe = loadToCahe;
+
 
 		if (player.getOpenInventory().getTopInventory().getHolder() != null)
 			player.closeInventory();
@@ -624,13 +642,16 @@ public class CreateMenus {
 		player.openInventory(menu);
 
 		if (this.title == null || this.title.equals(""))
-			this.title = "Menu" + (getRequiredPages() > 0 ? " page: " : "");
+			this.title = "Menu" + (getRequiredPages() > 1 ? " page: " : "");
 
 		Bukkit.getScheduler().runTaskLater(plugin, this::updateTittle, 1);
 		onMenuOpenPlaySound();
 
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
 		amountOfViwers++;
+
+		if (!getButtonsToUpdate().isEmpty())
+			updateButtonsInList();
 	}
 
 	/**
@@ -781,7 +802,11 @@ public class CreateMenus {
 	 */
 	@Deprecated
 	protected void onMenuClose(InventoryCloseEvent event) {
+		
+		if (Bukkit.getScheduler().isCurrentlyRunning(this.taskid) || Bukkit.getScheduler().isQueued(this.taskid)) {
+			Bukkit.getScheduler().cancelTask(this.taskid);
 
+		}
 		if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN))
 			removePlayerMenuMetadata(this.player, MenuMetadataKey.MENU_OPEN);
 
@@ -831,7 +856,7 @@ public class CreateMenus {
 			if (MenuButton.class.isAssignableFrom(field.getType())) {
 				try {
 					MenuButton fielddata = (MenuButton) field.get(this);
-					if (fielddata != null && fielddata.updateButton()) {
+					if (fielddata != null && (fielddata.updateButton() || this.isUpdateButtons())) {
 						this.buttonsToUpdate.add(fielddata);
 					}
 					this.buttons.add(fielddata);
