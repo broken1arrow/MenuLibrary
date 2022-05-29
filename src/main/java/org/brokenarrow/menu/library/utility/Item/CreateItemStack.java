@@ -1,6 +1,7 @@
 package org.brokenarrow.menu.library.utility.Item;
 
 import com.google.common.base.Enums;
+import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
 import org.broken.lib.rbg.TextTranslator;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import static org.brokenarrow.menu.library.RegisterMenuAPI.getNbtApi;
 import static org.brokenarrow.menu.library.RegisterMenuAPI.getPLUGIN;
 
 /**
@@ -34,8 +36,8 @@ public class CreateItemStack {
 	private final List<Enchantment> enchantments = new ArrayList<>();
 	private final List<ItemFlag> visibleItemFlags = new ArrayList<>();
 	private String itemMetaKey;
-	private String itemMetaValue;
-	private Map<String, String> itemMetaMap;
+	private Object itemMetaValue;
+	private Map<String, Object> itemMetaMap;
 	private int amoutOfItems;
 	private int enchantmentsLevel;
 	private boolean glow;
@@ -212,7 +214,7 @@ public class CreateItemStack {
 	}
 
 	/**
-	 * Add own enchantments. Set {@link #isShowEnchantments(boolean)} to true
+	 * Add own enchantments. Set {@link #setShowEnchantments(boolean)} to true
 	 * if you whant to hide all enchants (defult so will it not hide enchants).
 	 * <p>
 	 * This method uses varargs and add it to list, Like this "a","b","c".
@@ -226,7 +228,7 @@ public class CreateItemStack {
 	}
 
 	/**
-	 * Add own enchantments. Set {@link #isShowEnchantments(boolean)} to true
+	 * Add own enchantments. Set {@link #setShowEnchantments(boolean)} to true
 	 * if you whant to hide all enchants (defult so will it not hide enchants).
 	 *
 	 * @param enchantments list of enchantments you want to add.
@@ -269,7 +271,7 @@ public class CreateItemStack {
 	 * @param showEnchantments true and will show enchants.
 	 * @return this class.
 	 */
-	public CreateItemStack isShowEnchantments(final boolean showEnchantments) {
+	public CreateItemStack setShowEnchantments(final boolean showEnchantments) {
 		this.showEnchantments = showEnchantments;
 		return this;
 	}
@@ -281,7 +283,7 @@ public class CreateItemStack {
 	 * @param itemMetaValue value you want to set.
 	 * @return this class.
 	 */
-	public CreateItemStack setItemMetaData(final String itemMetaKey, final String itemMetaValue) {
+	public CreateItemStack setItemMetaData(final String itemMetaKey, final Object itemMetaValue) {
 		this.itemMetaKey = itemMetaKey;
 		this.itemMetaValue = itemMetaValue;
 		return this;
@@ -294,7 +296,7 @@ public class CreateItemStack {
 	 * @param itemMetaMap map of values.
 	 * @return this class.
 	 */
-	public CreateItemStack setItemMetaDataList(final Map<String, String> itemMetaMap) {
+	public CreateItemStack setItemMetaDataList(final Map<String, Object> itemMetaMap) {
 		this.itemMetaMap = itemMetaMap;
 		return this;
 	}
@@ -318,15 +320,17 @@ public class CreateItemStack {
 	 */
 	public ItemStack makeItemStack() {
 		ItemStack itemstack = checkTypeOfItem();
+		RegisterNbtAPI nbtApi = getNbtApi();
 
 		if (itemstack != null && itemstack.getType() != Material.AIR) {
-		/*	if (this.itemMetaMap != null) {
-				for (final Map.Entry<String, String> entitys : this.itemMetaMap.entrySet()) {
-					itemstack = CompMetadata.setMetadata(itemstack, entitys.getKey(), entitys.getValue());
-				}
-			} else if (this.itemMetaKey != null && this.itemMetaValue != null)
-				itemstack = CompMetadata.setMetadata(itemstack, this.itemMetaKey, this.itemMetaValue);
-*/
+			if (nbtApi != null)
+				if (this.itemMetaMap != null) {
+					for (final Map.Entry<String, Object> entitys : this.itemMetaMap.entrySet()) {
+						itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue());
+					}
+				} else if (this.itemMetaKey != null && this.itemMetaValue != null)
+					itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, this.itemMetaKey, this.itemMetaValue);
+
 			final ItemMeta itemMeta = itemstack.getItemMeta();
 
 			if (itemMeta != null) {
@@ -353,6 +357,7 @@ public class CreateItemStack {
 	 */
 	public ItemStack[] makeItemStackArray() {
 		ItemStack itemstack = null;
+		RegisterNbtAPI nbtApi = getNbtApi();
 		final List<ItemStack> list = new ArrayList<>();
 
 		if (this.itemArray != null)
@@ -360,16 +365,15 @@ public class CreateItemStack {
 				itemstack = checkTypeOfItem(itemStringName);
 				if (itemstack == null) continue;
 
-				itemstack = new ItemStack(Enums.getIfPresent(Material.class, (String) itemStringName).orNull() == null ? Material.AIR : Material.valueOf((String) itemStringName));
-
 				if (!(itemstack.getType() == Material.AIR)) {
-				/*	if (itemMetaMap != null) {
-						for (final Map.Entry<String, String> entitys : this.itemMetaMap.entrySet()) {
-							itemstack = CompMetadata.setMetadata(itemstack, entitys.getKey(), entitys.getValue());
-						}
-					} else if (this.itemMetaKey != null && this.itemMetaValue != null)
-						itemstack = CompMetadata.setMetadata(itemstack, this.itemMetaKey, this.itemMetaValue);
-*/
+					if (nbtApi != null)
+						if (itemMetaMap != null) {
+							for (final Map.Entry<String, Object> entitys : this.itemMetaMap.entrySet()) {
+								itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue());
+							}
+						} else if (this.itemMetaKey != null && this.itemMetaValue != null)
+							itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, this.itemMetaKey, this.itemMetaValue);
+
 					final ItemMeta itemMeta = itemstack.getItemMeta();
 
 					if (itemMeta != null) {

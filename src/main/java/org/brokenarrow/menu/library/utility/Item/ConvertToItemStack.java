@@ -112,7 +112,7 @@ public class ConvertToItemStack {
 		if ((item.endsWith("_TERRACOTTA") || item.endsWith("_STAINED_CLAY")) && !item.endsWith("GLAZED_TERRACOTTA")) {
 			return new ItemStack(Material.valueOf("STAINED_CLAY"), amount, (short) color);
 		}
-	
+
 		if (item.equals("TERRACOTTA")) {
 			return new ItemStack(Material.valueOf("HARD_CLAY"), amount, (short) 0);
 		} else {
@@ -143,7 +143,7 @@ public class ConvertToItemStack {
 		if (end < 0)
 			end = color.length();
 		color = color.substring(0, end);
-		System.out.println("checkColor " + color);
+		
 		if (color.equals("WHITE"))
 			return 0;
 		if (color.equals("ORANGE"))

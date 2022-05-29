@@ -8,7 +8,7 @@
     <groupId>org.brokenarrow.menu.library</groupId>
     <artifactId>menulibrary</artifactId>
     <name>menulibrary</name>
-    <version>0.0.49</version>
+    <version>0.0.50</version>
 
     <!-- ############################################################################### -->
 
@@ -105,6 +105,12 @@
         </dependency>
         <dependency>
             <groupId>com.github.broken1arrow</groupId>
+            <artifactId>Item-NBT-API</artifactId>
+            <version>2.9.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.broken1arrow</groupId>
             <artifactId>RBG-Gradients</artifactId>
             <version>0.18</version>
             <scope>compile</scope>
@@ -184,6 +190,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>com.github.broken1arrow:*</include>
+                                    <include>com.github.broken1arrow.Item-NBT-API:item-nbt-api:*</include>
                                 </includes>
                                 <excludes>
                                 </excludes>
@@ -191,7 +198,11 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.broken.lib.rbg</pattern>
-                                    <shadedPattern>${project.groupId}.dependencies.rbglib</shadedPattern>
+                                    <shadedPattern>${project.name}.dependencies.rbglib</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>de.tr7zw.changeme</pattern>
+                                    <shadedPattern>${project.name}.dependencies.nbt</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

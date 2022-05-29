@@ -1,6 +1,7 @@
 package org.brokenarrow.menu.library;
 
 import com.google.common.base.Enums;
+import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
 import org.brokenarrow.menu.library.cache.MenuCache;
 import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
@@ -27,6 +28,7 @@ import static org.brokenarrow.menu.library.utility.ServerVersion.v1_18;
 public class RegisterMenuAPI {
 
 	private static Plugin PLUGIN;
+	private static RegisterNbtAPI nbtApi;
 
 	private RegisterMenuAPI() {
 		throw new UnsupportedOperationException("You need specify your main class");
@@ -37,9 +39,10 @@ public class RegisterMenuAPI {
 		registerMenuEvent();
 		setServerVersion(plugin);
 		versionCheck();
+		nbtApi = new RegisterNbtAPI(plugin, false);
 	}
 
-	public static void versionCheck() {
+	public final void versionCheck() {
 		PLUGIN.getLogger().log(Level.INFO, "Now starting MenuApi. Any errors will be shown below.");
 		if (ServerVersion.newerThan(v1_18)) {
 			PLUGIN.getLogger().log(Level.WARNING, "Is untested on never minecraft versions an 1.18.2");
@@ -55,6 +58,10 @@ public class RegisterMenuAPI {
 
 	private void registerMenuEvent() {
 		Bukkit.getPluginManager().registerEvents(new MenuHolderListener(), PLUGIN);
+	}
+
+	public static RegisterNbtAPI getNbtApi() {
+		return nbtApi;
 	}
 
 	private static class MenuHolderListener implements Listener {
