@@ -53,13 +53,20 @@ public class ConvertToItemStack {
 	 */
 	public ItemStack checkItem(final Object object, String color) {
 		color = color.toUpperCase(Locale.ROOT);
+		short colorNumber;
 		if (object instanceof ItemStack)
 			return checkItemStack((ItemStack) object, color);
-		else if (object instanceof Material)
-			return new ItemStack((Material) object, 1, checkColor(color));
-		else if (object instanceof String) {
+		else if (object instanceof Material) {
+			colorNumber = checkColor(color);
+			if (colorNumber > 0)
+				return new ItemStack((Material) object, 1, colorNumber);
+			return new ItemStack((Material) object, 1);
+		} else if (object instanceof String) {
 			String stringName = ((String) object).toUpperCase(Locale.ROOT);
-			return new ItemStack(Enums.getIfPresent(Material.class, stringName).orNull() == null ? Material.AIR : Material.valueOf(stringName), 1, checkColor(color));
+			colorNumber = checkColor(color);
+			if (colorNumber > 0)
+				return new ItemStack(Enums.getIfPresent(Material.class, stringName).orNull() == null ? Material.AIR : Material.valueOf(stringName), 1, colorNumber);
+			return new ItemStack(Enums.getIfPresent(Material.class, stringName).orNull() == null ? Material.AIR : Material.valueOf(stringName), 1);
 		}
 		return null;
 	}
@@ -143,7 +150,7 @@ public class ConvertToItemStack {
 		if (end < 0)
 			end = color.length();
 		color = color.substring(0, end);
-		
+
 		if (color.equals("WHITE"))
 			return 0;
 		if (color.equals("ORANGE"))
