@@ -4,26 +4,28 @@ import org.broken.lib.rbg.TextTranslator;
 import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UpdateTittleContainers {
 
-	static Class<?> packetclass;
-	static Method handle;
-	static Field playerConnection;
-	static Class<?> packetConnectionClass;
-	static Class<?> chatBaseCompenent;
-	static Class<?> chatCompenentSubClass;
-	static Class<?> containersClass;
-	static Class<?> containerClass;
-	static Constructor<?> packetConstructor;
-
+	private static Class<?> packetclass;
+	private static Method handle;
+	private static Field playerConnection;
+	private static Class<?> packetConnectionClass;
+	private static Class<?> chatBaseCompenent;
+	private static Class<?> chatCompenentSubClass;
+	private static Class<?> containersClass;
+	private static Class<?> containerClass;
+	private static Constructor<?> packetConstructor;
+	private static final Map<Integer, String> containerFieldname = new HashMap<>();
+	private static NmsData nmsData;
 
 	public static void update(Player p, String title) {
 
@@ -32,16 +34,26 @@ public class UpdateTittleContainers {
 				Inventory inventory = p.getOpenInventory().getTopInventory();
 				int size = inventory.getSize();
 				if (ServerVersion.equals(ServerVersion.v1_17)) {
+					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
+					if (nmsData == null)
+						nmsData = new NmsData("bV", "j", "sendPacket", "initMenu");
 					loadNmsClasses1_17();
-					updateInventory1_17(p, title, inventory, size);
-
-				} else if (ServerVersion.newerThan(ServerVersion.v1_17)) {
+					updateInventory(p, title, inventory, nmsData);
+				} else if (ServerVersion.atLeast(ServerVersion.v1_18_0)) {
+					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
+					if (nmsData == null)
+						nmsData = new NmsData(ServerVersion.equals(ServerVersion.v1_18_2) ? "bV" : "bW", "j",
+								"a", "a");
 					loadNmsClasses1_18();
-					updateInventory1_18(p, title, inventory, size);
+					updateInventory(p, title, inventory, nmsData);
 				} else if (ServerVersion.olderThan(ServerVersion.v1_17)) {
 					try {
+						convertFieldNames("9;1", "18;2", "27;3", "36;4", "45;5", "54;6", "5;HOPPER");
+						if (nmsData == null)
+							nmsData = new NmsData("activeContainer", "windowId",
+									"sendPacket", "updateInventory");
 						loadNmsClasses();
-						updateInventory1_16AndLower(p, title, inventory, size);
+						updateInventory(p, title, inventory, nmsData);
 					} catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
 						e.printStackTrace();
 					}
@@ -125,127 +137,58 @@ public class UpdateTittleContainers {
 			packetConstructor = Class.forName("net.minecraft.network.protocol.game.PacketPlayOutOpenWindow").getConstructor(int.class, containersClass, chatBaseCompenent);
 	}
 
-	private static void updateInventory1_16AndLower(Player p, String title, Inventory inventory, int size) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException, InstantiationException {
-
+	private static void updateInventory(Player p, String title, Inventory inventory, NmsData nmsData) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
+		int inventorySize = inventory.getSize();
+		boolean isOlder = ServerVersion.olderThan(ServerVersion.v1_17);
 		Object player = p.getClass().getMethod("getHandle").invoke(p);
-		Object activeContainer = player.getClass().getField("activeContainer").get(player);
-		Object windowId = activeContainer.getClass().getField("windowId").get(activeContainer);
-		//todo add this instead of use arguments in method p.getOpenInventory().getTopInventory().getType()
-		Object methods;
-		if (ServerVersion.newerThan(ServerVersion.v1_13)) {
-			Object inventoryType = null;
-			Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
-			Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
+		// inside net.minecraft.world.entity.player.EntityHuman do you have this field
 
-			if (inventory.getType() == InventoryType.HOPPER)
-				inventoryType = containersClass.getField("HOPPER").get(null);
-			if (inventory.getType() == InventoryType.CHEST) {
-				if (size % 9 == 0)
-					inventoryType = containersClass.getField("GENERIC_9X" + size / 9).get(null);
-				else
-					inventoryType = containersClass.getField("GENERIC_9X5").get(null);
-			}
+		Object activeContainer = player.getClass().getField(nmsData.getContanerField()).get(player);
+		//j
+		Object windowId = activeContainer.getClass().getField(nmsData.getWindowId()).get(activeContainer);
+
+		Method declaredMethodChat;
+		Object inventoryTittle;
+		Object methods;
+
+		String fieldName = getContainerFieldname().get(inventorySize);
+		if (fieldName == null || fieldName.isEmpty()) {
+			if (isOlder)
+				fieldName = "GENERIC_9X6";
+			else
+				fieldName = "f";
+		} else if (isOlder) {
+			if (inventorySize % 9 == 0)
+				fieldName = "GENERIC_9X" + fieldName;
+		}
+		if (ServerVersion.newerThan(ServerVersion.v1_13)) {
+
+			declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
+			inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
+			Object inventoryType = containersClass.getField(fieldName).get(null);
 
 			methods = packetConstructor.newInstance(windowId, inventoryType, inventoryTittle);
 		} else {
-			Method declaredMethodChat = chatCompenentSubClass.getMethod(ServerVersion.newerThan(ServerVersion.v1_9) ? "b" : "a", String.class);
-			Object inventoryTittle = declaredMethodChat.invoke(null, "'" + TextTranslator.toSpigotFormat(title) + "'");
 
-			methods = packetConstructor.newInstance(windowId, "minecraft:" + inventory.getType().name().toLowerCase(), inventoryTittle, size);
+			declaredMethodChat = chatCompenentSubClass.getMethod(ServerVersion.newerThan(ServerVersion.v1_9) ? "b" : "a", String.class);
+			inventoryTittle = declaredMethodChat.invoke(null, "'" + TextTranslator.toSpigotFormat(title) + "'");
+
+			methods = packetConstructor.newInstance(windowId, "minecraft:" + inventory.getType().name().toLowerCase(), inventoryTittle, inventorySize);
 		}
 
 		Object handles = handle.invoke(p);
 		Object playerconect = playerConnection.get(handles);
-		Method packet1 = packetConnectionClass.getMethod("sendPacket", packetclass);
+		// net.minecraft.server.network.PlayerConnection
+		Method packet1 = packetConnectionClass.getMethod(nmsData.getSendPacket(), packetclass);
 
 		packet1.invoke(playerconect, methods);
-		player.getClass().getMethod("updateInventory", containerClass).invoke(player, activeContainer);
+		// inside net.minecraft.world.inventory.Container do you have method a(Container container)
+		player.getClass().getMethod(nmsData.getUpdateInventory(), containerClass).invoke(player, activeContainer);
 
 	}
 
-	private static void updateInventory1_17(Player p, String title, Inventory inventory, int inventorySize) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
-
-		Object player = p.getClass().getMethod("getHandle").invoke(p);
-		Object activeContainer = player.getClass().getField("bV").get(player);
-		Object windowId = activeContainer.getClass().getField("j").get(activeContainer);
-
-		Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
-		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
-
-		Object inventoryType;
-		String fieldName = "f";
-		if (inventory.getType() == InventoryType.HOPPER)
-			fieldName = "p";
-		if (inventory.getType() == InventoryType.CHEST)
-			if (inventorySize / 9 == 1)
-				fieldName = "a";
-			else if (inventorySize / 9 == 2)
-				fieldName = "b";
-			else if (inventorySize / 9 == 3)
-				fieldName = "c";
-			else if (inventorySize / 9 == 4)
-				fieldName = "d";
-			else if (inventorySize / 9 == 5)
-				fieldName = "e";
-			else if (inventorySize / 9 == 6)
-				fieldName = "f";
-			else
-				fieldName = "c";
-
-
-		inventoryType = containersClass.getField(fieldName).get(null);
-		Object methods = packetConstructor.newInstance(windowId, inventoryType, inventoryTittle);
-
-		Object handles = handle.invoke(p);
-		Object playerconect = playerConnection.get(handles);
-		Method packet1 = packetConnectionClass.getMethod("sendPacket", packetclass);
-
-		packet1.invoke(playerconect, methods);
-		player.getClass().getMethod("initMenu", containerClass).invoke(player, activeContainer);
-
-	}
-
-	private static void updateInventory1_18(Player p, String title, Inventory inventory, int inventorySize) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
-
-		Object player = p.getClass().getMethod("getHandle").invoke(p);
-		Object activeContainer = player.getClass().getField("bW").get(player);
-		Object windowId = activeContainer.getClass().getField("j").get(activeContainer);
-
-		Method declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
-		Object inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
-
-		Object inventoryType;
-		String fieldName = "f";
-
-		if (inventory.getType() == InventoryType.HOPPER)
-			fieldName = "p";
-		if (inventory.getType() == InventoryType.CHEST)
-			if (inventorySize / 9 == 1)
-				fieldName = "a";
-			else if (inventorySize / 9 == 2)
-				fieldName = "b";
-			else if (inventorySize / 9 == 3)
-				fieldName = "c";
-			else if (inventorySize / 9 == 4)
-				fieldName = "d";
-			else if (inventorySize / 9 == 5)
-				fieldName = "e";
-			else if (inventorySize / 9 == 6)
-				fieldName = "f";
-			else
-				fieldName = "c";
-
-
-		inventoryType = containersClass.getField(fieldName).get(null);
-		Object methods = packetConstructor.newInstance(windowId, inventoryType, inventoryTittle);
-
-		Object handles = handle.invoke(p);
-		Object playerconect = playerConnection.get(handles);
-		Method packet1 = packetConnectionClass.getMethod("a", packetclass);
-
-		packet1.invoke(playerconect, methods);
-		player.getClass().getMethod("a", containerClass).invoke(player, activeContainer);
-
+	public static Map<Integer, String> getContainerFieldname() {
+		return containerFieldname;
 	}
 
 	private static String versionCheckNms(String clazzName) {
@@ -256,6 +199,82 @@ public class UpdateTittleContainers {
 	private static String versionCheckBukkit(String clazzName) {
 
 		return "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().toGenericString().split("\\.")[3] + "." + clazzName;
+	}
+
+
+	/**
+	 * Use the method like this 9;a ("9" is inventory size and "a" is the field name).
+	 * Is used to get the field for diffrent inventorys in nms class.
+	 *
+	 * @param fieldNames set the name to get right container inventory.
+	 */
+	private static void convertFieldNames(String... fieldNames) {
+		if (fieldNames.length == 0) return;
+		if (!containerFieldname.isEmpty()) return;
+
+		for (String name : fieldNames) {
+			String[] splited = name.split(";");
+			if (splited.length == 2) {
+				containerFieldname.put(Integer.valueOf(splited[0]), splited[1]);
+			}
+		}
+	}
+
+	private static class NmsData {
+
+		private final String contanerField;
+		private final String windowId;
+		private final String sendPacket;
+		private final String updateInventory;
+
+
+		public NmsData(String contanerField, String windowId, String sendPacket, String updateInventory) {
+			this.contanerField = contanerField;
+			this.windowId = windowId;
+			this.sendPacket = sendPacket;
+			this.updateInventory = updateInventory;
+
+		}
+
+		/**
+		 * inside net.minecraft.world.entity.player.EntityHuman do you have this field.
+		 *
+		 * @return field name.
+		 */
+		public String getContanerField() {
+			return contanerField;
+		}
+
+		/**
+		 * This is uesd to get current id of a inventory (is intriger)
+		 * <p>
+		 * The field in this class net.minecraft.world.entity.player.EntityHuman.
+		 *
+		 * @return the field name.
+		 */
+		public String getWindowId() {
+			return windowId;
+		}
+
+		/**
+		 * take the method from this class net.minecraft.server.network.PlayerConnection .
+		 * This method a(Packet packet) older versions is it sendPacket(Packet packet).
+		 *
+		 * @return method name.
+		 */
+		public String getSendPacket() {
+			return sendPacket;
+		}
+
+		/**
+		 * take the field from this class net.minecraft.world.inventory.Container .
+		 * This method a(Container container) older versions is it initMenu or updateInventory.
+		 *
+		 * @return method name.
+		 */
+		public String getUpdateInventory() {
+			return updateInventory;
+		}
 	}
 
 }

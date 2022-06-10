@@ -23,7 +23,7 @@ import java.util.logging.Level;
 
 import static org.brokenarrow.menu.library.utility.Metadata.*;
 import static org.brokenarrow.menu.library.utility.ServerVersion.setServerVersion;
-import static org.brokenarrow.menu.library.utility.ServerVersion.v1_18;
+import static org.brokenarrow.menu.library.utility.ServerVersion.v1_18_2;
 
 public class RegisterMenuAPI {
 
@@ -44,7 +44,7 @@ public class RegisterMenuAPI {
 
 	public final void versionCheck() {
 		PLUGIN.getLogger().log(Level.INFO, "Now starting MenuApi. Any errors will be shown below.");
-		if (ServerVersion.newerThan(v1_18)) {
+		if (ServerVersion.newerThan(v1_18_2)) {
 			PLUGIN.getLogger().log(Level.WARNING, "Is untested on never minecraft versions an 1.18.2");
 		}
 		if (PLUGIN == null) {
