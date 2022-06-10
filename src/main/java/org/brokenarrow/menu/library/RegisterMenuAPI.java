@@ -52,6 +52,10 @@ public class RegisterMenuAPI {
 		}
 	}
 
+	public static void getLogger(Level level, String messsage) {
+		PLUGIN.getLogger().log(level, messsage);
+	}
+
 	public static Plugin getPLUGIN() {
 		return PLUGIN;
 	}

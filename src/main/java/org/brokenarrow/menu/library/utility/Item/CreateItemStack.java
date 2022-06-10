@@ -2,23 +2,27 @@ package org.brokenarrow.menu.library.utility.Item;
 
 import com.google.common.base.Enums;
 import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
+import de.tr7zw.changeme.nbtapi.utils.Valid;
 import org.broken.lib.rbg.TextTranslator;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.banner.Pattern;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.*;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
+import static org.brokenarrow.menu.library.RegisterMenuAPI.getLogger;
 import static org.brokenarrow.menu.library.RegisterMenuAPI.getNbtApi;
-import static org.brokenarrow.menu.library.RegisterMenuAPI.getPLUGIN;
+
 
 /**
  * Create items and also count number of items of
@@ -30,20 +34,33 @@ public class CreateItemStack {
 	private final ItemStack itemStack;
 	private final Material matrial;
 	private final String stringItem;
+	private String rgb;
 	private final Iterable<?> itemArray;
 	private final String displayName;
 	private final List<String> lore;
-	private final List<Enchantment> enchantments = new ArrayList<>();
+	private final Map<Enchantment, Tuple<Integer, Boolean>> enchantments = new HashMap<>();
 	private final List<ItemFlag> visibleItemFlags = new ArrayList<>();
+	private final List<ItemFlag> flagsToHide = new ArrayList<>();
+	private final List<Pattern> pattern = new ArrayList<>();
+	private final List<PotionEffect> portionEffects = new ArrayList<>();
+	private final List<FireworkEffect> fireworkEffects = new ArrayList<>();
 	private String itemMetaKey;
 	private Object itemMetaValue;
 	private Map<String, Object> itemMetaMap;
 	private int amoutOfItems;
-	private int enchantmentsLevel;
+	private int red = -1;
+	private int green = -1;
+	private int blue = -1;
+	private short data = -1;
+	private int customModeldata = -1;
 	private boolean glow;
 	private boolean showEnchantments;
-	private boolean ignoreLevelRestrictions;
+	private boolean waterBottle;
+	private boolean unbreakable;
+	private boolean keepAmount;
+	private boolean keepOldMeta = true;
 	private static ConvertToItemStack convertItems;
+
 
 	private CreateItemStack(final Bulider bulider) {
 		if (convertItems == null)
@@ -186,9 +203,13 @@ public class CreateItemStack {
 		return this;
 	}
 
+	public boolean isGlow() {
+		return glow;
+	}
+
 	/**
 	 * Set glow on item and will not show the enchantments.
-	 * Use {@link #addEnchantments(List)} or {@link #addEnchantments(Enchantment...)}, for set custom
+	 * Use {@link #addEnchantments(Object, boolean, int)} or {@link #addEnchantments(String...)}, for set custom
 	 * enchants.
 	 *
 	 * @param glow set it true and the item will glow.
@@ -200,71 +221,197 @@ public class CreateItemStack {
 	}
 
 	/**
-	 * Set enchantments level on the item.
-	 * If you want to bypass level restrictions.
-	 * {@link #isignoreLevelRestrictions(boolean)}
+	 * Get pattern for the banner.
 	 *
-	 * @param enchantmentsLevel type level you want to set.
+	 * @return list of patterns.
+	 */
+	public List<Pattern> getPattern() {
+		return pattern;
+	}
+
+	/**
+	 * Add one or several patterns.
+	 *
+	 * @param patterns to add to the list.
 	 * @return this class.
 	 */
+	public CreateItemStack addPattern(Pattern... patterns) {
+		if (patterns == null || patterns.length < 1) return this;
 
-	public CreateItemStack setEnchantmentsLevel(final int enchantmentsLevel) {
-		this.enchantmentsLevel = enchantmentsLevel;
+		this.pattern.addAll(Arrays.asList(patterns));
 		return this;
+	}
+
+	/**
+	 * Add list of patterns (if it exist old patterns in the list, will the new ones be added ontop).
+	 *
+	 * @param pattern list some contains patterns.
+	 * @return this class.
+	 */
+	public CreateItemStack addPattern(List<Pattern> pattern) {
+
+		this.pattern.addAll(pattern);
+		return this;
+	}
+
+	/**
+	 * Get enchantments for this item.
+	 *
+	 * @return map with enchantment level and if it shall ignore level reestriction.
+	 */
+	public Map<Enchantment, Tuple<Integer, Boolean>> getEnchantments() {
+		return enchantments;
+	}
+
+	/**
+	 * Check if it water Bottle. Becuse
+	 * only exist matrial portion, so need this method.
+	 *
+	 * @return true if it a water Bottle item.
+	 */
+	public boolean isWaterBottle() {
+		return waterBottle;
+	}
+
+	public CreateItemStack setWaterBottle(boolean waterBottle) {
+		this.waterBottle = waterBottle;
+		return this;
+	}
+
+	/**
+	 * If it shall keep the old amount of items (if you modify old itemstack).
+	 *
+	 * @return true if you keep old amunt.
+	 */
+	public boolean isKeepAmount() {
+		return keepAmount;
+	}
+
+	/**
+	 * Set if you want to keep old amount.
+	 *
+	 * @param keepAmount set it to true if you want keep old amount.
+	 * @return
+	 */
+	public CreateItemStack setKeepAmount(boolean keepAmount) {
+		this.keepAmount = keepAmount;
+		return this;
+	}
+
+	/**
+	 * if it shall keep old medatada (only work if you modify old itemstack).
+	 * Defult it will keep the meta.
+	 *
+	 * @return true if you keep old meta.
+	 */
+	public boolean isKeepOldMeta() {
+		return keepOldMeta;
+	}
+
+	/**
+	 * Set if it shall keep the old metadata or not.
+	 * Defult it will keep the meta.
+	 *
+	 * @param keepOldMeta set to false if you not want to keep old metadata.
+	 * @return this class.
+	 */
+	public CreateItemStack setKeepOldMeta(boolean keepOldMeta) {
+		this.keepOldMeta = keepOldMeta;
+		return this;
+	}
+
+	/**
+	 * Get list of firework effects
+	 *
+	 * @return list of efects set on this item.
+	 */
+	public List<FireworkEffect> getFireworkEffects() {
+		return fireworkEffects;
+	}
+
+	/**
+	 * Add firework effects on this item.
+	 *
+	 * @param fireworkEffects list of effects you want to add.
+	 */
+	public void setFireworkEffects(List<FireworkEffect> fireworkEffects) {
+		fireworkEffects.addAll(fireworkEffects);
 	}
 
 	/**
 	 * Add own enchantments. Set {@link #setShowEnchantments(boolean)} to true
 	 * if you whant to hide all enchants (defult so will it not hide enchants).
 	 * <p>
-	 * This method uses varargs and add it to list, Like this "a","b","c".
+	 * This method uses varargs and add it to list, like this enchantment;level;levelRestriction or
+	 * enchantment;level and it will sett last one to false.
+	 * <p>
+	 * <p>
+	 * Example usage here:
+	 * "PROTECTION_FIRE;1;false","PROTECTION_EXPLOSIONS;15;true","WATER_WORKER;1;false".
 	 *
 	 * @param enchantments list of enchantments you want to add.
 	 * @return this class.
 	 */
 
-	public CreateItemStack addEnchantments(final Enchantment... enchantments) {
-		return addEnchantments(Arrays.asList(enchantments));
+	public CreateItemStack addEnchantments(final String... enchantments) {
+		for (String enchant : enchantments) {
+			int middle = enchant.indexOf(";");
+			int last = enchant.lastIndexOf(";");
+			addEnchantments(enchant.substring(0, middle), last > 0 && Boolean.getBoolean(enchant.substring(last + 1)), Integer.parseInt(enchant.substring(middle + 1, Math.max(last, enchant.length()))));
+		}
+		return this;
 	}
 
 	/**
 	 * Add own enchantments. Set {@link #setShowEnchantments(boolean)} to true
 	 * if you whant to hide all enchants (defult so will it not hide enchants).
 	 *
-	 * @param enchantments list of enchantments you want to add.
+	 * @param enchantmentMap add direcly a map with enchants and level and levelRestrictions.
+	 * @param override       the old value in the map if you set it to true.
 	 * @return this class.
 	 */
+	public CreateItemStack addEnchantments(Map<Enchantment, Tuple<Integer, Boolean>> enchantmentMap, boolean override) {
+		Valid.checkNotNull(enchantmentMap, "this map is null");
+		if (enchantmentMap.isEmpty())
+			getLogger(Level.INFO, "This map is empty so no enchantments vill be added");
 
-	public CreateItemStack addEnchantments(final List<Object> enchantments) {
-		Enchantment enchantment = null;
-		for (Object enchant : enchantments) {
-
-			if (enchant instanceof String)
-				enchantment = Enchantment.getByKey(NamespacedKey.minecraft((String) enchant));
-			else if (enchant instanceof Enchantment)
-				enchantment = (Enchantment) enchant;
-
-			if (enchantment != null)
-				this.enchantments.add(enchantment);
+		enchantmentMap.forEach((key, value) -> {
+			if (!override)
+				this.enchantments.putIfAbsent(key, value);
 			else
-				getPLUGIN().getLogger().log(Level.INFO, "your enchantment: " + enchant + " ,are not valid.");
-		}
+				this.enchantments.put(key, value);
+		});
 		return this;
 	}
 
 	/**
-	 * Ignore level restrictions. So you can set any level you want.
+	 * Add own enchantments. Set {@link #setShowEnchantments(boolean)} to true
+	 * if you whant to hide all enchants (defult so will it not hide enchants).
 	 *
-	 * @param ignoreLevelRestrictions true if you want to bypass level restrictions;
+	 * @param enchant          enchantments you want to add, suport string and Enchantment class.
+	 * @param levelRestriction bypass the level limit.
+	 * @param enchantmentLevel set level for this enchantment.
 	 * @return this class.
 	 */
-	public CreateItemStack isignoreLevelRestrictions(final boolean ignoreLevelRestrictions) {
-		this.ignoreLevelRestrictions = ignoreLevelRestrictions;
+
+	public CreateItemStack addEnchantments(final Object enchant, boolean levelRestriction, int enchantmentLevel) {
+		Enchantment enchantment = null;
+		if (enchant instanceof String)
+			enchantment = Enchantment.getByKey(NamespacedKey.minecraft((String) enchant));
+		else if (enchant instanceof Enchantment)
+			enchantment = (Enchantment) enchant;
+
+		if (enchantment != null)
+			this.enchantments.put(enchantment, new Tuple<>(enchantmentLevel, levelRestriction));
+		else
+			getLogger(Level.INFO, "your enchantment: " + enchant + " ,are not valid.");
+
 		return this;
 	}
 
+
 	/**
-	 * When use {@link #addEnchantments(List)} or {@link #addEnchantments(Enchantment...)} and
+	 * When use {@link #addEnchantments(Object, boolean, int)}   or {@link #addEnchantments(String...)} and
 	 * want to not show enchants set it to true. When use {@link #setGlow(boolean)} it will defult hide
 	 * enchants, if you set #setGlow to true and set this to true it will show the enchantments.
 	 *
@@ -302,14 +449,222 @@ public class CreateItemStack {
 	}
 
 	/**
+	 * if this item is unbreakable or not
+	 *
+	 * @return true if the item is unbreakable.
+	 */
+	public boolean isUnbreakable() {
+		return unbreakable;
+	}
+
+	/**
+	 * Set if you can break the item or not.
+	 *
+	 * @param unbreakable true if the tool shall not break
+	 * @return this class.
+	 */
+	public CreateItemStack setUnbreakable(boolean unbreakable) {
+		this.unbreakable = unbreakable;
+		return this;
+	}
+
+	/**
+	 * Old methoid to set data on a item.
+	 *
+	 * @return number.
+	 */
+	public short getData() {
+		return data;
+	}
+
+	/**
+	 * Set data on a item, it only suport short
+	 * so is a limit of how high you can set it.
+	 *
+	 * @param data the number you want to set.
+	 * @return this class.
+	 */
+	public CreateItemStack setData(short data) {
+		this.data = data;
+		return this;
+	}
+
+	/**
+	 * Get Custom Modeldata on the item. use this insted of set data on a item.
+	 *
+	 * @return Modeldata number.
+	 */
+
+	public int getCustomModeldata() {
+		return customModeldata;
+	}
+
+	/**
+	 * Set Custom Modeldata on a item. will work on newer minecraft versions.
+	 *
+	 * @param customModeldata number.
+	 * @return this class.
+	 */
+	public CreateItemStack setCustomModeldata(int customModeldata) {
+		this.customModeldata = customModeldata;
+		return this;
+	}
+
+	/**
+	 * Get all portions effects for this item.
+	 *
+	 * @return list of portions effects.
+	 */
+	public List<PotionEffect> getPortionEffects() {
+		return portionEffects;
+	}
+
+	/**
+	 * Add one or several portions effects to list.
+	 *
+	 * @param potionEffects you want to set on the item.
+	 * @return this class.
+	 */
+	public CreateItemStack addPortionEffects(PotionEffect... potionEffects) {
+		if (potionEffects.length == 0) return this;
+
+		portionEffects.addAll(Arrays.asList(potionEffects));
+		return this;
+	}
+
+	/**
+	 * Add a list of effects to the list. If it exist old effects this will add the effects ontop of the old ones.
+	 *
+	 * @param potionEffects list of effects you want to add.
+	 * @return this class.
+	 */
+	public CreateItemStack addPortionEffects(List<PotionEffect> potionEffects) {
+		if (potionEffects.isEmpty()) {
+			getLogger(Level.INFO, "This list of portion effects is empty so no values vill be added");
+			return this;
+		}
+
+		portionEffects.addAll(potionEffects);
+		return this;
+	}
+
+	/**
+	 * Set a list of effects to the list. If it exist old effects in the list, this will be removed.
+	 *
+	 * @param potionEffects list of effects you want to set.
+	 * @return this class.
+	 */
+	public CreateItemStack setPortionEffects(List<PotionEffect> potionEffects) {
+		if (potionEffects.isEmpty()) {
+			getLogger(Level.INFO, "This list of portion effects is empty so no values vill be added");
+			return this;
+		}
+		portionEffects.clear();
+		portionEffects.addAll(potionEffects);
+		return this;
+	}
+
+	/**
+	 * Get the rbg colors, used to dye lether armor,potions and fierworks.
+	 *
+	 * @return string with the colors, like this #,#,#.
+	 */
+	public String getRgb() {
+		return rgb;
+	}
+
+	/**
+	 * Set the 3 colors auto.
+	 *
+	 * @param rgb string need to be formated like this #,#,#.
+	 * @return this class.
+	 */
+	public CreateItemStack setRgb(String rgb) {
+		this.rgb = rgb;
+
+		String[] colors = this.getRgb().split(",");
+		Valid.checkBoolean(colors.length < 4, "rgb is not format correcly. Should be formated like this 'r,b,g'. Example '20,15,47'.");
+		try {
+			red = Integer.parseInt(colors[0]);
+			green = Integer.parseInt(colors[2]);
+			blue = Integer.parseInt(colors[1]);
+		} catch (NumberFormatException exception) {
+			getLogger(Level.WARNING, "you don´t use numbers inside this " + rgb);
+			exception.printStackTrace();
+		}
+
+		return this;
+	}
+
+	/**
+	 * Get red color
+	 *
+	 * @return color number.
+	 */
+	public int getRed() {
+		return red;
+	}
+
+	/**
+	 * Get greencolor
+	 *
+	 * @return color number.
+	 */
+	public int getGreen() {
+		return green;
+	}
+
+	/**
+	 * Get blue color
+	 *
+	 * @return color number.
+	 */
+	public int getBlue() {
+		return blue;
+	}
+
+	/**
 	 * Hide one or several metadata values on a itemstack.
 	 *
 	 * @param itemFlags add one or several flags you not want to hide.
 	 * @return this class.
 	 */
 	public CreateItemStack setItemFlags(ItemFlag... itemFlags) {
-		this.visibleItemFlags.addAll(Arrays.asList(itemFlags));
+		this.setItemFlags(Arrays.asList(itemFlags));
 		return this;
+	}
+
+	/**
+	 * Don´t hide one or several metadata values on a itemstack.
+	 *
+	 * @param itemFlags add one or several flags you not want to hide.
+	 * @return this class.
+	 */
+	public CreateItemStack setItemFlags(List<ItemFlag> itemFlags) {
+		Valid.checkNotNull(itemFlags, "flags list is null");
+		this.visibleItemFlags.addAll(itemFlags);
+		return this;
+	}
+
+	/**
+	 * Hide one or several metadata values on a itemstack.
+	 *
+	 * @param itemFlags add one or several flags you want to hide.
+	 * @return this class.
+	 */
+	public CreateItemStack setFlagsToHide(List<ItemFlag> itemFlags) {
+		de.tr7zw.changeme.nbtapi.utils.Valid.checkNotNull(itemFlags, "flags list is null");
+		this.flagsToHide.addAll(itemFlags);
+		return this;
+	}
+
+	/**
+	 * Get the list of flags set on this item.
+	 *
+	 * @return list of flags.
+	 */
+	public List<ItemFlag> getFlagsToHide() {
+		return flagsToHide;
 	}
 
 	/**
@@ -323,6 +678,9 @@ public class CreateItemStack {
 		RegisterNbtAPI nbtApi = getNbtApi();
 
 		if (itemstack != null && itemstack.getType() != Material.AIR) {
+			if (!this.keepOldMeta)
+				itemstack = new ItemStack(itemstack.getType());
+
 			if (nbtApi != null)
 				if (this.itemMetaMap != null) {
 					for (final Map.Entry<String, Object> entitys : this.itemMetaMap.entrySet()) {
@@ -340,11 +698,14 @@ public class CreateItemStack {
 				if (this.lore != null && !this.lore.isEmpty()) {
 					itemMeta.setLore(translateColors(this.lore));
 				}
-				addEnchantments(itemMeta);
+				addItemMeta(itemMeta);
 
+				if (this.getData() > 0)
+					itemstack.setDurability(this.getData());
 			}
 			itemstack.setItemMeta(itemMeta);
-			itemstack.setAmount(this.amoutOfItems == 0 ? 1 : this.amoutOfItems);
+			if (!this.keepAmount)
+				itemstack.setAmount(this.amoutOfItems == 0 ? 1 : this.amoutOfItems);
 		}
 		return itemstack != null ? itemstack : new ItemStack(Material.AIR);
 	}
@@ -383,7 +744,7 @@ public class CreateItemStack {
 						if (this.lore != null && !this.lore.isEmpty()) {
 							itemMeta.setLore(translateColors(this.lore));
 						}
-						addEnchantments(itemMeta);
+						addItemMeta(itemMeta);
 
 					}
 					itemstack.setItemMeta(itemMeta);
@@ -408,36 +769,125 @@ public class CreateItemStack {
 
 	private ItemStack checkTypeOfItem(Object object) {
 		return getConvertItems().checkItem(object);
-	/*	if (object instanceof ItemStack)
-			return (ItemStack) object;
-		else if (object instanceof Material)
-			return new ItemStack((Material) object);
-		else if (object instanceof String)
-			return new ItemStack(Enums.getIfPresent(Material.class, (String) object).orNull() == null ? Material.AIR : Material.valueOf((String) object));
-
-		return null;*/
 	}
 
-	private void addEnchantments(final ItemMeta itemMeta) {
-		if (!this.enchantments.isEmpty()) {
-			for (final Enchantment enchant : this.enchantments) {
-				if (enchant == null) {
-					getPLUGIN().getLogger().log(Level.INFO, "Your enchantment are null.");
-					continue;
-				}
-				boolean haveEnchant = itemMeta.addEnchant(enchant, this.enchantmentsLevel, this.ignoreLevelRestrictions);
-			}
-			if (isShowEnchantments())
-				hideEnchantments(itemMeta);
-		} else if (this.glow) {
-			itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, false);
-			if (!isShowEnchantments() || !visibleItemFlags.isEmpty())
-				hideEnchantments(itemMeta);
-		}
+	private void addItemMeta(final ItemMeta itemMeta) {
+		addBannerPatterns(itemMeta);
+		addLeatherArmorColors(itemMeta);
+		addFireworkEffect(itemMeta);
+		addEnchantments(itemMeta);
+		addBottleEffects(itemMeta);
+		addUnbreakableMeta(itemMeta);
+		addCustomModelData(itemMeta);
+
+		if (isShowEnchantments() || !this.getFlagsToHide().isEmpty() || this.isGlow())
+			hideEnchantments(itemMeta);
 	}
 
 	private void hideEnchantments(final ItemMeta itemMeta) {
-		itemMeta.addItemFlags(Arrays.stream(ItemFlag.values()).filter(itemFlag -> !visibleItemFlags.contains(itemFlag)).toArray(ItemFlag[]::new));
+		if (!this.getFlagsToHide().isEmpty()) {
+			itemMeta.addItemFlags(this.getFlagsToHide().toArray(new ItemFlag[0]));
+		} else {
+			itemMeta.addItemFlags(Arrays.stream(ItemFlag.values()).filter(itemFlag -> !visibleItemFlags.contains(itemFlag)).toArray(ItemFlag[]::new));
+		}
+	}
+
+	public boolean addEnchantments(final ItemMeta itemMeta) {
+		if (!this.getEnchantments().isEmpty()) {
+			boolean haveEnchant = false;
+			for (final Map.Entry<Enchantment, Tuple<Integer, Boolean>> enchant : this.getEnchantments().entrySet()) {
+				if (enchant == null) {
+					getLogger(Level.INFO, "Your enchantment are null.");
+					continue;
+				}
+				Tuple<Integer, Boolean> level = enchant.getValue();
+				haveEnchant = itemMeta.addEnchant(enchant.getKey(), level.getFirst() <= 0 ? 1 : level.getFirst(), level.getSecond());
+			}
+			if (isShowEnchantments() || !this.getFlagsToHide().isEmpty())
+				hideEnchantments(itemMeta);
+			return haveEnchant;
+		} else if (this.isGlow()) {
+			/*if (!isShowEnchantments() || !visibleItemFlags.isEmpty())
+				hideEnchantments(itemMeta);*/
+			return itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, false);
+		}
+		return false;
+	}
+
+	private void addBannerPatterns(final ItemMeta itemMeta) {
+		if (getPattern() == null || getPattern().isEmpty())
+			return;
+
+		if (itemMeta instanceof BannerMeta) {
+			BannerMeta bannerMeta = (BannerMeta) itemMeta;
+			bannerMeta.setPatterns(getPattern());
+		}
+	}
+
+	private void addLeatherArmorColors(final ItemMeta itemMeta) {
+		if (getRgb() == null || getRed() < 0)
+			return;
+
+		if (itemMeta instanceof LeatherArmorMeta) {
+			LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) itemMeta;
+			leatherArmorMeta.setColor(Color.fromBGR(getBlue(), getGreen(), getRed()));
+		}
+	}
+
+	private void addBottleEffects(final ItemMeta itemMeta) {
+
+		if (itemMeta instanceof PotionMeta) {
+			PotionMeta potionMeta = (PotionMeta) itemMeta;
+
+			if (isWaterBottle()) {
+				PotionData potionData = new PotionData(PotionType.WATER);
+				potionMeta.setBasePotionData(potionData);
+				return;
+			}
+			if (getPortionEffects() == null || getPortionEffects().isEmpty()) {
+				return;
+			}
+			if (getRgb() == null || (getRed() < 0 && getGreen() < 0 && getBlue() < 0)) {
+				getLogger(Level.WARNING, "You have not set colors correctly, you have set this: " + getRgb() + " should be in this format Rgb: #,#,#");
+				return;
+			}
+			potionMeta.setColor(Color.fromBGR(getBlue(), getGreen(), getRed()));
+			getPortionEffects().forEach((portionEffect) -> potionMeta.addCustomEffect(portionEffect, true));
+
+		}
+	}
+
+	private void addFireworkEffect(final ItemMeta itemMeta) {
+		if (getRgb() == null || (getRed() < 0 && getGreen() < 0 && getBlue() < 0))
+			return;
+
+		if (itemMeta instanceof FireworkEffectMeta) {
+			if (getRgb() == null || (getRed() < 0 && getGreen() < 0 && getBlue() < 0)) {
+				getLogger(Level.WARNING, "You have not set colors correctly, you have set this: " + getRgb() + " should be in this format Rgb: #,#,#");
+				return;
+			}
+			FireworkEffectMeta fireworkEffectMeta = (FireworkEffectMeta) itemMeta;
+			FireworkEffect.Builder builder = FireworkEffect.builder();
+			builder.withColor(Color.fromBGR(getBlue(), getGreen(), getRed()));
+			if (this.getFireworkEffects() != null && !this.getFireworkEffects().isEmpty()) {
+				this.getFireworkEffects().get(0).getFadeColors();
+				builder.flicker(false)
+						.with(FireworkEffect.Type.BURST)
+						.trail(true)
+						.withFade();
+			}
+
+			fireworkEffectMeta.setEffect(builder.build());
+		}
+	}
+
+	private void addUnbreakableMeta(final ItemMeta itemMeta) {
+		itemMeta.setUnbreakable(isUnbreakable());
+	}
+
+	private void addCustomModelData(final ItemMeta itemMeta) {
+		if (this.getCustomModeldata() > 0)
+			itemMeta.setCustomModelData(this.getCustomModeldata());
 	}
 
 	private boolean isShowEnchantments() {
@@ -501,129 +951,21 @@ public class CreateItemStack {
 		return itemstack != null ? itemstack : new ItemStack(Material.AIR);
 	}
 
-	/**
-	 * Count the amount of matched items in two item arrys.
-	 *
-	 * @param itemStacks compere this array with items array
-	 * @param items      compere this array with itemStacks array
-	 * @return amount of simular items in the array.
-	 */
-	public static int countItemStacks(ItemStack[] itemStacks, ItemStack[] items) {
-		int countItems = 0;
-
-		for (ItemStack itemStack : itemStacks)
-			for (ItemStack item : items)
-				if (itemStack != null && itemStack.isSimilar(item) && !(itemStack.getType() == Material.AIR)) {
-					countItems += itemStack.getAmount();
-				}
-		return countItems;
-	}
-
-	/**
-	 * Count amount of stacks inside the inventry.
-	 *
-	 * @param inventoryItems the inventory you whant to check items.
-	 * @param item           the item you whant to check for.
-	 * @return amount of stacks.
-	 */
-
-	public static int countItemStacks(Inventory inventoryItems, ItemStack item) {
-		int countItems = 0;
-		for (ItemStack itemStack : inventoryItems.getContents())
-			if (itemStack != null && itemStack.isSimilar(item) && !(itemStack.getType() == Material.AIR)) {
-				countItems++;
-			}
-		return countItems;
-	}
-
-	/**
-	 * Count amount of items inside the inventry.
-	 *
-	 * @param inventoryItems the inventory you whant to check items.
-	 * @param item           the item you whant to check for.
-	 * @return amount of items.
-	 */
-	public static int countItemStacks(ItemStack item, Inventory inventoryItems) {
-		return countItemStacks(item, inventoryItems, false);
-	}
-
-	public static int countItemStacks(ItemStack item, Inventory inventoryItems, boolean onlyNoFullItems) {
-		int countItems = 0;
-		for (ItemStack itemStack : inventoryItems.getContents()) {
-			if (onlyNoFullItems) {
-				if (!(itemStack.getAmount() == itemStack.getMaxStackSize())) {
-					if (itemStack != null && itemStack.isSimilar(item) && !(itemStack.getType() == Material.AIR)) {
-						countItems += itemStack.getAmount();
-					}
-				}
-			} else if (itemStack != null && itemStack.isSimilar(item) && !(itemStack.getType() == Material.AIR)) {
-				countItems += itemStack.getAmount();
-			}
-		}
-		return countItems;
-	}
-
-	/**
-	 * Count amount of all items inside the inventry.
-	 *
-	 * @param inventoryItems the inventory you whant to check items.
-	 * @param itemStacks     you whant to count.
-	 * @return amount of items.
-	 */
-	public static int countItemStacks(ItemStack[] itemStacks, Inventory inventoryItems) {
-		int countItems = 0;
-		for (ItemStack itemStack : inventoryItems.getContents())
-			for (ItemStack item : itemStacks)
-				if (itemStack != null && itemStack.isSimilar(item) && !(itemStack.getType() == Material.AIR)) {
-					countItems += itemStack.getAmount();
-				}
-		return countItems;
-	}
-
 	protected static ConvertToItemStack getConvertItems() {
 		if (convertItems == null)
 			convertItems = new ConvertToItemStack();
 		return convertItems;
 	}
 
-	/**
-	 * Count amount of all items inside one ItemStack array.
-	 *
-	 * @param itemStacks you whant to count.
-	 * @return amount of items.
-	 */
-	public static int countItemStacks(ItemStack[] itemStacks) {
-		int countItems = 0;
-		for (ItemStack item : itemStacks)
-			if (item != null && !(item.getType() == Material.AIR)) {
-				countItems += item.getAmount();
-			}
-		return countItems;
-	}
 
-	public static boolean isPlaceLeftInventory(Inventory inventory, int amount, Material materialToMatch) {
-
-		for (ItemStack item : inventory) {
-			if (item != null) {
-				if (item.getType() == materialToMatch && amount > countItemStacks(item, inventory, true)) {
-					continue;
-				}
-				if (item.getType() == materialToMatch && amount + item.getAmount() <= item.getMaxStackSize()) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public static List<String> translateHex(List<String> rawLore) {
+	public static List<String> formatColors(List<String> rawLore) {
 		List<String> lores = new ArrayList<>();
 		for (String lore : rawLore)
 			lores.add(translateHexCodes(lore));
 		return lores;
 	}
 
-	public static String translateHex(String rawSingelLine) {
+	public static String formatColors(String rawSingelLine) {
 		return translateHexCodes(rawSingelLine);
 	}
 

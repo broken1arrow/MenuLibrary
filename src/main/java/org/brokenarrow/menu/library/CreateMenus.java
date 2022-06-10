@@ -41,7 +41,6 @@ public class CreateMenus {
 
 	public CreateMenus(Plugin plugin, int inventorySize) {
 		this.inventorySize = inventorySize;
-		registerFields();
 	}
 
 	/**
@@ -56,7 +55,6 @@ public class CreateMenus {
 	public CreateMenus(Plugin plugin, List<Integer> fillSlots, List<?> fillItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
-		registerFields();
 	}
 
 
@@ -73,7 +71,6 @@ public class CreateMenus {
 		this.inventorySize = inventorySize;
 		this.itemsPerPage = inventorySize;
 		this.shallCacheItems = shallCacheItems;
-		registerFields();
 	}
 
 	/**
@@ -90,7 +87,6 @@ public class CreateMenus {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		this.shallCacheItems = shallCacheItems;
-		registerFields();
 	}
 //################## new contractors ###################################
 //######################################################################
@@ -100,7 +96,6 @@ public class CreateMenus {
 	 */
 
 	public CreateMenus() {
-		registerFields();
 	}
 
 
@@ -113,7 +108,6 @@ public class CreateMenus {
 
 	public CreateMenus(List<?> fillItems) {
 		this.listOfFillItems = fillItems;
-		registerFields();
 	}
 
 	/**
@@ -124,7 +118,6 @@ public class CreateMenus {
 
 	public CreateMenus(boolean shallCacheItems) {
 		this.shallCacheItems = shallCacheItems;
-		registerFields();
 	}
 
 	/**
@@ -138,7 +131,6 @@ public class CreateMenus {
 	public CreateMenus(List<Integer> fillSlots, List<?> fillItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
-		registerFields();
 	}
 
 	/**
@@ -153,7 +145,6 @@ public class CreateMenus {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		this.shallCacheItems = shallCacheItems;
-		registerFields();
 	}
 
 	private int taskid;
@@ -630,7 +621,7 @@ public class CreateMenus {
 		if (location != null)
 			setPlayermetadata(player, location);
 
-		registerFields();
+		//registerFields();
 		if (!shallCacheItems) {
 			addItemsToCache();
 		}
@@ -718,7 +709,6 @@ public class CreateMenus {
 				Bukkit.getScheduler().cancelTask(this.taskid);
 				cancelTask = true;
 			}
-		registerFields();
 		addItemsToCache();
 		reddrawInventory();
 
@@ -802,7 +792,7 @@ public class CreateMenus {
 	 */
 	@Deprecated
 	protected void onMenuClose(InventoryCloseEvent event) {
-		
+
 		if (Bukkit.getScheduler().isCurrentlyRunning(this.taskid) || Bukkit.getScheduler().isQueued(this.taskid)) {
 			Bukkit.getScheduler().cancelTask(this.taskid);
 
@@ -911,7 +901,11 @@ public class CreateMenus {
 			}
 			MenuButton menuButton = getMenuButtonAtSlot(slot, slotIndexOld, objectFromlistOfFillItems);
 			ItemStack result = getItemAtSlot(menuButton, slot, slotIndexOld, objectFromlistOfFillItems);
-
+			if (menuButton != null) {
+				if (menuButton.updateButton())
+					this.buttonsToUpdate.add(menuButton);
+				this.buttons.add(menuButton);
+			}
 			addedButtons.put(pageNumber * this.getInventorySize() + slot, new MenuData(result, menuButton, objectFromlistOfFillItems));
 		}
 		return addedButtons;

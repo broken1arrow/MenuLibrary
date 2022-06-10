@@ -12,6 +12,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
+import static org.brokenarrow.menu.library.utility.Item.ItemStackCounters.countItemStacks;
+
 /**
  * Simple check if player add items some are ether blacklisted or add more an 1 item or duplicated item.
  */
@@ -113,11 +115,11 @@ public class CheckItemsInsideInventory {
 			if (entitys.getValue() != null) {
 
 				if (entitys.getValue().getAmount() > 1) {
-					chachedDuplicatedItems.put(CreateItemStack.createItemStackAsOne(entitys.getValue()), (CreateItemStack.countItemStacks(entitys.getValue(), inventory)) - 1);
+					chachedDuplicatedItems.put(CreateItemStack.createItemStackAsOne(entitys.getValue()), (countItemStacks(entitys.getValue(), inventory)) - 1);
 					duplicatedItems.put(player.getUniqueId(), chachedDuplicatedItems);
 				}
 				if (!set.add(CreateItemStack.createItemStackAsOne(entitys.getValue()))) {
-					chachedDuplicatedItems.put(CreateItemStack.createItemStackAsOne(entitys.getValue()), (CreateItemStack.countItemStacks(entitys.getValue(), inventory)) - 1);
+					chachedDuplicatedItems.put(CreateItemStack.createItemStackAsOne(entitys.getValue()), (countItemStacks(entitys.getValue(), inventory)) - 1);
 					duplicatedItems.put(player.getUniqueId(), chachedDuplicatedItems);
 				} else {
 					itemStacksNoDubbleEntity.put(entitys.getKey(), CreateItemStack.createItemStackAsOne(entitys.getValue()));
