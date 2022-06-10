@@ -933,9 +933,9 @@ public class CreateMenus {
 				result = menuButton.getItem(objectFromlistOfFillItems);
 				if (result == null)
 					result = menuButton.getItem(oldSlotIndex, objectFromlistOfFillItems);
-				if (result == null)
-					result = menuButton.getItem();
 			}
+			if (result == null)
+				result = menuButton.getItem();
 		} else {
 			result = menuButton.getItem();
 		}
