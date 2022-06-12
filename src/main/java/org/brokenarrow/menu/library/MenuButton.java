@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class MenuButton {
 
@@ -46,7 +47,7 @@ public abstract class MenuButton {
 	 * @return itemstack
 	 */
 
-	public ItemStack getItem(int slot, Object object) {
+	public ItemStack getItem(int slot, @Nullable Object object) {
 		return null;
 	}
 
