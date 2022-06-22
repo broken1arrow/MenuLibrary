@@ -363,6 +363,20 @@ public class CreateItemStack {
 	}
 
 	/**
+	 * Add enchantments. Will set levelRestriction to true and level to 1.
+	 *
+	 * @param enchantments list of enchantments you want to add.
+	 * @return this class.
+	 */
+
+	public CreateItemStack addEnchantments(final Enchantment... enchantments) {
+		for (Enchantment enchant : enchantments) {
+			addEnchantments(enchant, true, 1);
+		}
+		return this;
+	}
+
+	/**
 	 * Add own enchantments. Set {@link #setShowEnchantments(boolean)} to true
 	 * if you whant to hide all enchants (defult so will it not hide enchants).
 	 *
