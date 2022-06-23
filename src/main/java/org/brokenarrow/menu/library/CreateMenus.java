@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -155,6 +156,7 @@ public class CreateMenus {
 	private final Map<MenuButton, Long> timeWhenUpdatesButtons = new HashMap<>();
 	private final Plugin plugin = getPLUGIN();
 	private Inventory inventory;
+	private InventoryType inventoryType;
 	private boolean shallCacheItems;
 	private boolean slotsYouCanAddItems;
 	private boolean updateButtons;
@@ -255,6 +257,25 @@ public class CreateMenus {
 	 */
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	/**
+	 * Get the set inventory type.
+	 *
+	 * @return inventory type.
+	 */
+	public InventoryType getInventoryType() {
+		return inventoryType;
+	}
+
+	/**
+	 * Set type of inventory, defult will it use chest or hopper. If you set
+	 * the type you can´t change size.
+	 *
+	 * @param inventoryType set type of inventory.
+	 */
+	public void setInventoryType(InventoryType inventoryType) {
+		this.inventoryType = inventoryType;
 	}
 
 	/**
@@ -412,6 +433,41 @@ public class CreateMenus {
 		if (data != null)
 			return data.get(slotIndex);
 		return new MenuData(null, null, "");
+	}
+
+	/**
+	 * Get slot this menu button is added to, if you want get fillslots
+	 * will this only return first slot. Use {@link #getButtonSlots(MenuButton)}
+	 * if you want to get all slots this button are connected to.
+	 *
+	 * @param menuButton to get slots connectet to this button.
+	 * @return slot number or -1 if not find data or if cache is null.
+	 */
+	public int getButtonSlot(MenuButton menuButton) {
+		Map<Integer, MenuData> data = addedButtons.get(this.getPageNumber());
+		if (data == null) return -1;
+		for (Map.Entry<Integer, MenuData> entry : data.entrySet()) {
+			if (entry.getValue().getMenuButton() == menuButton)
+				return entry.getKey() - (this.getPageNumber() * this.getInventorySize());
+		}
+		return -1;
+	}
+
+	/**
+	 * Get all slots this menu button is added to.
+	 *
+	 * @param menuButton to get slots conectet to this button.
+	 * @return list of slot number or empty if not find data or if cache is null.
+	 */
+	public Set<Integer> getButtonSlots(MenuButton menuButton) {
+		Set<Integer> slots = new HashSet<>();
+		Map<Integer, MenuData> data = addedButtons.get(this.getPageNumber());
+		if (data == null) return slots;
+		for (Map.Entry<Integer, MenuData> entry : data.entrySet()) {
+			if (entry.getValue().getMenuButton() == menuButton)
+				slots.add(entry.getKey() - (this.getPageNumber() * this.getInventorySize()));
+		}
+		return slots;
 	}
 
 	/**
@@ -699,6 +755,32 @@ public class CreateMenus {
 	}
 
 	/**
+	 * Update only one button. Set this inside the {@link MenuButton#onClickInsideMenu(Player, Inventory, ClickType, ItemStack, Object)}}
+	 * method and use this to tell what button some shal be updated.
+	 *
+	 * @param menuButton the current button.
+	 */
+	public void updateButton(MenuButton menuButton) {
+		Map<Integer, MenuData> menuDataMap = getMenuData(getPageNumber());
+		Set<Integer> buttonSlots = this.getButtonSlots(menuButton);
+		if (!buttonSlots.isEmpty()) {
+			for (int slot : buttonSlots) {
+
+				MenuData menuData = menuDataMap.get(getSlotFromCache(slot));
+				ItemStack menuItem = getMenuButton(menuButton, menuData, slot, true);
+				this.getMenu().setItem(slot, menuItem);
+				menuDataMap.put(getSlotFromCache(slot), new MenuData(menuItem, menuButton, menuData.getObject()));
+			}
+		} else {
+			int buttonSlot = this.getButtonSlot(menuButton);
+			ItemStack itemStack = getMenuButton(menuButton, menuDataMap.get(getSlotFromCache(buttonSlot)), buttonSlot, true);
+			this.getMenu().setItem(buttonSlot, itemStack);
+			menuDataMap.put(getSlotFromCache(buttonSlot), new MenuData(itemStack, menuButton, ""));
+		}
+		this.addedButtons.put(this.getPageNumber(), menuDataMap);
+	}
+
+	/**
 	 * Update buttons inside the menu.
 	 */
 
@@ -968,8 +1050,10 @@ public class CreateMenus {
 	}
 
 	private Inventory createInventory() {
+		if (getInventoryType() != null)
+			return Bukkit.createInventory(null, getInventoryType(), this.title != null ? this.title : "");
 		if (!(this.inventorySize == 5 || this.inventorySize % 9 == 0))
-			plugin.getLogger().log(Level.WARNING, "wrong inverntory size , you has put in " + this.inventorySize + "it need to be valid number.");
+			plugin.getLogger().log(Level.WARNING, "wrong inverntory size , you has put in " + this.inventorySize + " it need to be valid number.");
 		if (this.inventorySize == 5)
 			return Bukkit.createInventory(null, InventoryType.HOPPER, this.title != null ? this.title : "");
 		return Bukkit.createInventory(null, this.inventorySize % 9 == 0 ? this.inventorySize : 9, this.title != null ? this.title : "");
@@ -1028,8 +1112,12 @@ public class CreateMenus {
 	}
 
 	private ItemStack getMenuButton(MenuButton menuButton, MenuData cachedButtons, int slot) {
+		return getMenuButton(menuButton, cachedButtons, slot, menuButton.updateButton());
+	}
+
+	private ItemStack getMenuButton(MenuButton menuButton, MenuData cachedButtons, int slot, boolean updateButton) {
 		if (menuButton == null) return null;
-		boolean updateButton = menuButton.updateButton();
+
 
 		if (menuButton.getItem() != null && updateButton)
 			return menuButton.getItem();
