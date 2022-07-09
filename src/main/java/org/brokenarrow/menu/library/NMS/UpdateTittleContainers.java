@@ -39,8 +39,7 @@ public class UpdateTittleContainers {
 								"a", "a");
 					loadNmsClasses1_18();
 					updateInventory(p, title, inventory, nmsData);
-				}
-				if (ServerVersion.atLeast(ServerVersion.v1_18_0)) {
+				} else if (ServerVersion.atLeast(ServerVersion.v1_18_0)) {
 					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
 					if (nmsData == null)
 						nmsData = new NmsData(ServerVersion.atLeast(ServerVersion.v1_18_2) ? "bV" : "bW", "j",
