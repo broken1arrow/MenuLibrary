@@ -23,8 +23,8 @@ public enum ServerVersion {
 	v1_4((float) 4.0),
 	v1_3_AND_BELOW((float) 3.0);
 
-	private final double version;
-	private static double currentServerVersion;
+	private final float version;
+	private static float currentServerVersion;
 
 	public static boolean equals(ServerVersion version) {
 		return serverVersion(version) == 0;
@@ -65,16 +65,16 @@ public enum ServerVersion {
 		}
 		float version = Float.parseFloat(firstNumber + "." + secondNumber);
 		if (version < 18)
-			currentServerVersion = Math.floor(version);
+			currentServerVersion = (float) Math.floor(version);
 		else
 			currentServerVersion = version;
 	}
 
-	public double getVersion() {
+	public float getVersion() {
 		return version;
 	}
 
-	public static double getCurrentServerVersion() {
+	public static float getCurrentServerVersion() {
 		return currentServerVersion;
 	}
 

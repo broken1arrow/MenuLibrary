@@ -32,19 +32,26 @@ public class UpdateTittleContainers {
 		try {
 			if (p != null) {
 				Inventory inventory = p.getOpenInventory().getTopInventory();
-				int size = inventory.getSize();
-				if (ServerVersion.equals(ServerVersion.v1_17)) {
+				if (ServerVersion.atLeast(ServerVersion.v1_19)) {
 					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
 					if (nmsData == null)
-						nmsData = new NmsData("bV", "j", "sendPacket", "initMenu");
-					loadNmsClasses1_17();
+						nmsData = new NmsData("bU", "j",
+								"a", "a");
+					loadNmsClasses1_18();
 					updateInventory(p, title, inventory, nmsData);
-				} else if (ServerVersion.atLeast(ServerVersion.v1_18_0)) {
+				}
+				if (ServerVersion.atLeast(ServerVersion.v1_18_0)) {
 					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
 					if (nmsData == null)
 						nmsData = new NmsData(ServerVersion.atLeast(ServerVersion.v1_18_2) ? "bV" : "bW", "j",
 								"a", "a");
 					loadNmsClasses1_18();
+					updateInventory(p, title, inventory, nmsData);
+				} else if (ServerVersion.equals(ServerVersion.v1_17)) {
+					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
+					if (nmsData == null)
+						nmsData = new NmsData("bV", "j", "sendPacket", "initMenu");
+					loadNmsClasses1_17();
 					updateInventory(p, title, inventory, nmsData);
 				} else if (ServerVersion.olderThan(ServerVersion.v1_17)) {
 					try {
@@ -141,10 +148,9 @@ public class UpdateTittleContainers {
 		int inventorySize = inventory.getSize();
 		boolean isOlder = ServerVersion.olderThan(ServerVersion.v1_17);
 		Object player = p.getClass().getMethod("getHandle").invoke(p);
-		// inside net.minecraft.world.entity.player.EntityHuman do you have this field
-
+		// inside net.minecraft.world.entity.player class EntityHuman do you have this field
 		Object activeContainer = player.getClass().getField(nmsData.getContanerField()).get(player);
-		//j
+		// inside net.minecraft.world.inventory class Container do you have this field older version is it j
 		Object windowId = activeContainer.getClass().getField(nmsData.getWindowId()).get(activeContainer);
 
 		Method declaredMethodChat;
