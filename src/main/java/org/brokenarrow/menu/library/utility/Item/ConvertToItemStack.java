@@ -135,6 +135,10 @@ public class ConvertToItemStack {
 		if (item.equals("SMOOTH_STONE_SLAB")) {
 			return new ItemStack(Material.valueOf("STEP"), amount);
 		}
+		if (item.startsWith("GOLDEN_")) {
+			Material material = Material.getMaterial("GOLD" + item.substring(item.indexOf("_")));
+			return new ItemStack(material == null ? Material.AIR : material, amount);
+		}
 		if (item.equals("CLOCK")) {
 			return new ItemStack(Material.valueOf("WATCH"), amount);
 
