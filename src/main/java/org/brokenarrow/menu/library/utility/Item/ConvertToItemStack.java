@@ -122,6 +122,22 @@ public class ConvertToItemStack {
 
 		if (item.equals("TERRACOTTA")) {
 			return new ItemStack(Material.valueOf("HARD_CLAY"), amount, (short) 0);
+		}
+		if (item.equals("ENDER_EYE")) {
+			return new ItemStack(Material.valueOf("ENDER_PEARL"), amount);
+		}
+		if (item.equals("CRACKED_STONE_BRICKS")) {
+			return new ItemStack(Material.valueOf("SMOOTH_BRICK"), amount);
+		}
+		if (item.equals("SMOOTH_STONE")) {
+			return new ItemStack(Material.valueOf("STEP"), amount);
+		}
+		if (item.equals("SMOOTH_STONE_SLAB")) {
+			return new ItemStack(Material.valueOf("STEP"), amount);
+		}
+		if (item.equals("CLOCK")) {
+			return new ItemStack(Material.valueOf("WATCH"), amount);
+
 		} else {
 			Material material = Enums.getIfPresent(Material.class, item).orNull();
 			if (material != null && color != -1)
