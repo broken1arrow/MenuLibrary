@@ -112,7 +112,7 @@
         <dependency>
             <groupId>com.github.broken1arrow</groupId>
             <artifactId>RBG-Gradients</artifactId>
-            <version>0.18</version>
+            <version>0.22</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
