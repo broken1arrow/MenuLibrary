@@ -744,10 +744,10 @@ public class CreateItemStack {
 					if (nbtApi != null)
 						if (itemMetaMap != null) {
 							for (final Map.Entry<String, Object> entitys : this.itemMetaMap.entrySet()) {
-								itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue());
+								itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue() + "");
 							}
 						} else if (this.itemMetaKey != null && this.itemMetaValue != null)
-							itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, this.itemMetaKey, this.itemMetaValue);
+							itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, this.itemMetaKey, this.itemMetaValue + "");
 
 					final ItemMeta itemMeta = itemstack.getItemMeta();
 
