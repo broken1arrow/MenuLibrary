@@ -44,9 +44,7 @@ public class CreateItemStack {
 	private final List<Pattern> pattern = new ArrayList<>();
 	private final List<PotionEffect> portionEffects = new ArrayList<>();
 	private final List<FireworkEffect> fireworkEffects = new ArrayList<>();
-	private String itemMetaKey;
-	private Object itemMetaValue;
-	private Map<String, Object> itemMetaMap;
+	private MetaDataWraper metadata;
 	private int amoutOfItems;
 	private int red = -1;
 	private int green = -1;
@@ -445,8 +443,32 @@ public class CreateItemStack {
 	 * @return this class.
 	 */
 	public CreateItemStack setItemMetaData(final String itemMetaKey, final Object itemMetaValue) {
-		this.itemMetaKey = itemMetaKey;
-		this.itemMetaValue = itemMetaValue;
+		setItemMetaData(itemMetaKey, itemMetaValue, false);
+		return this;
+	}
+
+	/**
+	 * Set custom metadata on item.
+	 *
+	 * @param itemMetaKey   key for get value.
+	 * @param itemMetaValue value you want to set.
+	 * @param keepclazz     true if it shall keep all data on the item or false to convert value to string.
+	 * @return this class.
+	 */
+	public CreateItemStack setItemMetaData(final String itemMetaKey, final Object itemMetaValue, boolean keepclazz) {
+		metadata = MetaDataWraper.of().add(itemMetaKey, itemMetaValue, keepclazz);
+		return this;
+	}
+
+	/**
+	 * Set your metadata on the item. Use {@link MetaDataWraper} class.
+	 * To set key and value.
+	 *
+	 * @param wraper values from MetaDataWraper.
+	 * @return this class.
+	 */
+	public CreateItemStack setItemMetaDataList(final MetaDataWraper wraper) {
+		metadata = wraper;
 		return this;
 	}
 
@@ -458,7 +480,13 @@ public class CreateItemStack {
 	 * @return this class.
 	 */
 	public CreateItemStack setItemMetaDataList(final Map<String, Object> itemMetaMap) {
-		this.itemMetaMap = itemMetaMap;
+		if (itemMetaMap != null && !itemMetaMap.isEmpty()) {
+			MetaDataWraper wraper = MetaDataWraper.of();
+			for (Map.Entry<String, Object> itemdata : itemMetaMap.entrySet()) {
+				wraper.add(itemdata.getKey(), itemdata.getValue());
+			}
+			metadata = wraper;
+		}
 		return this;
 	}
 
@@ -694,15 +722,13 @@ public class CreateItemStack {
 		if (itemstack != null && itemstack.getType() != Material.AIR) {
 			if (!this.keepOldMeta)
 				itemstack = new ItemStack(itemstack.getType());
-
-			if (nbtApi != null)
-				if (this.itemMetaMap != null) {
-					for (final Map.Entry<String, Object> entitys : this.itemMetaMap.entrySet()) {
+			if (nbtApi != null) {
+				Map<String, Object> metadataMap = this.getMetadataMap();
+				if (metadataMap != null)
+					for (final Map.Entry<String, Object> entitys : metadataMap.entrySet()) {
 						itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue());
 					}
-				} else if (this.itemMetaKey != null && this.itemMetaValue != null)
-					itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, this.itemMetaKey, this.itemMetaValue);
-
+			}
 			final ItemMeta itemMeta = itemstack.getItemMeta();
 
 			if (itemMeta != null) {
@@ -741,16 +767,14 @@ public class CreateItemStack {
 				if (itemstack == null) continue;
 
 				if (!(itemstack.getType() == Material.AIR)) {
-					if (nbtApi != null)
-						if (itemMetaMap != null) {
-							for (final Map.Entry<String, Object> entitys : this.itemMetaMap.entrySet()) {
-								itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue() + "");
+					if (nbtApi != null) {
+						Map<String, Object> metadataMap = this.getMetadataMap();
+						if (metadataMap != null)
+							for (final Map.Entry<String, Object> entitys : metadataMap.entrySet()) {
+								itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue());
 							}
-						} else if (this.itemMetaKey != null && this.itemMetaValue != null)
-							itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, this.itemMetaKey, this.itemMetaValue + "");
-
+					}
 					final ItemMeta itemMeta = itemstack.getItemMeta();
-
 					if (itemMeta != null) {
 						if (this.displayName != null) {
 							itemMeta.setDisplayName(translateColors(this.displayName));
@@ -986,6 +1010,16 @@ public class CreateItemStack {
 	private static String translateHexCodes(String textTranslate) {
 
 		return TextTranslator.toSpigotFormat(textTranslate);
+	}
+
+	private MetaDataWraper getMetadata() {
+		return metadata;
+	}
+
+	private Map<String, Object> getMetadataMap() {
+		if (metadata != null)
+			return metadata.getMetaDataMap();
+		return null;
 	}
 
 	private static class Bulider {
