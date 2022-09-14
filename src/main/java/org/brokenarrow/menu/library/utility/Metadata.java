@@ -3,7 +3,6 @@ package org.brokenarrow.menu.library.utility;
 import org.brokenarrow.menu.library.CreateMenus;
 import org.brokenarrow.menu.library.MenuMetadataKey;
 import org.brokenarrow.menu.library.RegisterMenuAPI;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -54,7 +53,7 @@ public final class Metadata {
 		player.setMetadata(key + "_" + plugin, new FixedMetadataValue(plugin, menu));
 	}
 
-	public static void setPlayerLocationMetadata(@NotNull final Player player, @NotNull final MenuMetadataKey key, @NotNull final Location location) {
+	public static void setPlayerLocationMetadata(@NotNull final Player player, @NotNull final MenuMetadataKey key, @NotNull final Object location) {
 		player.setMetadata(key + "_" + plugin, new FixedMetadataValue(plugin, location));
 	}
 

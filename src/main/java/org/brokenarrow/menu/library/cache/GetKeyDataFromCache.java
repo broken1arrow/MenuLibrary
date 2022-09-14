@@ -1,12 +1,7 @@
 package org.brokenarrow.menu.library.cache;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
-import java.util.Set;
-
 public class GetKeyDataFromCache {
-	private static final MenuCache menuCache = MenuCache.getInstance();
+	/*private static final RegisterMenuAPI.MenuCache menuCache = RegisterMenuAPI.MenuCache.getInstance();
 
 	public static Object checkMap(Player player, Location location, Object unknownObject) {
 		Set<Object> obj = menuCache.getMenusCached().keySet();
@@ -27,5 +22,5 @@ public class GetKeyDataFromCache {
 		}
 
 		return object;
-	}
+	}*/
 }

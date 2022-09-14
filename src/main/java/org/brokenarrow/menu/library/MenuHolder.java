@@ -329,16 +329,6 @@ public class MenuHolder extends CreateMenus {
 	}
 
 	/**
-	 * return amount of players look inside the current inventory.
-	 *
-	 * @return amount of players curently looking in the inventory.
-	 */
-	@Override
-	public int getAmountOfViwers() {
-		return super.getAmountOfViwers();
-	}
-
-	/**
 	 * Get the menu
 	 *
 	 * @return menu some are curent created.
@@ -458,7 +448,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param menu  some are closed.
 	 */
 	@Override
-	public void menuClose(InventoryCloseEvent event, Inventory menu) {
+	public void menuClose(InventoryCloseEvent event, CreateMenus menu) {
 		super.menuClose(event, menu);
 	}
 

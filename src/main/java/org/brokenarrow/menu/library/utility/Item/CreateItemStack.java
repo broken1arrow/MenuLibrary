@@ -1,6 +1,5 @@
 package org.brokenarrow.menu.library.utility.Item;
 
-import com.google.common.base.Enums;
 import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
 import de.tr7zw.changeme.nbtapi.utils.Valid;
 import org.broken.lib.rbg.TextTranslator;
@@ -16,6 +15,7 @@ import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -25,8 +25,9 @@ import static org.brokenarrow.menu.library.RegisterMenuAPI.getNbtApi;
 
 
 /**
- * Create items and also count number of items of
- * specific type.
+ * Create items with your set data. When you make a item it will also detect minecraft version
+ * and provide help when make items for diffrent minecraft versions (you can ether let it auto convert colors depending
+ * on version or hardcode it self).
  */
 
 public class CreateItemStack {
@@ -57,6 +58,7 @@ public class CreateItemStack {
 	private boolean unbreakable;
 	private boolean keepAmount;
 	private boolean keepOldMeta = true;
+	private boolean copyOfItem;
 	private static ConvertToItemStack convertItems;
 
 
@@ -710,6 +712,27 @@ public class CreateItemStack {
 	}
 
 	/**
+	 * Get if it has create copy of item or not.
+	 *
+	 * @return true if it shall make copy of orginal item.
+	 */
+
+	public boolean isCopyOfItem() {
+		return copyOfItem;
+	}
+
+	/**
+	 * If it shall create copy of the item or change orginal item.
+	 *
+	 * @param copyItem true if you want to create copy.
+	 * @return this class.
+	 */
+	public CreateItemStack setCopyOfItem(boolean copyItem) {
+		this.copyOfItem = copyItem;
+		return this;
+	}
+
+	/**
 	 * Create itemstack, call it after you added all data you want
 	 * on the item.
 	 *
@@ -717,37 +740,8 @@ public class CreateItemStack {
 	 */
 	public ItemStack makeItemStack() {
 		ItemStack itemstack = checkTypeOfItem();
-		RegisterNbtAPI nbtApi = getNbtApi();
 
-		if (itemstack != null && itemstack.getType() != Material.AIR) {
-			if (!this.keepOldMeta)
-				itemstack = new ItemStack(itemstack.getType());
-			if (nbtApi != null) {
-				Map<String, Object> metadataMap = this.getMetadataMap();
-				if (metadataMap != null)
-					for (final Map.Entry<String, Object> entitys : metadataMap.entrySet()) {
-						itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue());
-					}
-			}
-			final ItemMeta itemMeta = itemstack.getItemMeta();
-
-			if (itemMeta != null) {
-				if (this.displayName != null) {
-					itemMeta.setDisplayName(translateColors(this.displayName));
-				}
-				if (this.lore != null && !this.lore.isEmpty()) {
-					itemMeta.setLore(translateColors(this.lore));
-				}
-				addItemMeta(itemMeta);
-
-				if (this.getData() > 0)
-					itemstack.setDurability(this.getData());
-			}
-			itemstack.setItemMeta(itemMeta);
-			if (!this.keepAmount)
-				itemstack.setAmount(this.amoutOfItems == 0 ? 1 : this.amoutOfItems);
-		}
-		return itemstack != null ? itemstack : new ItemStack(Material.AIR);
+		return createItem(itemstack);
 	}
 
 	/**
@@ -758,41 +752,55 @@ public class CreateItemStack {
 	 */
 	public ItemStack[] makeItemStackArray() {
 		ItemStack itemstack = null;
-		RegisterNbtAPI nbtApi = getNbtApi();
 		final List<ItemStack> list = new ArrayList<>();
 
 		if (this.itemArray != null)
 			for (final Object itemStringName : this.itemArray) {
 				itemstack = checkTypeOfItem(itemStringName);
 				if (itemstack == null) continue;
-
-				if (!(itemstack.getType() == Material.AIR)) {
-					if (nbtApi != null) {
-						Map<String, Object> metadataMap = this.getMetadataMap();
-						if (metadataMap != null)
-							for (final Map.Entry<String, Object> entitys : metadataMap.entrySet()) {
-								itemstack = nbtApi.getCompMetadata().setMetadata(itemstack, entitys.getKey(), entitys.getValue());
-							}
-					}
-					final ItemMeta itemMeta = itemstack.getItemMeta();
-					if (itemMeta != null) {
-						if (this.displayName != null) {
-							itemMeta.setDisplayName(translateColors(this.displayName));
-						}
-						if (this.lore != null && !this.lore.isEmpty()) {
-							itemMeta.setLore(translateColors(this.lore));
-						}
-						addItemMeta(itemMeta);
-
-					}
-					itemstack.setItemMeta(itemMeta);
-					itemstack.setAmount(this.amoutOfItems == 0 ? 1 : this.amoutOfItems);
-					list.add(itemstack);
-				}
+				list.add(createItem(itemstack));
 			}
 		return itemstack != null ? list.toArray(new ItemStack[0]) : new ItemStack[]{new ItemStack(Material.AIR)};
 	}
 
+	@NotNull
+	private ItemStack createItem(final ItemStack itemstack) {
+		if (itemstack == null) return new ItemStack(Material.AIR);
+		ItemStack itemstackNew = itemstack;
+		RegisterNbtAPI nbtApi = getNbtApi();
+		if (!this.keepOldMeta) {
+			itemstackNew = new ItemStack(itemstack.getType());
+			if (this.keepAmount)
+				itemstackNew.setAmount(itemstack.getAmount());
+		}
+		if (this.isCopyOfItem() && this.keepOldMeta) {
+			itemstackNew = new ItemStack(itemstackNew);
+		}
+
+		if (!itemstackNew.getType().isAir()) {
+			if (nbtApi != null) {
+				Map<String, Object> metadataMap = this.getMetadataMap();
+				if (metadataMap != null)
+					for (final Map.Entry<String, Object> entitys : metadataMap.entrySet()) {
+						itemstackNew = nbtApi.getCompMetadata().setMetadata(itemstackNew, entitys.getKey(), entitys.getValue());
+					}
+			}
+			final ItemMeta itemMeta = itemstackNew.getItemMeta();
+			if (itemMeta != null) {
+				if (this.displayName != null) {
+					itemMeta.setDisplayName(translateColors(this.displayName));
+				}
+				if (this.lore != null && !this.lore.isEmpty()) {
+					itemMeta.setLore(translateColors(this.lore));
+				}
+				addItemMeta(itemMeta);
+			}
+			itemstackNew.setItemMeta(itemMeta);
+			if (!this.keepAmount)
+				itemstackNew.setAmount(this.amoutOfItems <= 0 ? 1 : this.amoutOfItems);
+		}
+		return itemstackNew;
+	}
 
 	private ItemStack checkTypeOfItem() {
 		if (this.itemStack != null)
@@ -800,8 +808,7 @@ public class CreateItemStack {
 		else if (this.matrial != null)
 			return new ItemStack(matrial);
 		else if (this.stringItem != null)
-			return new ItemStack(Enums.getIfPresent(Material.class, this.stringItem).orNull() == null ? Material.AIR : Material.valueOf(this.stringItem));
-
+			return this.checkTypeOfItem(this.stringItem);
 		return null;
 	}
 
@@ -845,8 +852,6 @@ public class CreateItemStack {
 				hideEnchantments(itemMeta);
 			return haveEnchant;
 		} else if (this.isGlow()) {
-			/*if (!isShowEnchantments() || !visibleItemFlags.isEmpty())
-				hideEnchantments(itemMeta);*/
 			return itemMeta.addEnchant(Enchantment.SILK_TOUCH, 1, false);
 		}
 		return false;

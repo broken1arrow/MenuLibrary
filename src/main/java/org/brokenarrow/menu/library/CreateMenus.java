@@ -2,7 +2,6 @@ package org.brokenarrow.menu.library;
 
 import com.google.common.base.Enums;
 import org.brokenarrow.menu.library.NMS.UpdateTittleContainers;
-import org.brokenarrow.menu.library.cache.MenuCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -166,7 +165,6 @@ public class CreateMenus {
 	private int itemsPerPage = this.inventorySize;
 	private int inventorySize;
 	private int pageNumber;
-	private int amountOfViwers;
 	private int updateTime;
 	private List<Integer> fillSpace;
 	private List<?> listOfFillItems;
@@ -174,7 +172,7 @@ public class CreateMenus {
 	private Sound menuOpenSound = Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull() == null ? Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BASEDRUM").orNull() : Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull();
 	private String title;
 	private String playermetadataKey;
-
+	private String uniqueKey;
 	private Location location;
 
 	/**
@@ -505,8 +503,7 @@ public class CreateMenus {
 	 * @return amount of players curently looking in the inventory.
 	 */
 	public int getAmountOfViwers() {
-
-		return amountOfViwers;
+		return inventory.getViewers().size();
 	}
 
 	/**
@@ -630,10 +627,10 @@ public class CreateMenus {
 	 * When you close the menu
 	 *
 	 * @param event close inventory
-	 * @param menu  some are closed.
+	 * @param menu  class some are now closed.
 	 */
 
-	public void menuClose(InventoryCloseEvent event, Inventory menu) {
+	public void menuClose(InventoryCloseEvent event, CreateMenus menu) {
 	}
 
 	/**
@@ -695,7 +692,6 @@ public class CreateMenus {
 		onMenuOpenPlaySound();
 
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
-		amountOfViwers++;
 
 		if (!getButtonsToUpdate().isEmpty())
 			updateButtonsInList();
@@ -834,8 +830,50 @@ public class CreateMenus {
 		return obj;
 	}
 
-	private void saveMenuCache(Player player, Location location) {
-		menuCache.setMenusChached(location, this);
+	private void saveMenuCache(Location location) {
+		Object obj;
+		if (this.uniqueKey == null || this.uniqueKey.isEmpty()) {
+			obj = location;
+		} else {
+			obj = this.uniqueKey + ":" + location;
+		}
+		menuCache.setMenusCached(obj, this);
+	}
+
+	private CreateMenus getMenuCache(Location location) {
+		Object obj;
+		if (this.uniqueKey == null || this.uniqueKey.isEmpty()) {
+			obj = location;
+		} else {
+			obj = this.uniqueKey + ":" + location;
+		}
+		return menuCache.getMenuInCache(obj);
+	}
+
+	/**
+	 * Remove the cached menu. if you use location.
+	 *
+	 * @param location you stored in the cache.
+	 */
+	public void removeMenuCache(Location location) {
+		Object obj;
+		if (this.uniqueKey == null || this.uniqueKey.isEmpty()) {
+			obj = location;
+		} else {
+			obj = this.uniqueKey + ":" + location;
+		}
+		menuCache.removeMenuCached(obj);
+	}
+
+	/**
+	 * Set uniqueKey for the cached menu. If you want several menus on same location
+	 * (so several players can interact with same menu). You need set this in the constructor call
+	 * to make it work as it should.
+	 *
+	 * @param uniqueKey you use as part of the key in the cache.
+	 */
+	public void setUniqueKeyMenuCache(String uniqueKey) {
+		this.uniqueKey = uniqueKey;
 	}
 
 	private boolean checkLastOpenMenu() {
@@ -848,7 +886,13 @@ public class CreateMenus {
 	}
 
 	private void setPlayermetadata(Player player, Location location) {
-		setPlayerLocationMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION, location);
+		Object obj;
+		if (this.uniqueKey == null || this.uniqueKey.isEmpty()) {
+			obj = location;
+		} else {
+			obj = this.uniqueKey + ":" + location;
+		}
+		setPlayerLocationMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION, obj);
 	}
 
 	private void setPlayermetadata(Player player, String setPlayerMetadataKey, Object setPlayerMetadataValue) {
@@ -874,26 +918,21 @@ public class CreateMenus {
 	 */
 	@Deprecated
 	protected void onMenuClose(InventoryCloseEvent event) {
-
 		if (Bukkit.getScheduler().isCurrentlyRunning(this.taskid) || Bukkit.getScheduler().isQueued(this.taskid)) {
 			Bukkit.getScheduler().cancelTask(this.taskid);
 
 		}
-		if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN))
-			removePlayerMenuMetadata(this.player, MenuMetadataKey.MENU_OPEN);
-
-		amountOfViwers--;
-		if (amountOfViwers < 0)
-			amountOfViwers = 0;
 	}
 
 	private Inventory loadInventory(Player player, boolean loadToCahe) {
 		Inventory menu = null;
 		if (loadToCahe) {
-			if (menuCache.getMenuInCache(this.location) == null || menuCache.getMenuInCache(this.location).getMenu() == null) {
-				saveMenuCache(player, this.location);
+			CreateMenus menuCached = this.getMenuCache(this.location);
+			if (menuCached == null || menuCached.getMenu() == null) {
+				saveMenuCache(this.location);
+				menuCached = this.getMenuCache(this.location);
 			}
-			menu = menuCache.getMenuInCache(this.location).getMenu();
+			menu = menuCached.getMenu();
 		} else {
 			CreateMenus previous = getMenuholder(this.player);
 			if (previous != null && !hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN)) {

@@ -2,10 +2,8 @@ package org.brokenarrow.menu.library;
 
 import com.google.common.base.Enums;
 import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
-import org.brokenarrow.menu.library.cache.MenuCache;
 import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +13,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -99,7 +98,7 @@ public class RegisterMenuAPI {
 						return;
 					else if (event.getClickedInventory().getType() != InventoryType.PLAYER)
 						event.setCancelled(true);
-				} else if (!createMenus.isSlotsYouCanAddItems()) {
+				} else {
 					if (event.getClickedInventory().getType() == InventoryType.PLAYER)
 						if (event.getClick().isShiftClick()) {
 							event.setCancelled(true);
@@ -156,8 +155,16 @@ public class RegisterMenuAPI {
 				return;
 
 			createMenus.onMenuClose(event);
-			createMenus.menuClose(event, createMenus.getMenu());
-
+			try {
+				createMenus.menuClose(event, createMenus);
+			} finally {
+				if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN)) {
+					removePlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
+				}
+				if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION)) {
+					removePlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION);
+				}
+			}
 		}
 
 		@EventHandler(priority = EventPriority.LOW)
@@ -183,7 +190,7 @@ public class RegisterMenuAPI {
 							return;
 						else
 							event.setCancelled(true);
-					} else if (!createMenus.isSlotsYouCanAddItems()) {
+					} else {
 						event.setCancelled(true);
 					}
 					if (getClickedButton(createMenus, cursor, clickedPos, clickedSlot) == null)
@@ -195,19 +202,6 @@ public class RegisterMenuAPI {
 
 		public MenuButton getClickedButton(CreateMenus createMenus, ItemStack item, int clickedPos, int clickedSlot) {
 			if (item != null) {
-				//for (ListIterator<MenuButton> menuButtons = createMenus.getButtons().listIterator(); menuButtons.hasNext(); ) {
-				//	MenuButton menuButton = menuButtons.next();
-					/*Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : item;
-					if (createMenus.getAddedButtonsCache().containsKey(createMenus.getPageNumber())) {
-						ItemStack itemStack;
-						if (!createMenus.getFillSpace().contains(clickedSlot)) {
-							itemStack = menuButton.getItem();
-						} else {
-							itemStack = menuButton.getItem(objectData);
-							if (itemStack == null) {
-								itemStack = menuButton.getItem();
-							}
-						}*/
 				Map<Integer, CreateMenus.MenuData> menuDataMap = createMenus.getMenuData(createMenus.getPageNumber());
 				if (menuDataMap != null && !menuDataMap.isEmpty()) {
 					CreateMenus.MenuData menuData = menuDataMap.get(clickedPos);
@@ -244,22 +238,20 @@ public class RegisterMenuAPI {
 			return curentCursor != null ? curentCursor : oldCursor != null ? oldCursor : new ItemStack(Material.AIR);
 		}
 
+		@Nullable
 		private CreateMenus getMenuHolder(Player player) {
 
-			Location location = null;
-			Object object;
+			Object menukey = null;
 
 			if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION)) {
-				object = getPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION);
-				if (object instanceof Location)
-					location = (Location) object;
+				menukey = getPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION);
 			}
 
 			CreateMenus createMenus;
 			if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN)) {
 				createMenus = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
 			} else {
-				createMenus = menuCache.getMenuInCache(location);
+				createMenus = menuCache.getMenuInCache(menukey);
 			}
 			return createMenus;
 		}
