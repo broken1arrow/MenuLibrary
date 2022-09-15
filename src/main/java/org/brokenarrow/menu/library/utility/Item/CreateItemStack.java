@@ -1,8 +1,8 @@
 package org.brokenarrow.menu.library.utility.Item;
 
 import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
-import de.tr7zw.changeme.nbtapi.utils.Valid;
 import org.broken.lib.rbg.TextTranslator;
+import org.brokenarrow.menu.library.utility.Validate;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
@@ -385,7 +385,7 @@ public class CreateItemStack {
 	 * @return this class.
 	 */
 	public CreateItemStack addEnchantments(Map<Enchantment, Tuple<Integer, Boolean>> enchantmentMap, boolean override) {
-		Valid.checkNotNull(enchantmentMap, "this map is null");
+		Validate.checkNotNull(enchantmentMap, "this map is null");
 		if (enchantmentMap.isEmpty())
 			getLogger(Level.INFO, "This map is empty so no enchantments vill be added");
 
@@ -627,7 +627,7 @@ public class CreateItemStack {
 		this.rgb = rgb;
 
 		String[] colors = this.getRgb().split(",");
-		Valid.checkBoolean(colors.length < 4, "rgb is not format correcly. Should be formated like this 'r,b,g'. Example '20,15,47'.");
+		Validate.checkBoolean(colors.length < 4, "rgb is not format correcly. Should be formated like this 'r,b,g'. Example '20,15,47'.");
 		try {
 			red = Integer.parseInt(colors[0]);
 			green = Integer.parseInt(colors[2]);
@@ -685,7 +685,7 @@ public class CreateItemStack {
 	 * @return this class.
 	 */
 	public CreateItemStack setItemFlags(List<ItemFlag> itemFlags) {
-		Valid.checkNotNull(itemFlags, "flags list is null");
+		Validate.checkNotNull(itemFlags, "flags list is null");
 		this.visibleItemFlags.addAll(itemFlags);
 		return this;
 	}
@@ -697,7 +697,7 @@ public class CreateItemStack {
 	 * @return this class.
 	 */
 	public CreateItemStack setFlagsToHide(List<ItemFlag> itemFlags) {
-		de.tr7zw.changeme.nbtapi.utils.Valid.checkNotNull(itemFlags, "flags list is null");
+		Validate.checkNotNull(itemFlags, "flags list is null");
 		this.flagsToHide.addAll(itemFlags);
 		return this;
 	}
