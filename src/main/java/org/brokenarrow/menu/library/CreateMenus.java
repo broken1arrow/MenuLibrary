@@ -162,6 +162,7 @@ public class CreateMenus {
 	private boolean updateButtons;
 	private boolean allowShiftClick = true;
 	private boolean ignoreValidCheck;
+	private boolean autoClearCache = true;
 	private int slotIndex = 0;
 	private int requiredPages;
 	private int itemsPerPage = this.inventorySize;
@@ -638,6 +639,27 @@ public class CreateMenus {
 
 	public boolean isIgnoreValidCheck() {
 		return ignoreValidCheck;
+	}
+
+	/**
+	 * Get if it shall automatic clear cache or not.
+	 *
+	 * @return true if it shall clear menu after last viewer close gui.
+	 */
+
+	public boolean isAutoClearCache() {
+		return autoClearCache;
+	}
+
+	/**
+	 * Set this to false if you not want it to auto clear from
+	 * the cache. It defult will clear the menu so you not have
+	 * to set this to true.
+	 *
+	 * @param autoClearCache set to false if you not want it to clear menu.
+	 */
+	public void setAutoClearCache(boolean autoClearCache) {
+		this.autoClearCache = autoClearCache;
 	}
 
 	/**

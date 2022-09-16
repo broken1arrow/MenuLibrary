@@ -162,6 +162,11 @@ public class RegisterMenuAPI {
 					removePlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
 				}
 				if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION)) {
+					if (createMenus.isAutoClearCache()) {
+						if (createMenus.getAmountOfViewers() < 1) {
+							menuCache.removeMenuCached(getPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION));
+						}
+					}
 					removePlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION);
 				}
 			}
