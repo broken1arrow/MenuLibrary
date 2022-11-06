@@ -18,7 +18,13 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 
@@ -1103,6 +1109,8 @@ public class CreateMenus {
 				result = menuButton.getItem();
 		} else {
 			result = menuButton.getItem();
+			if (result == null)
+				result = menuButton.getItem(oldSlotIndex, objectFromlistOfFillItems);
 		}
 		return result;
 	}
