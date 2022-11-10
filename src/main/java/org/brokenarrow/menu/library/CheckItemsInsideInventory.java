@@ -10,7 +10,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.brokenarrow.menu.library.utility.Item.ItemStackCounters.countItemStacks;
 
@@ -24,80 +30,114 @@ public class CheckItemsInsideInventory {
 	private static final Map<UUID, Map<ItemStack, Integer>> duplicatedItems = new HashMap<>();
 	private boolean sendMsgPlayer = false;
 	private final List<String> blacklistedItems = new ArrayList<>();
-
+	private final List<Integer> slotsToCheck = new ArrayList<>();
 
 	/**
 	 * set blacklisted items player not shall add to inventory/menu.
 	 *
 	 * @param blacklistedItems list of items some are not allowed.
 	 */
-	public void setBlacklistedItems(List<String> blacklistedItems) {
+	public void setBlacklistedItems(final List<String> blacklistedItems) {
 		this.blacklistedItems.addAll(blacklistedItems);
 	}
 
 	/**
-	 * Metohd to check items inside inventory and remove items
-	 * it it more an 1 (giv rest back to player or drop it on grund
-	 * if inventory is full).
+	 * Array of slots you want to check.
+	 *
+	 * @return list of slots it will check.
+	 */
+
+	public List<Integer> getSlotsToCheck() {
+		return slotsToCheck;
+	}
+
+	/**
+	 * You can't check slots outside inventory size.
+	 *
+	 * @param slotsToCheck slots you want to check.
+	 */
+	public void setSlotsToCheck(final int... slotsToCheck) {
+		if (slotsToCheck != null)
+			for (final int slot : slotsToCheck)
+				this.slotsToCheck.add(slot);
+	}
+
+	/**
+	 * You can't check slots outside inventory size.
+	 *
+	 * @param slotsToCheck slots you want to check.
+	 */
+	public void setSlotsToCheck(final List<Integer> slotsToCheck) {
+		if (slotsToCheck != null)
+			this.slotsToCheck.addAll(slotsToCheck);
+	}
+
+	/**
+	 * Method to check items inside inventory and remove items it it more
+	 * an 1 (giv rest back to player or drop it on grund if inventory is full).
+	 * Will use {@link #getSlotsToCheck()}  method will be used if it's not empty,
+	 * otherwise it will return all items inside the inventory, except the bottom row.
 	 *
 	 * @param inv                  inventory you want to check
 	 * @param player               player some use menu/inventory
 	 * @param shallCheckDuplicates if it shall check if added items are dublicates or more 1 one item.
-	 * @return all items add in menu, but only 1 of each if shallCheckDuplicates are set to true.
+	 * @return all items add in menu on the specified or defult slots, but only 1 of each if shallCheckDuplicates is true.
 	 */
-	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player, boolean shallCheckDuplicates) {
-		return getItemsExceptBottomBar(inv, player, null, shallCheckDuplicates);
+	public Map<Integer, ItemStack> getItemsOnSpecifiedSlots(final Inventory inv, final Player player, final boolean shallCheckDuplicates) {
+		return getItemsOnSpecifiedSlots(inv, player, null, shallCheckDuplicates);
 	}
 
 	/**
-	 * Metohd to check items inside inventory and remove items
-	 * it it more an 1 (giv rest back to player or drop it on grund
-	 * if inventory is full).
+	 * Method to check items inside inventory and remove items it it more
+	 * an 1 (giv rest back to player or drop it on grund if inventory is full).
+	 * Will use {@link #getSlotsToCheck()}  method will be used if it's not empty,
+	 * otherwise it will return all items inside the inventory, except the bottom row.
 	 *
 	 * @param inv    inventory you want to check
 	 * @param player player some use menu/inventory
-	 * @return all items add in menu, but only 1 of each.
+	 * @return all items add in menu on the specified or defult slots, but only 1 of each if shallCheckDuplicates is true.
 	 */
-	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player) {
-		return getItemsExceptBottomBar(inv, player, null, true);
+	public Map<Integer, ItemStack> getItemsOnSpecifiedSlots(final Inventory inv, final Player player) {
+		return getItemsOnSpecifiedSlots(inv, player, null, true);
 	}
 
 	/**
-	 * Metohd to check items inside inventory and remove items
-	 * it it more an 1 (giv rest back to player or drop it on grund
-	 * if inventory is full).
+	 * Method to check items inside inventory and remove items it it more
+	 * an 1 (giv rest back to player or drop it on grund if inventory is full).
+	 * Will use {@link #getSlotsToCheck()}  method will be used if it's not empty,
+	 * otherwise it will return all items inside the inventory, except the bottom row.
 	 *
 	 * @param inv      inventory you want to check
 	 * @param player   player some use menu/inventory
 	 * @param location if player is offline or null, can you return a location where items shall drop.
-	 * @return all items add in menu, but only 1 of each.
+	 * @return all items add in menu on the specified or defult slots, but only 1 of each if shallCheckDuplicates is true.
 	 */
-	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player, Location location) {
-		return getItemsExceptBottomBar(inv, player, location, true);
+	public Map<Integer, ItemStack> getItemsOnSpecifiedSlots(final Inventory inv, final Player player, final Location location) {
+		return getItemsOnSpecifiedSlots(inv, player, location, true);
 	}
 
 	/**
-	 * Metohd to check items inside inventory and remove items
-	 * it it more an 1 (giv rest back to player or drop it on grund
-	 * if inventory is full).
+	 * Method to check items inside inventory and remove items it it more
+	 * an 1 (giv rest back to player or drop it on grund if inventory is full).
+	 * Will use {@link #getSlotsToCheck()}  method will be used if it's not empty,
+	 * otherwise it will return all items inside the inventory, except the bottom row.
 	 *
 	 * @param inv                  inventory you want to check
 	 * @param player               player some use menu/inventory
 	 * @param location             if player is offline or null, can you return a location where items shall drop.
 	 * @param shallCheckDuplicates if it shall check if added items are dublicates or more 1 one item.
-	 * @return all items add in menu, but only 1 of each if shallCheckDuplicates is true .
+	 * @return all items add in menu on the specified or defult slots, but only 1 of each if shallCheckDuplicates is true.
 	 */
 
-	public Map<Integer, ItemStack> getItemsExceptBottomBar(final Inventory inv, Player player, Location location, boolean shallCheckDuplicates) {
+	public Map<Integer, ItemStack> getItemsOnSpecifiedSlots(final Inventory inv, final Player player, final Location location, final boolean shallCheckDuplicates) {
 		final Map<Integer, ItemStack> items = new HashMap<>();
-
-		for (int i = 0; i < inv.getSize() - 9; i++) {
-			final ItemStack item = inv.getItem(i);
-
-			if (chekItemAreOnBlacklist(item)) {
-				addItemsBackToPlayer(player, item);
-			} else {
-				items.put(i, item != null && !isAir(item.getType()) ? item : null);
+		if (!this.getSlotsToCheck().isEmpty()) {
+			for (final int slot : this.getSlotsToCheck()) {
+				getInventoryItems(items, inv, player, slot);
+			}
+		} else {
+			for (int i = 0; i < inv.getSize() - 9; i++) {
+				getInventoryItems(items, inv, player, i);
 			}
 		}
 		if (shallCheckDuplicates)
@@ -105,10 +145,21 @@ public class CheckItemsInsideInventory {
 		else return items;
 	}
 
-	private Map<Integer, ItemStack> addToMuchItems(final Map<Integer, ItemStack> items, Player player, Inventory inventory, Location location) {
-		Map<Integer, ItemStack> itemStacksNoDubbleEntity = new HashMap<>();
-		Map<ItemStack, Integer> chachedDuplicatedItems = new HashMap<>();
-		Set<ItemStack> set = new HashSet<>();
+	public Map<Integer, ItemStack> getInventoryItems(final Map<Integer, ItemStack> items, final Inventory inv, final Player player, final int slot) {
+		if (slot > inv.getSize()) return items;
+		final ItemStack item = inv.getItem(slot);
+		if (chekItemAreOnBlacklist(item)) {
+			addItemsBackToPlayer(player, item);
+		} else {
+			items.put(slot, item != null && !isAir(item.getType()) ? item : null);
+		}
+		return items;
+	}
+
+	private Map<Integer, ItemStack> addToMuchItems(final Map<Integer, ItemStack> items, final Player player, final Inventory inventory, final Location location) {
+		final Map<Integer, ItemStack> itemStacksNoDubbleEntity = new HashMap<>();
+		final Map<ItemStack, Integer> chachedDuplicatedItems = new HashMap<>();
+		final Set<ItemStack> set = new HashSet<>();
 		this.sendMsgPlayer = false;
 		for (final Map.Entry<Integer, ItemStack> entitys : items.entrySet()) {
 
@@ -130,9 +181,9 @@ public class CheckItemsInsideInventory {
 		return itemStacksNoDubbleEntity;
 	}
 
-	private void addItemsBackToPlayer(Player player, ItemStack itemStack) {
+	private void addItemsBackToPlayer(final Player player, final ItemStack itemStack) {
 
-		HashMap<Integer, ItemStack> ifInventorFull = player.getInventory().addItem(itemStack);
+		final HashMap<Integer, ItemStack> ifInventorFull = player.getInventory().addItem(itemStack);
 		if (!ifInventorFull.isEmpty() && player.getLocation().getWorld() != null)
 			player.getLocation().getWorld().dropItemNaturally(player.getLocation(), ifInventorFull.get(0));
 
@@ -142,17 +193,17 @@ public class CheckItemsInsideInventory {
 		}
 	}
 
-	private void addItemsBackToPlayer(Location location) {
+	private void addItemsBackToPlayer(final Location location) {
 
 		for (final UUID playerUUID : CheckItemsInsideInventory.duplicatedItems.keySet()) {
 			for (final Map.Entry<ItemStack, Integer> items : duplicatedItems.get(playerUUID).entrySet()) {
-				ItemStack itemStack = items.getKey();
-				int amount = items.getValue();
+				final ItemStack itemStack = items.getKey();
+				final int amount = items.getValue();
 
 				itemStack.setAmount(amount);
-				OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
+				final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
 				if (offlinePlayer.getPlayer() != null) {
-					HashMap<Integer, ItemStack> ifInventorFull = offlinePlayer.getPlayer().getInventory().addItem(itemStack);
+					final HashMap<Integer, ItemStack> ifInventorFull = offlinePlayer.getPlayer().getInventory().addItem(itemStack);
 					if (!ifInventorFull.isEmpty() && offlinePlayer.getPlayer().getLocation().getWorld() != null)
 						offlinePlayer.getPlayer().getLocation().getWorld().dropItemNaturally(offlinePlayer.getPlayer().getLocation(), ifInventorFull.get(0));
 
@@ -165,10 +216,10 @@ public class CheckItemsInsideInventory {
 
 	}
 
-	private boolean chekItemAreOnBlacklist(ItemStack itemStack) {
-		List<String> itemStacks = blacklistedItems;
+	private boolean chekItemAreOnBlacklist(final ItemStack itemStack) {
+		final List<String> itemStacks = blacklistedItems;
 		if (itemStack != null && itemStacks != null)
-			for (String item : itemStacks) {
+			for (final String item : itemStacks) {
 				if (CreateItemStack.of(item).makeItemStack().isSimilar(itemStack))
 					return true;
 			}
