@@ -535,6 +535,22 @@ public class CreateMenus {
 	}
 
 	/**
+	 * set the page you want to open.
+	 *
+	 * @return true if it could set the page.
+	 */
+
+	public boolean setPage(int page) {
+		if (addedButtons.containsKey(page))
+			return false;
+
+		this.pageNumber = page;
+		updateButtons();
+		updateTittle();
+		return true;
+	}
+
+	/**
 	 * Get amount of pages some are needed.
 	 *
 	 * @return 1 or amount it need to fit all items.
@@ -857,7 +873,7 @@ public class CreateMenus {
 	private void updateTittle() {
 		if (this.title == null || this.title.equals(""))
 			this.title = "Menu" + (getRequiredPages() > 1 ? " page: " : "");
-		UpdateTittleContainers.update(player, this.title + (getRequiredPages() > 1 ? (getPageNumber() + 1) + "" : ""));
+		UpdateTittleContainers.update(player, this.title + (getRequiredPages() > 1 ? " " + (getPageNumber() + 1) + "" : ""));
 	}
 
 	private Object toMenuCache(Player player, Location location) {
