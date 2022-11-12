@@ -106,7 +106,7 @@ public class CreateItemStack {
 	 * @param color if you use minecraft version before 1.13.
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static CreateItemStack of(final Object item, String color) {
+	public static CreateItemStack of(final Object item, final String color) {
 		return of(item, color, null, (List<String>) null);
 	}
 
@@ -120,7 +120,7 @@ public class CreateItemStack {
 	 * @param itemMetaValue set metadata value
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static CreateItemStack of(final Object item, String color, final String itemMetaKey, final String itemMetaValue) {
+	public static CreateItemStack of(final Object item, final String color, final String itemMetaKey, final String itemMetaValue) {
 		return of(item, color).setItemMetaData(itemMetaKey, itemMetaValue);
 	}
 
@@ -161,7 +161,7 @@ public class CreateItemStack {
 	 * @param lore        on the item.
 	 * @return CreateItemUtily class or class with air item (if item are null).
 	 */
-	public static CreateItemStack of(final Object item, String color, final String displayName, final List<String> lore) {
+	public static CreateItemStack of(final Object item, final String color, final String displayName, final List<String> lore) {
 		return new Bulider(getConvertItems().checkItem(item, color), displayName, lore).build();
 	}
 
@@ -235,7 +235,7 @@ public class CreateItemStack {
 	 * @param patterns to add to the list.
 	 * @return this class.
 	 */
-	public CreateItemStack addPattern(Pattern... patterns) {
+	public CreateItemStack addPattern(final Pattern... patterns) {
 		if (patterns == null || patterns.length < 1) return this;
 
 		this.pattern.addAll(Arrays.asList(patterns));
@@ -248,7 +248,7 @@ public class CreateItemStack {
 	 * @param pattern list some contains patterns.
 	 * @return this class.
 	 */
-	public CreateItemStack addPattern(List<Pattern> pattern) {
+	public CreateItemStack addPattern(final List<Pattern> pattern) {
 
 		this.pattern.addAll(pattern);
 		return this;
@@ -273,7 +273,7 @@ public class CreateItemStack {
 		return waterBottle;
 	}
 
-	public CreateItemStack setWaterBottle(boolean waterBottle) {
+	public CreateItemStack setWaterBottle(final boolean waterBottle) {
 		this.waterBottle = waterBottle;
 		return this;
 	}
@@ -293,7 +293,7 @@ public class CreateItemStack {
 	 * @param keepAmount set it to true if you want keep old amount.
 	 * @return
 	 */
-	public CreateItemStack setKeepAmount(boolean keepAmount) {
+	public CreateItemStack setKeepAmount(final boolean keepAmount) {
 		this.keepAmount = keepAmount;
 		return this;
 	}
@@ -315,7 +315,7 @@ public class CreateItemStack {
 	 * @param keepOldMeta set to false if you not want to keep old metadata.
 	 * @return this class.
 	 */
-	public CreateItemStack setKeepOldMeta(boolean keepOldMeta) {
+	public CreateItemStack setKeepOldMeta(final boolean keepOldMeta) {
 		this.keepOldMeta = keepOldMeta;
 		return this;
 	}
@@ -334,7 +334,7 @@ public class CreateItemStack {
 	 *
 	 * @param fireworkEffects list of effects you want to add.
 	 */
-	public void setFireworkEffects(List<FireworkEffect> fireworkEffects) {
+	public void setFireworkEffects(final List<FireworkEffect> fireworkEffects) {
 		fireworkEffects.addAll(fireworkEffects);
 	}
 
@@ -354,9 +354,9 @@ public class CreateItemStack {
 	 */
 
 	public CreateItemStack addEnchantments(final String... enchantments) {
-		for (String enchant : enchantments) {
-			int middle = enchant.indexOf(";");
-			int last = enchant.lastIndexOf(";");
+		for (final String enchant : enchantments) {
+			final int middle = enchant.indexOf(";");
+			final int last = enchant.lastIndexOf(";");
 			addEnchantments(enchant.substring(0, middle), last > 0 && Boolean.getBoolean(enchant.substring(last + 1)), Integer.parseInt(enchant.substring(middle + 1, Math.max(last, enchant.length()))));
 		}
 		return this;
@@ -370,7 +370,7 @@ public class CreateItemStack {
 	 */
 
 	public CreateItemStack addEnchantments(final Enchantment... enchantments) {
-		for (Enchantment enchant : enchantments) {
+		for (final Enchantment enchant : enchantments) {
 			addEnchantments(enchant, true, 1);
 		}
 		return this;
@@ -384,7 +384,7 @@ public class CreateItemStack {
 	 * @param override       the old value in the map if you set it to true.
 	 * @return this class.
 	 */
-	public CreateItemStack addEnchantments(Map<Enchantment, Tuple<Integer, Boolean>> enchantmentMap, boolean override) {
+	public CreateItemStack addEnchantments(final Map<Enchantment, Tuple<Integer, Boolean>> enchantmentMap, final boolean override) {
 		Validate.checkNotNull(enchantmentMap, "this map is null");
 		if (enchantmentMap.isEmpty())
 			getLogger(Level.INFO, "This map is empty so no enchantments vill be added");
@@ -408,7 +408,7 @@ public class CreateItemStack {
 	 * @return this class.
 	 */
 
-	public CreateItemStack addEnchantments(final Object enchant, boolean levelRestriction, int enchantmentLevel) {
+	public CreateItemStack addEnchantments(final Object enchant, final boolean levelRestriction, final int enchantmentLevel) {
 		Enchantment enchantment = null;
 		if (enchant instanceof String)
 			enchantment = Enchantment.getByKey(NamespacedKey.minecraft((String) enchant));
@@ -457,7 +457,7 @@ public class CreateItemStack {
 	 * @param keepclazz     true if it shall keep all data on the item or false to convert value to string.
 	 * @return this class.
 	 */
-	public CreateItemStack setItemMetaData(final String itemMetaKey, final Object itemMetaValue, boolean keepclazz) {
+	public CreateItemStack setItemMetaData(final String itemMetaKey, final Object itemMetaValue, final boolean keepclazz) {
 		metadata = MetaDataWraper.of().add(itemMetaKey, itemMetaValue, keepclazz);
 		return this;
 	}
@@ -483,8 +483,8 @@ public class CreateItemStack {
 	 */
 	public CreateItemStack setItemMetaDataList(final Map<String, Object> itemMetaMap) {
 		if (itemMetaMap != null && !itemMetaMap.isEmpty()) {
-			MetaDataWraper wraper = MetaDataWraper.of();
-			for (Map.Entry<String, Object> itemdata : itemMetaMap.entrySet()) {
+			final MetaDataWraper wraper = MetaDataWraper.of();
+			for (final Map.Entry<String, Object> itemdata : itemMetaMap.entrySet()) {
 				wraper.add(itemdata.getKey(), itemdata.getValue());
 			}
 			metadata = wraper;
@@ -507,7 +507,7 @@ public class CreateItemStack {
 	 * @param unbreakable true if the tool shall not break
 	 * @return this class.
 	 */
-	public CreateItemStack setUnbreakable(boolean unbreakable) {
+	public CreateItemStack setUnbreakable(final boolean unbreakable) {
 		this.unbreakable = unbreakable;
 		return this;
 	}
@@ -528,7 +528,7 @@ public class CreateItemStack {
 	 * @param data the number you want to set.
 	 * @return this class.
 	 */
-	public CreateItemStack setData(short data) {
+	public CreateItemStack setData(final short data) {
 		this.data = data;
 		return this;
 	}
@@ -549,7 +549,7 @@ public class CreateItemStack {
 	 * @param customModeldata number.
 	 * @return this class.
 	 */
-	public CreateItemStack setCustomModeldata(int customModeldata) {
+	public CreateItemStack setCustomModeldata(final int customModeldata) {
 		this.customModeldata = customModeldata;
 		return this;
 	}
@@ -569,7 +569,7 @@ public class CreateItemStack {
 	 * @param potionEffects you want to set on the item.
 	 * @return this class.
 	 */
-	public CreateItemStack addPortionEffects(PotionEffect... potionEffects) {
+	public CreateItemStack addPortionEffects(final PotionEffect... potionEffects) {
 		if (potionEffects.length == 0) return this;
 
 		portionEffects.addAll(Arrays.asList(potionEffects));
@@ -582,7 +582,7 @@ public class CreateItemStack {
 	 * @param potionEffects list of effects you want to add.
 	 * @return this class.
 	 */
-	public CreateItemStack addPortionEffects(List<PotionEffect> potionEffects) {
+	public CreateItemStack addPortionEffects(final List<PotionEffect> potionEffects) {
 		if (potionEffects.isEmpty()) {
 			getLogger(Level.INFO, "This list of portion effects is empty so no values vill be added");
 			return this;
@@ -598,7 +598,7 @@ public class CreateItemStack {
 	 * @param potionEffects list of effects you want to set.
 	 * @return this class.
 	 */
-	public CreateItemStack setPortionEffects(List<PotionEffect> potionEffects) {
+	public CreateItemStack setPortionEffects(final List<PotionEffect> potionEffects) {
 		if (potionEffects.isEmpty()) {
 			getLogger(Level.INFO, "This list of portion effects is empty so no values vill be added");
 			return this;
@@ -623,16 +623,16 @@ public class CreateItemStack {
 	 * @param rgb string need to be formated like this #,#,#.
 	 * @return this class.
 	 */
-	public CreateItemStack setRgb(String rgb) {
+	public CreateItemStack setRgb(final String rgb) {
 		this.rgb = rgb;
 
-		String[] colors = this.getRgb().split(",");
+		final String[] colors = this.getRgb().split(",");
 		Validate.checkBoolean(colors.length < 4, "rgb is not format correcly. Should be formated like this 'r,b,g'. Example '20,15,47'.");
 		try {
 			red = Integer.parseInt(colors[0]);
 			green = Integer.parseInt(colors[2]);
 			blue = Integer.parseInt(colors[1]);
-		} catch (NumberFormatException exception) {
+		} catch (final NumberFormatException exception) {
 			getLogger(Level.WARNING, "you don´t use numbers inside this " + rgb);
 			exception.printStackTrace();
 		}
@@ -673,7 +673,7 @@ public class CreateItemStack {
 	 * @param itemFlags add one or several flags you not want to hide.
 	 * @return this class.
 	 */
-	public CreateItemStack setItemFlags(ItemFlag... itemFlags) {
+	public CreateItemStack setItemFlags(final ItemFlag... itemFlags) {
 		this.setItemFlags(Arrays.asList(itemFlags));
 		return this;
 	}
@@ -684,7 +684,7 @@ public class CreateItemStack {
 	 * @param itemFlags add one or several flags you not want to hide.
 	 * @return this class.
 	 */
-	public CreateItemStack setItemFlags(List<ItemFlag> itemFlags) {
+	public CreateItemStack setItemFlags(final List<ItemFlag> itemFlags) {
 		Validate.checkNotNull(itemFlags, "flags list is null");
 		this.visibleItemFlags.addAll(itemFlags);
 		return this;
@@ -696,7 +696,7 @@ public class CreateItemStack {
 	 * @param itemFlags add one or several flags you want to hide.
 	 * @return this class.
 	 */
-	public CreateItemStack setFlagsToHide(List<ItemFlag> itemFlags) {
+	public CreateItemStack setFlagsToHide(final List<ItemFlag> itemFlags) {
 		Validate.checkNotNull(itemFlags, "flags list is null");
 		this.flagsToHide.addAll(itemFlags);
 		return this;
@@ -727,7 +727,7 @@ public class CreateItemStack {
 	 * @param copyItem true if you want to create copy.
 	 * @return this class.
 	 */
-	public CreateItemStack setCopyOfItem(boolean copyItem) {
+	public CreateItemStack setCopyOfItem(final boolean copyItem) {
 		this.copyOfItem = copyItem;
 		return this;
 	}
@@ -739,7 +739,7 @@ public class CreateItemStack {
 	 * @return new itemstack with amount of 1 if you not set it.
 	 */
 	public ItemStack makeItemStack() {
-		ItemStack itemstack = checkTypeOfItem();
+		final ItemStack itemstack = checkTypeOfItem();
 
 		return createItem(itemstack);
 	}
@@ -767,7 +767,7 @@ public class CreateItemStack {
 	private ItemStack createItem(final ItemStack itemstack) {
 		if (itemstack == null) return new ItemStack(Material.AIR);
 		ItemStack itemstackNew = itemstack;
-		RegisterNbtAPI nbtApi = getNbtApi();
+		final RegisterNbtAPI nbtApi = getNbtApi();
 		if (!this.keepOldMeta) {
 			itemstackNew = new ItemStack(itemstack.getType());
 			if (this.keepAmount)
@@ -777,9 +777,9 @@ public class CreateItemStack {
 			itemstackNew = new ItemStack(itemstackNew);
 		}
 
-		if (!itemstackNew.getType().isAir()) {
+		if (!isAir(itemstackNew.getType())) {
 			if (nbtApi != null) {
-				Map<String, Object> metadataMap = this.getMetadataMap();
+				final Map<String, Object> metadataMap = this.getMetadataMap();
 				if (metadataMap != null)
 					for (final Map.Entry<String, Object> entitys : metadataMap.entrySet()) {
 						itemstackNew = nbtApi.getCompMetadata().setMetadata(itemstackNew, entitys.getKey(), entitys.getValue());
@@ -801,7 +801,23 @@ public class CreateItemStack {
 		}
 		return itemstackNew;
 	}
-
+	/**
+	 * Check if the material is an air block.
+	 *
+	 * @return True if this material is an air block.
+	 */
+	public boolean isAir(final Material material) {
+		switch (material) {
+			case AIR:
+			case CAVE_AIR:
+			case VOID_AIR:
+				// ----- Legacy Separator -----
+			case LEGACY_AIR:
+				return true;
+			default:
+				return false;
+		}
+	}
 	private ItemStack checkTypeOfItem() {
 		if (this.itemStack != null)
 			return itemStack;
@@ -812,7 +828,7 @@ public class CreateItemStack {
 		return null;
 	}
 
-	private ItemStack checkTypeOfItem(Object object) {
+	private ItemStack checkTypeOfItem(final Object object) {
 		return getConvertItems().checkItem(object);
 	}
 
@@ -845,7 +861,7 @@ public class CreateItemStack {
 					getLogger(Level.INFO, "Your enchantment are null.");
 					continue;
 				}
-				Tuple<Integer, Boolean> level = enchant.getValue();
+				final Tuple<Integer, Boolean> level = enchant.getValue();
 				haveEnchant = itemMeta.addEnchant(enchant.getKey(), level.getFirst() <= 0 ? 1 : level.getFirst(), level.getSecond());
 			}
 			if (isShowEnchantments() || !this.getFlagsToHide().isEmpty())
@@ -862,7 +878,7 @@ public class CreateItemStack {
 			return;
 
 		if (itemMeta instanceof BannerMeta) {
-			BannerMeta bannerMeta = (BannerMeta) itemMeta;
+			final BannerMeta bannerMeta = (BannerMeta) itemMeta;
 			bannerMeta.setPatterns(getPattern());
 		}
 	}
@@ -872,7 +888,7 @@ public class CreateItemStack {
 			return;
 
 		if (itemMeta instanceof LeatherArmorMeta) {
-			LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) itemMeta;
+			final LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) itemMeta;
 			leatherArmorMeta.setColor(Color.fromBGR(getBlue(), getGreen(), getRed()));
 		}
 	}
@@ -880,10 +896,10 @@ public class CreateItemStack {
 	private void addBottleEffects(final ItemMeta itemMeta) {
 
 		if (itemMeta instanceof PotionMeta) {
-			PotionMeta potionMeta = (PotionMeta) itemMeta;
+			final PotionMeta potionMeta = (PotionMeta) itemMeta;
 
 			if (isWaterBottle()) {
-				PotionData potionData = new PotionData(PotionType.WATER);
+				final PotionData potionData = new PotionData(PotionType.WATER);
 				potionMeta.setBasePotionData(potionData);
 				return;
 			}
@@ -909,8 +925,8 @@ public class CreateItemStack {
 				getLogger(Level.WARNING, "You have not set colors correctly, you have set this: " + getRgb() + " should be in this format Rgb: #,#,#");
 				return;
 			}
-			FireworkEffectMeta fireworkEffectMeta = (FireworkEffectMeta) itemMeta;
-			FireworkEffect.Builder builder = FireworkEffect.builder();
+			final FireworkEffectMeta fireworkEffectMeta = (FireworkEffectMeta) itemMeta;
+			final FireworkEffect.Builder builder = FireworkEffect.builder();
 			builder.withColor(Color.fromBGR(getBlue(), getGreen(), getRed()));
 			if (this.getFireworkEffects() != null && !this.getFireworkEffects().isEmpty()) {
 				this.getFireworkEffects().get(0).getFadeColors();
@@ -951,7 +967,7 @@ public class CreateItemStack {
 	}
 
 
-	public static ItemStack createItemStackAsOne(Material material) {
+	public static ItemStack createItemStackAsOne(final Material material) {
 		ItemStack itemstack = null;
 		if (material != null)
 			itemstack = new ItemStack(material);
@@ -959,24 +975,24 @@ public class CreateItemStack {
 		return createItemStackAsOne(itemstack != null ? itemstack : new ItemStack(Material.AIR));
 	}
 
-	public static ItemStack createItemStackAsOne(ItemStack itemstacks) {
+	public static ItemStack createItemStackAsOne(final ItemStack itemstacks) {
 		ItemStack itemstack = null;
 		if (itemstacks != null && !itemstacks.getType().equals(Material.AIR)) {
 			itemstack = itemstacks.clone();
-			ItemMeta meta = itemstack.getItemMeta();
+			final ItemMeta meta = itemstack.getItemMeta();
 			itemstack.setItemMeta(meta);
 			itemstack.setAmount(1);
 		}
 		return itemstack != null ? itemstack : new ItemStack(Material.AIR);
 	}
 
-	public static ItemStack[] createItemStackAsOne(ItemStack[] itemstacks) {
+	public static ItemStack[] createItemStackAsOne(final ItemStack[] itemstacks) {
 		ItemStack itemstack = null;
 		if (itemstacks != null) {
-			for (ItemStack item : itemstacks)
+			for (final ItemStack item : itemstacks)
 				if (!(item.getType() == Material.AIR)) {
 					itemstack = item.clone();
-					ItemMeta meta = itemstack.getItemMeta();
+					final ItemMeta meta = itemstack.getItemMeta();
 					itemstack.setItemMeta(meta);
 					itemstack.setAmount(1);
 					return new ItemStack[]{itemstack};
@@ -985,7 +1001,7 @@ public class CreateItemStack {
 		return new ItemStack[]{new ItemStack(Material.AIR)};
 	}
 
-	public static ItemStack createItemStackWhitAmount(Material matrial, int amount) {
+	public static ItemStack createItemStackWhitAmount(final Material matrial, final int amount) {
 		ItemStack itemstack = null;
 		if (matrial != null) {
 			itemstack = new ItemStack(matrial);
@@ -1001,18 +1017,18 @@ public class CreateItemStack {
 	}
 
 
-	public static List<String> formatColors(List<String> rawLore) {
-		List<String> lores = new ArrayList<>();
-		for (String lore : rawLore)
+	public static List<String> formatColors(final List<String> rawLore) {
+		final List<String> lores = new ArrayList<>();
+		for (final String lore : rawLore)
 			lores.add(translateHexCodes(lore));
 		return lores;
 	}
 
-	public static String formatColors(String rawSingelLine) {
+	public static String formatColors(final String rawSingelLine) {
 		return translateHexCodes(rawSingelLine);
 	}
 
-	private static String translateHexCodes(String textTranslate) {
+	private static String translateHexCodes(final String textTranslate) {
 
 		return TextTranslator.toSpigotFormat(textTranslate);
 	}
