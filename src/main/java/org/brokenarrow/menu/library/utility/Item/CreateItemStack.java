@@ -2,6 +2,7 @@ package org.brokenarrow.menu.library.utility.Item;
 
 import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
 import org.broken.lib.rbg.TextTranslator;
+import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.brokenarrow.menu.library.utility.Validate;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -838,7 +839,8 @@ public class CreateItemStack {
 		addFireworkEffect(itemMeta);
 		addEnchantments(itemMeta);
 		addBottleEffects(itemMeta);
-		addUnbreakableMeta(itemMeta);
+		if (ServerVersion.newerThan(ServerVersion.v1_9))
+			addUnbreakableMeta(itemMeta);
 		addCustomModelData(itemMeta);
 
 		if (isShowEnchantments() || !this.getFlagsToHide().isEmpty() || this.isGlow())
