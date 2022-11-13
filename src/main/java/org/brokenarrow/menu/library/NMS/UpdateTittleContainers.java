@@ -27,11 +27,11 @@ public class UpdateTittleContainers {
 	private static final Map<Integer, String> containerFieldname = new HashMap<>();
 	private static NmsData nmsData;
 
-	public static void update(Player p, String title) {
+	public static void update(final Player p, final String title) {
 
 		try {
 			if (p != null) {
-				Inventory inventory = p.getOpenInventory().getTopInventory();
+				final Inventory inventory = p.getOpenInventory().getTopInventory();
 				if (ServerVersion.atLeast(ServerVersion.v1_19)) {
 					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
 					if (nmsData == null)
@@ -60,12 +60,12 @@ public class UpdateTittleContainers {
 									"sendPacket", "updateInventory");
 						loadNmsClasses();
 						updateInventory(p, title, inventory, nmsData);
-					} catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+					} catch (final NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
 						e.printStackTrace();
 					}
 				}
 			}
-		} catch (NoSuchFieldException | ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
+		} catch (final NoSuchFieldException | ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
 			e.printStackTrace();
 		}
 	}
@@ -143,18 +143,18 @@ public class UpdateTittleContainers {
 			packetConstructor = Class.forName("net.minecraft.network.protocol.game.PacketPlayOutOpenWindow").getConstructor(int.class, containersClass, chatBaseCompenent);
 	}
 
-	private static void updateInventory(Player p, String title, Inventory inventory, NmsData nmsData) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
-		int inventorySize = inventory.getSize();
-		boolean isOlder = ServerVersion.olderThan(ServerVersion.v1_17);
-		Object player = p.getClass().getMethod("getHandle").invoke(p);
+	private static void updateInventory(final Player p, final String title, final Inventory inventory, final NmsData nmsData) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
+		final int inventorySize = inventory.getSize();
+		final boolean isOlder = ServerVersion.olderThan(ServerVersion.v1_17);
+		final Object player = p.getClass().getMethod("getHandle").invoke(p);
 		// inside net.minecraft.world.entity.player class EntityHuman do you have this field
-		Object activeContainer = player.getClass().getField(nmsData.getContanerField()).get(player);
+		final Object activeContainer = player.getClass().getField(nmsData.getContanerField()).get(player);
 		// inside net.minecraft.world.inventory class Container do you have this field older version is it j
-		Object windowId = activeContainer.getClass().getField(nmsData.getWindowId()).get(activeContainer);
+		final Object windowId = activeContainer.getClass().getField(nmsData.getWindowId()).get(activeContainer);
 
-		Method declaredMethodChat;
-		Object inventoryTittle;
-		Object methods;
+		final Method declaredMethodChat;
+		final Object inventoryTittle;
+		final Object methods;
 
 		String fieldName = getContainerFieldname().get(inventorySize);
 		if (fieldName == null || fieldName.isEmpty()) {
@@ -170,21 +170,21 @@ public class UpdateTittleContainers {
 
 			declaredMethodChat = chatCompenentSubClass.getMethod("a", String.class);
 			inventoryTittle = declaredMethodChat.invoke(null, TextTranslator.toComponent(title));
-			Object inventoryType = containersClass.getField(fieldName).get(null);
+			final Object inventoryType = containersClass.getField(fieldName).get(null);
 
 			methods = packetConstructor.newInstance(windowId, inventoryType, inventoryTittle);
 		} else {
 
-			declaredMethodChat = chatCompenentSubClass.getMethod(ServerVersion.newerThan(ServerVersion.v1_9) ? "b" : "a", String.class);
+			declaredMethodChat = chatCompenentSubClass.getMethod(ServerVersion.atLeast(ServerVersion.v1_9) ? "b" : "a", String.class);
 			inventoryTittle = declaredMethodChat.invoke(null, "'" + TextTranslator.toSpigotFormat(title) + "'");
 
 			methods = packetConstructor.newInstance(windowId, "minecraft:" + inventory.getType().name().toLowerCase(), inventoryTittle, inventorySize);
 		}
 
-		Object handles = handle.invoke(p);
-		Object playerconect = playerConnection.get(handles);
+		final Object handles = handle.invoke(p);
+		final Object playerconect = playerConnection.get(handles);
 		// net.minecraft.server.network.PlayerConnection
-		Method packet1 = packetConnectionClass.getMethod(nmsData.getSendPacket(), packetclass);
+		final Method packet1 = packetConnectionClass.getMethod(nmsData.getSendPacket(), packetclass);
 
 		packet1.invoke(playerconect, methods);
 		// inside net.minecraft.world.inventory.Container do you have method a(Container container)
@@ -196,12 +196,12 @@ public class UpdateTittleContainers {
 		return containerFieldname;
 	}
 
-	private static String versionCheckNms(String clazzName) {
+	private static String versionCheckNms(final String clazzName) {
 
 		return "net.minecraft.server." + Bukkit.getServer().getClass().toGenericString().split("\\.")[3] + "." + clazzName;
 	}
 
-	private static String versionCheckBukkit(String clazzName) {
+	private static String versionCheckBukkit(final String clazzName) {
 
 		return "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().toGenericString().split("\\.")[3] + "." + clazzName;
 	}
@@ -213,12 +213,12 @@ public class UpdateTittleContainers {
 	 *
 	 * @param fieldNames set the name to get right container inventory.
 	 */
-	private static void convertFieldNames(String... fieldNames) {
+	private static void convertFieldNames(final String... fieldNames) {
 		if (fieldNames.length == 0) return;
 		if (!containerFieldname.isEmpty()) return;
 
-		for (String name : fieldNames) {
-			String[] splited = name.split(";");
+		for (final String name : fieldNames) {
+			final String[] splited = name.split(";");
 			if (splited.length == 2) {
 				containerFieldname.put(Integer.valueOf(splited[0]), splited[1]);
 			}
@@ -233,7 +233,7 @@ public class UpdateTittleContainers {
 		private final String updateInventory;
 
 
-		public NmsData(String contanerField, String windowId, String sendPacket, String updateInventory) {
+		public NmsData(final String contanerField, final String windowId, final String sendPacket, final String updateInventory) {
 			this.contanerField = contanerField;
 			this.windowId = windowId;
 			this.sendPacket = sendPacket;
