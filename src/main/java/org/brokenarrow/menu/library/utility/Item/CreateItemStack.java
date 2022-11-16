@@ -839,7 +839,7 @@ public class CreateItemStack {
 		addFireworkEffect(itemMeta);
 		addEnchantments(itemMeta);
 		addBottleEffects(itemMeta);
-		if (ServerVersion.newerThan(ServerVersion.v1_9))
+		if (ServerVersion.newerThan(ServerVersion.v1_10))
 			addUnbreakableMeta(itemMeta);
 		addCustomModelData(itemMeta);
 
