@@ -95,11 +95,11 @@ public class ConvertToItemStack {
 		if (amount <= 0)
 			amount = 1;
 		final int color = checkColor(item);
-		if (item.contains("GLASS")) {
-			return new ItemStack(Material.valueOf("STAINED_GLASS"), amount, (short) color);
-		}
-		if (item.contains("GLASS_PANE")) {
+		if (item.endsWith("STAINED_GLASS_PANE")) {
 			return new ItemStack(Material.valueOf("STAINED_GLASS_PANE"), amount, (short) color);
+		}
+		if (item.endsWith("STAINED_GLASS")) {
+			return new ItemStack(Material.valueOf("STAINED_GLASS"), amount, (short) color);
 		}
 		if (item.endsWith("_WOOL")) {
 			return new ItemStack(Material.valueOf("WOOL"), amount, (short) color);
