@@ -1,15 +1,20 @@
 package org.brokenarrow.menu.library;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -27,7 +32,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param inventorySize size if menu.
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
-	public MenuHolder(Plugin plugin, int inventorySize) {
+	public MenuHolder(final Plugin plugin, final int inventorySize) {
 		super(plugin, inventorySize);
 	}
 
@@ -40,7 +45,7 @@ public class MenuHolder extends CreateMenus {
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
-	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems) {
+	public MenuHolder(final Plugin plugin, final List<Integer> fillSlots, final List<?> fillItems) {
 		super(plugin, fillSlots, fillItems);
 	}
 
@@ -53,7 +58,7 @@ public class MenuHolder extends CreateMenus {
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
-	public MenuHolder(Plugin plugin, int inventorySize, boolean shallCacheItems) {
+	public MenuHolder(final Plugin plugin, final int inventorySize, final boolean shallCacheItems) {
 		super(plugin, inventorySize, shallCacheItems);
 	}
 
@@ -67,7 +72,7 @@ public class MenuHolder extends CreateMenus {
 	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
 	 */
 
-	public MenuHolder(Plugin plugin, List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
+	public MenuHolder(final Plugin plugin, final List<Integer> fillSlots, final List<?> fillItems, final boolean shallCacheItems) {
 		super(plugin, fillSlots, fillItems, shallCacheItems);
 	}
 
@@ -85,7 +90,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param fillItems List of items you want parse inside gui on one or several pages.
 	 */
 
-	public MenuHolder(List<?> fillItems) {
+	public MenuHolder(final List<?> fillItems) {
 		super(fillItems);
 	}
 
@@ -94,7 +99,7 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
 	 */
-	public MenuHolder(boolean shallCacheItems) {
+	public MenuHolder(final boolean shallCacheItems) {
 		super(shallCacheItems);
 	}
 
@@ -104,7 +109,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param fillSlots Witch slots you want fill with items.
 	 * @param fillItems List of items you want parse inside gui on one or several pages.
 	 */
-	public MenuHolder(List<Integer> fillSlots, List<?> fillItems) {
+	public MenuHolder(final List<Integer> fillSlots, final List<?> fillItems) {
 		super(fillSlots, fillItems);
 	}
 
@@ -115,72 +120,78 @@ public class MenuHolder extends CreateMenus {
 	 * @param fillItems       List of items you want parse inside gui.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
 	 */
-	public MenuHolder(List<Integer> fillSlots, List<?> fillItems, boolean shallCacheItems) {
+	public MenuHolder(final List<Integer> fillSlots, final List<?> fillItems, final boolean shallCacheItems) {
 		super(fillSlots, fillItems, shallCacheItems);
 	}
 
+
 	/**
-	 * Set the item you want in a slot.
+	 * When you close the menu
 	 *
-	 * @param slot will return current number till will add item.
-	 * @return one itemstack;
+	 * @param event close inventory
+	 * @param menu  class some are now closed.
 	 */
+
 	@Override
-	@Deprecated
-	public ItemStack getItemAt(int slot) {
-		return super.getItemAt(slot);
+	public void menuClose(final InventoryCloseEvent event, final CreateMenus menu) {
 	}
 
 	/**
-	 * Set the items you want in fill slots.
+	 * open menu and make one instance in cache.
+	 * Will be clered on server restart.
 	 *
-	 * @param o will return object you have added as fillitems.
-	 * @return one itemstack;
+	 * @param player   some open menu.
+	 * @param location location you open menu.
 	 */
-	@Override
-	@Deprecated
-	public ItemStack getFillItemsAt(Object o) {
-		return super.getFillItemsAt(o);
+	public void menuOpen(final Player player, final Location location) {
+		menuOpen(player, location, true);
 	}
 
 	/**
-	 * Set the items you want in fill slots.
+	 * open menu and make one instance, will be removed
+	 * when you close menu.
 	 *
-	 * @param slot will return current number till will add item.
-	 * @return one itemstack;
+	 * @param player some open menu.
 	 */
-	@Override
-	@Deprecated
-	public ItemStack getFillItemsAt(int slot) {
-		return super.getFillItemsAt(slot);
-	}
-
-	@Override
-	public MenuButton getButtonAt(int slot) {
-		return super.getButtonAt(slot);
+	public void menuOpen(final Player player) {
+		menuOpen(player, null, false);
 	}
 
 	/**
-	 * Register your fill buttons.
+	 * open menu and make one instance. If you set location to null, it will be removed
+	 * when you close menu.
 	 *
-	 * @param object will return object you have added as fillitems.
-	 * @return MenuButton you have set.
+	 * @param player     some open menu.
+	 * @param location   location you open menu.
+	 * @param loadToCahe if it shall load menu to cache.
 	 */
-	@Override
-	public MenuButton getFillButtonAt(Object object) {
-		return super.getFillButtonAt(object);
-	}
+	public void menuOpen(final Player player, final Location location, final boolean loadToCahe) {
+		this.player = player;
+		this.location = location;
 
-	/**
-	 * Register your fill buttons, this method will return number from 0 to
-	 * amount you want inside the inventory.
-	 *
-	 * @param slot will return current number till will add item.
-	 * @return MenuButton you have set.
-	 */
-	@Override
-	public MenuButton getFillButtonAt(int slot) {
-		return super.getFillButtonAt(slot);
+		if (getMenu() != null)
+			player.closeInventory();
+
+		if (location != null)
+			setLocationMetaOnPlayer(player, location);
+
+		if (!shallCacheItems) {
+			addItemsToCache();
+		}
+		reddrawInventory();
+
+		final Inventory menu = loadInventory(player, loadToCahe);
+		if (menu == null) return;
+
+		player.openInventory(menu);
+
+		Bukkit.getScheduler().runTaskLater(plugin, this::updateTittle, 1);
+		onMenuOpenPlaySound();
+
+		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
+
+		if (!getButtonsToUpdate().isEmpty())
+			updateButtonsInList();
 	}
 
 	/**
@@ -188,9 +199,9 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param inventorySize size of this menu
 	 */
-	@Override
-	public void setMenuSize(int inventorySize) {
-		super.setMenuSize(inventorySize);
+
+	public void setMenuSize(final int inventorySize) {
+		this.inventorySize = inventorySize;
 	}
 
 	/**
@@ -198,9 +209,18 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param title you want to show inside the menu.
 	 */
-	@Override
-	public void setTitle(String title) {
-		super.setTitle(title);
+	public void setTitle(final String title) {
+		this.title = title;
+	}
+
+	/**
+	 * Set type of inventory, defult will it use chest or hopper. If you set
+	 * the type you can´t change size.
+	 *
+	 * @param inventoryType set type of inventory.
+	 */
+	public void setInventoryType(final InventoryType inventoryType) {
+		this.inventoryType = inventoryType;
 	}
 
 	/**
@@ -208,9 +228,36 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param itemsPerPage number of items it shall be on every page.
 	 */
-	@Override
-	public void setItemsPerPage(int itemsPerPage) {
-		super.setItemsPerPage(itemsPerPage);
+	public void setItemsPerPage(final int itemsPerPage) {
+		if (itemsPerPage <= 0)
+			this.itemsPerPage = this.inventorySize;
+		else
+			this.itemsPerPage = itemsPerPage;
+	}
+
+	/**
+	 * String value of slots you want to fill. Suport "1-5,12-18","1-5","1,8,9,20" or
+	 * only one number 14. It will auto add all numbers and also between (if you use -, like 0-5) to the list.
+	 *
+	 * @param fillSpace the string of slots you want to use as fill slots.
+	 */
+	public void setFillSpace(final String fillSpace) {
+		final List<Integer> slotList = new ArrayList<>();
+		try {
+			for (final String slot : fillSpace.split(",")) {
+				if (slot.equals("")) {
+					continue;
+				}
+				if (slot.contains("-")) {
+					final int firstSlot = Integer.parseInt(slot.split("-")[0]);
+					final int lastSlot = Integer.parseInt(slot.split("-")[1]);
+					slotList.addAll(IntStream.rangeClosed(firstSlot, lastSlot).boxed().collect(Collectors.toList()));
+				} else slotList.add(Integer.valueOf(slot));
+			}
+		} catch (final NumberFormatException e) {
+			throw new NumberFormatException("can not parse this " + fillSpace + " as numbers.");
+		}
+		this.setFillSpace(slotList);
 	}
 
 	/**
@@ -223,9 +270,8 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param fillSpace set slots you want to use as fill slots.
 	 */
-	@Override
-	public void setFillSpace(List<Integer> fillSpace) {
-		super.setFillSpace(fillSpace);
+	public void setFillSpace(final List<Integer> fillSpace) {
+		this.fillSpace = fillSpace;
 	}
 
 	/**
@@ -235,9 +281,9 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param sound set open sound iin menu or null to disable.
 	 */
-	@Override
-	public void setMenuOpenSound(Sound sound) {
-		super.setMenuOpenSound(sound);
+
+	public void setMenuOpenSound(final Sound sound) {
+		this.menuOpenSound = sound;
 	}
 
 	/**
@@ -245,9 +291,9 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param slotsYouCanAddItems true and it will give option to add and remove items on fill slots.
 	 */
-	@Override
-	public void setSlotsYouCanAddItems(boolean slotsYouCanAddItems) {
-		super.setSlotsYouCanAddItems(slotsYouCanAddItems);
+
+	public void setSlotsYouCanAddItems(final boolean slotsYouCanAddItems) {
+		this.slotsYouCanAddItems = slotsYouCanAddItems;
 	}
 
 	/**
@@ -257,222 +303,24 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param allowShiftClick set to false if you want to deny shiftclick
 	 */
-	@Override
-	public void setAllowShiftClick(boolean allowShiftClick) {
-		super.setAllowShiftClick(allowShiftClick);
+
+	public void setAllowShiftClick(final boolean allowShiftClick) {
+		this.allowShiftClick = allowShiftClick;
 	}
 
 	/**
-	 * Get if this menu allow shiftclick or not. Defult will
-	 * it allow shiftclick.
+	 * set the page you want to open.
 	 *
-	 * @return true if shiftclick shall be allowd.
+	 * @return true if it could set the page.
 	 */
-	@Override
-	public boolean isAllowShiftClick() {
-		return super.isAllowShiftClick();
-	}
+	public boolean setPage(final int page) {
+		if (this.getAddedButtonsCache().containsKey(page))
+			return false;
 
-	/**
-	 * get if it this option will give you option add or remove items.
-	 *
-	 * @return true will you have option add items.
-	 */
-	@Override
-	public boolean isSlotsYouCanAddItems() {
-		return super.isSlotsYouCanAddItems();
-	}
-
-	/**
-	 * Get item Some are stored inside cache
-	 *
-	 * @return map with current amount of pages and slots every item are placed and items.
-	 */
-
-	@Override
-	public Map<Integer, Map<Integer, MenuData>> getAddedButtonsCache() {
-		return super.getAddedButtonsCache();
-	}
-
-	/**
-	 * Get both object and itemstack for current page and slot.
-	 * If you set @link {@see #listOfFillItems} in the constructor super,
-	 * can you get the objects from the list too.
-	 *
-	 * @param pageNumber with page you want to get.
-	 * @param slotIndex  the slot you want to get both the object and/or the itemstack stored in cache.
-	 * @return Menudata with itemstack and/or object
-	 */
-	@Override
-	public MenuData getAddedButtons(int pageNumber, int slotIndex) {
-		return super.getAddedButtons(pageNumber, slotIndex);
-	}
-
-	/**
-	 * All buttons inside the menu.
-	 *
-	 * @return list of buttons some currently are registed.
-	 */
-	@Override
-	public List<MenuButton> getButtons() {
-		return super.getButtons();
-	}
-
-	/**
-	 * get player some have open the menu.
-	 *
-	 * @return player.
-	 */
-	@Override
-	public Player getViewer() {
-		return super.getViewer();
-	}
-
-	/**
-	 * Get the menu
-	 *
-	 * @return menu some are curent created.
-	 */
-	@Override
-	public Inventory getMenu() {
-		return super.getMenu();
-	}
-
-	/**
-	 * get current page.
-	 *
-	 * @return curent page you has open.
-	 */
-	@Override
-	public int getPageNumber() {
-		return super.getPageNumber();
-	}
-
-	/**
-	 * Get amount of pages some are needed.
-	 *
-	 * @return 1 or amount it need to fit all items.
-	 */
-	@Override
-	public int getRequiredPages() {
-		return super.getRequiredPages();
-	}
-
-	/**
-	 * If you want to cache the items in own class.
-	 *
-	 * @return map with slot number (can be over one inventory size) and itemstack.
-	 */
-	@Override
-	public Map<Integer, MenuData> getMenuButtonsCache() {
-		return super.getMenuButtonsCache();
-	}
-
-	/**
-	 * Get metadataKey some are set on player.
-	 *
-	 * @return key you has used.
-	 */
-	@Override
-	public String getPlayermetadataKey() {
-		return super.getPlayermetadataKey();
-	}
-
-	/**
-	 * Get menuholder instance from player metadata.
-	 *
-	 * @param player some open menu.
-	 * @return menuholder instance.
-	 */
-	@Override
-	public CreateMenus getMenuholder(Player player) {
-		return super.getMenuholder(player);
-	}
-
-	/**
-	 * Get previous menuholder instance from player metadata.
-	 *
-	 * @param player some open previous menu.
-	 * @return older menuholder instance.
-	 */
-	@Override
-	public CreateMenus getPreviousMenuholder(Player player) {
-		return super.getPreviousMenuholder(player);
-	}
-
-	/**
-	 * Get the Object/entity from the {@link #getListOfFillItems()}.
-	 *
-	 * @param clickedPos the curent pos player clicking on, you need also add the page player currently have open.
-	 * @return Object/entity from the listOfFillItems list.
-	 */
-	@Override
-	public Object getObjectFromList(int clickedPos) {
-		return super.getObjectFromList(clickedPos);
-	}
-
-	/**
-	 * Get a array of slots some are used as fillslots.
-	 *
-	 * @return list of slots it will fill with items.
-	 */
-	@Override
-	public List<Integer> getFillSpace() {
-		return super.getFillSpace();
-	}
-
-	/**
-	 * get list of fill items you added to menu.
-	 *
-	 * @return items you have added.
-	 */
-	@Override
-	public List<?> getListOfFillItems() {
-		return super.getListOfFillItems();
-	}
-
-	/**
-	 * Get inventory size.
-	 *
-	 * @return inventory size.
-	 */
-	@Override
-	public int getInventorySize() {
-		return super.getInventorySize();
-	}
-
-	/**
-	 * When you close the menu
-	 *
-	 * @param event close inventory
-	 * @param menu  some are closed.
-	 */
-	@Override
-	public void menuClose(InventoryCloseEvent event, CreateMenus menu) {
-		super.menuClose(event, menu);
-	}
-
-	/**
-	 * open menu and make one instance in cache.
-	 * Will be clered on server restart.
-	 *
-	 * @param player   some open menu.
-	 * @param location location you open menu.
-	 */
-	@Override
-	public void menuOpen(Player player, Location location) {
-		super.menuOpen(player, location);
-	}
-
-	/**
-	 * open menu and make one instance, will be removed
-	 * when you close menu.
-	 *
-	 * @param player some open menu.
-	 */
-	@Override
-	public void menuOpen(Player player) {
-		super.menuOpen(player);
+		this.pageNumber = page;
+		updateButtons();
+		updateTittle();
+		return true;
 	}
 
 	/**
@@ -481,32 +329,101 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @return curent number it will fill with one item.
 	 */
-	@Override
 	public int getSlotIndex() {
-		return super.getSlotIndex();
+		return this.slotIndex;
 	}
 
 	/**
 	 * get previous page if this menu has several pages
 	 */
-	@Override
 	public void previousPage() {
-		super.previousPage();
+		changePage(false);
 	}
 
 	/**
 	 * get next page if this menu has several pages
 	 */
-	@Override
 	public void nextPage() {
-		super.nextPage();
+		changePage(true);
+	}
+
+
+	/**
+	 * Update only one button. Set this inside the {@link MenuButton#onClickInsideMenu(Player, Inventory, org.bukkit.event.inventory.ClickType, ItemStack, Object)}}
+	 * method and use this to tell what button some shal be updated.
+	 * <p>
+	 * You has to do this "this.YourClass.updateButton(MenuButton)" to acces this method.
+	 *
+	 * @param menuButton the current button.
+	 */
+	public void updateButton(final MenuButton menuButton) {
+		final Map<Integer, MenuData> menuDataMap = getMenuData(getPageNumber());
+		final Set<Integer> buttonSlots = this.getButtonSlots(menuButton);
+		if (!buttonSlots.isEmpty()) {
+			for (final int slot : buttonSlots) {
+
+				final MenuData menuData = menuDataMap.get(getSlotFromCache(slot));
+				final ItemStack menuItem = getMenuButton(menuButton, menuData, slot, true);
+				this.getMenu().setItem(slot, menuItem);
+				menuDataMap.put(getSlotFromCache(slot), new MenuData(menuItem, menuButton, menuData.getObject()));
+			}
+		} else {
+			final int buttonSlot = this.getButtonSlot(menuButton);
+			final ItemStack itemStack = getMenuButton(menuButton, menuDataMap.get(getSlotFromCache(buttonSlot)), buttonSlot, true);
+			this.getMenu().setItem(buttonSlot, itemStack);
+			menuDataMap.put(getSlotFromCache(buttonSlot), new MenuData(itemStack, menuButton, ""));
+		}
+		this.getAddedButtonsCache().put(this.getPageNumber(), menuDataMap);
 	}
 
 	/**
-	 * Update buttons inside the menu.
+	 * Update all buttons inside the menu.
 	 */
 	@Override
 	public void updateButtons() {
 		super.updateButtons();
+	}
+
+	/**
+	 * Set if it shall ignore the set item in the slot and deny
+	 * player from remove items no mater if the item match set item
+	 * inside inventory and the item you set in getItem() method.
+	 *
+	 * @param ignoreItemCheck set to true and it will deny player from take items
+	 *                        , even if the item in inventory not match item you has set.
+	 */
+	public void setignoreItemCheck(final boolean ignoreItemCheck) {
+		this.ignoreItemCheck = ignoreItemCheck;
+	}
+
+	/**
+	 * Set time it shall update the buttons.
+	 *
+	 * @param updateTime the seconds between updates.
+	 */
+	public void setUpdateTime(final int updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	/**
+	 * Set this to false if you not want it to auto clear from
+	 * the cache when last player close inventory. It defult will clear the menu so you not have
+	 * to set this to true.
+	 *
+	 * @param autoClearCache set to false if you not want it to clear menu cache.
+	 */
+	public void setAutoClearCache(final boolean autoClearCache) {
+		this.autoClearCache = autoClearCache;
+	}
+
+	/**
+	 * If it shall not valid check when open menu with location if you have several
+	 * menus on same location and not set {@link #setUniqueKeyMenuCache(String)}. The effect of
+	 * override old menu is if player is left in the old menu, they can take all items.
+	 *
+	 * @param ignoreValidCheck set this to true if you want to ignore the consequences of override the old menu.
+	 */
+	public void setIgnoreValidCheck(final boolean ignoreValidCheck) {
+		this.ignoreValidCheck = ignoreValidCheck;
 	}
 }
