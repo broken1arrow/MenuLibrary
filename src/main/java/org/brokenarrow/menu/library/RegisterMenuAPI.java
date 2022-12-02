@@ -47,7 +47,7 @@ public class RegisterMenuAPI {
 		}
 		setServerVersion(plugin);
 		versionCheck();
-		registerMenuEvent( plugin);
+		registerMenuEvent(plugin);
 		nbtApi = new RegisterNbtAPI(plugin, false);
 	}
 
@@ -116,7 +116,7 @@ public class RegisterMenuAPI {
 					if (cursor != null && cursor.getType() != Material.AIR)
 						event.setCancelled(true);
 				}
-				final MenuButton menuButton = getClickedButton(createMenus, clickedItem, clickedPos, clickedSlot);
+				final MenuButton menuButton = getClickedButton(createMenus, clickedItem, clickedPos);
 				if (menuButton != null) {
 					event.setCancelled(true);
 					final Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : clickedItem;
@@ -207,24 +207,22 @@ public class RegisterMenuAPI {
 					} else {
 						event.setCancelled(true);
 					}
-					if (getClickedButton(createMenus, cursor, clickedPos, clickedSlot) == null)
+					if (getClickedButton(createMenus, cursor, clickedPos) == null)
 						event.setCancelled(true);
 				}
 			}
 		}
 
 
-		public MenuButton getClickedButton(final CreateMenus menusData, final ItemStack item, final int clickedPos, final int clickedSlot) {
-			if (item != null) {
-				final Map<Integer, CreateMenus.MenuData> menuDataMap = menusData.getMenuData(menusData.getPageNumber());
-				if (menuDataMap != null && !menuDataMap.isEmpty()) {
-					final CreateMenus.MenuData menuData = menuDataMap.get(clickedPos);
-					if (menuData == null) return null;
-					if (menusData.isIgnoreItemCheck())
-						return menuData.getMenuButton();
-					if (isItemSimilar(menuData.getItemStack(), item)) {
-						return menuData.getMenuButton();
-					}
+		public MenuButton getClickedButton(final CreateMenus menusData, final ItemStack item, final int clickedPos) {
+			final Map<Integer, CreateMenus.MenuData> menuDataMap = menusData.getMenuData(menusData.getPageNumber());
+			if (menuDataMap != null && !menuDataMap.isEmpty()) {
+				final CreateMenus.MenuData menuData = menuDataMap.get(clickedPos);
+				if (menuData == null) return null;
+				if (menusData.isIgnoreItemCheck())
+					return menuData.getMenuButton();
+				if (isItemSimilar(menuData.getItemStack(), item)) {
+					return menuData.getMenuButton();
 				}
 			}
 			return null;
@@ -232,7 +230,7 @@ public class RegisterMenuAPI {
 
 		public boolean isItemSimilar(final ItemStack item, final ItemStack clickedItem) {
 			if (item != null && clickedItem != null)
-				if (itemIsSimilar( item, clickedItem)) {
+				if (itemIsSimilar(item, clickedItem)) {
 					return true;
 				} else {
 					return item.isSimilar(clickedItem);
@@ -240,15 +238,16 @@ public class RegisterMenuAPI {
 
 			return false;
 		}
-		public boolean itemIsSimilar( final ItemStack firstItem, final ItemStack secondItemStack) {
+
+		public boolean itemIsSimilar(final ItemStack firstItem, final ItemStack secondItemStack) {
 
 			if (firstItem.getType() == secondItemStack.getType()) {
-				if (firstItem.hasItemMeta() && firstItem.getItemMeta() != null){
+				if (firstItem.hasItemMeta() && firstItem.getItemMeta() != null) {
 					final ItemMeta itemMeta1 = firstItem.getItemMeta();
 					final ItemMeta itemMeta2 = secondItemStack.getItemMeta();
 					if (!itemMeta1.equals(itemMeta2))
 						return false;
-					return getDurability(firstItem,itemMeta1) == getDurability(secondItemStack,itemMeta2);
+					return getDurability(firstItem, itemMeta1) == getDurability(secondItemStack, itemMeta2);
 				}
 				return true;
 			}
@@ -260,6 +259,7 @@ public class RegisterMenuAPI {
 				return (itemMeta == null) ? 0 : (short) ((Damageable) itemMeta).getDamage();
 			return itemstack.getDurability();
 		}
+
 		public ItemStack checkIfNull(final ItemStack curentCursor, final ItemStack oldCursor) {
 			return curentCursor != null ? curentCursor : oldCursor != null ? oldCursor : new ItemStack(Material.AIR);
 		}

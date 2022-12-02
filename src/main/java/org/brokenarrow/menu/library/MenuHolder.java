@@ -24,7 +24,6 @@ import java.util.stream.IntStream;
 
 public class MenuHolder extends CreateMenus {
 
-
 	/**
 	 * Create menu instance.
 	 *

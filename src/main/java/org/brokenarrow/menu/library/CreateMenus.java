@@ -103,16 +103,15 @@ public class CreateMenus {
 	public CreateMenus() {
 	}
 
-
 	/**
 	 * Create menu instance. You have to set {@link org.brokenarrow.menu.library.MenuHolder#setFillSpace(List)} or it will as defult fill
 	 * all slots but not 9 on the bottom.
 	 *
-	 * @param fillItems List of items you want parse inside gui on one or several pages.
+	 * @param fillEntitys List of items you want parse inside gui on one or several pages.
 	 */
 
-	public CreateMenus(final List<?> fillItems) {
-		this.listOfFillItems = fillItems;
+	public CreateMenus(final List<?> fillEntitys) {
+		this.listOfFillItems = fillEntitys;
 	}
 
 	/**
@@ -835,9 +834,9 @@ public class CreateMenus {
 	private MenuButton getMenuButtonAtSlot(final int slot, final int oldSlotIndex, final Object objectFromlistOfFillItems) {
 		final MenuButton result;
 		if (this.getFillSpace() != null && this.getFillSpace().contains(slot)) {
-			if (objectFromlistOfFillItems != null && !objectFromlistOfFillItems.equals(""))
+			if (objectFromlistOfFillItems != null && !objectFromlistOfFillItems.equals("")) {
 				result = getFillButtonAt(objectFromlistOfFillItems);
-			else
+			} else
 				result = getFillButtonAt(oldSlotIndex);
 		} else {
 			result = getButtonAt(slot);
@@ -982,6 +981,7 @@ public class CreateMenus {
 		}
 		return slotList;
 	}
+
 
 	protected class MenuData {
 
