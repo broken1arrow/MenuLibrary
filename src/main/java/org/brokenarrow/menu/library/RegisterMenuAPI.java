@@ -28,7 +28,6 @@ import java.util.logging.Level;
 import static org.brokenarrow.menu.library.utility.Metadata.*;
 import static org.brokenarrow.menu.library.utility.ServerVersion.setServerVersion;
 import static org.brokenarrow.menu.library.utility.ServerVersion.v1_18_2;
-import static org.bukkit.event.HandlerList.getRegisteredListeners;
 
 public class RegisterMenuAPI {
 
@@ -68,8 +67,8 @@ public class RegisterMenuAPI {
 
 	private void registerMenuEvent(final Plugin plugin) {
 		final MenuHolderListener menuHolderListener = new MenuHolderListener();
-		if (!getRegisteredListeners(plugin).stream().allMatch(registeredListener -> registeredListener.getListener().equals(menuHolderListener)))
-			Bukkit.getPluginManager().registerEvents(menuHolderListener, PLUGIN);
+		//if (!getRegisteredListeners(plugin).stream().allMatch(registeredListener -> registeredListener.getListener().getClass().equals(menuHolderListener.getClass())))
+			Bukkit.getPluginManager().registerEvents(menuHolderListener, plugin);
 	}
 
 	public static RegisterNbtAPI getNbtApi() {

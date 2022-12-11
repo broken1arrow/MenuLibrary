@@ -168,8 +168,8 @@ public class MenuHolder extends CreateMenus {
 		this.player = player;
 		this.location = location;
 
-		if (getMenu() != null)
-			player.closeInventory();
+	/*	if (getMenu() != null)
+			player.closeInventory();*/
 
 		if (location != null)
 			setLocationMetaOnPlayer(player, location);
