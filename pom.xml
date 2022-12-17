@@ -8,7 +8,7 @@
     <groupId>org.brokenarrow.menu.library</groupId>
     <artifactId>menulibrary</artifactId>
     <name>menulibrary</name>
-    <version>0.0.70</version>
+    <version>0.0.79</version>
 
     <!-- ############################################################################### -->
 
@@ -198,11 +198,11 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.broken.lib.rbg</pattern>
-                                    <shadedPattern>${project.name}.dependencies.rbglib</shadedPattern>
+                                    <shadedPattern>${project.groupId}.dependencies.rbglib</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>de.tr7zw.changeme</pattern>
-                                    <shadedPattern>${project.name}.dependencies.nbt</shadedPattern>
+                                    <shadedPattern>${project.groupId}.dependencies.nbt</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
