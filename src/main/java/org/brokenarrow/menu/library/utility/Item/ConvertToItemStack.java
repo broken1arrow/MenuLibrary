@@ -156,6 +156,9 @@ public class ConvertToItemStack {
 		}
 		if (item.equals("PLAYER_HEAD")) {
 			return new ItemStack(Material.valueOf("SKULL_ITEM"), amount);
+		}
+		if (item.equals("CHARCOAL")) {
+			return new ItemStack(Material.valueOf("COAL"), amount, (short) 1);
 		} else {
 			Material material = null;
 			if (!item.contains("_DOOR"))
