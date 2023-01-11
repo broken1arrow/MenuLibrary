@@ -1,8 +1,8 @@
 
 import org.brokenarrow.storage.CustomContainersMainClass;
 import org.brokenarrow.storage.api.ContainerRegistryAPI;
-import org.brokenarrow.storage.util.GuiTempletsYaml;
-import org.brokenarrow.storage.util.ItemUtily;
+import GuiTempletsYaml;
+import ItemUtily;
 import org.brokenarrow.storage.util.YamlSettingsContainers;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

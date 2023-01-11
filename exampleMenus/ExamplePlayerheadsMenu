@@ -1,9 +1,9 @@
 import MenuButton;
 import MenuHolder;
 import UpdateTittleContainers;
-import org.brokenarrow.storage.api.PreferenceSettingsRegisteryApi;
-import org.brokenarrow.storage.util.GuiTempletsYaml;
-import org.brokenarrow.storage.util.ItemUtily;
+import PreferenceSettingsRegisteryApi;
+import GuiTempletsYaml;
+import ItemUtily;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;

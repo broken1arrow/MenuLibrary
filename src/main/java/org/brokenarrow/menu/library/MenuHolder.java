@@ -168,7 +168,7 @@ public class MenuHolder extends CreateMenus {
 		this.player = player;
 		this.location = location;
 
-	    if (getMenu() != null)
+		if (getMenu() != null)
 			player.closeInventory();
 
 		if (location != null)
@@ -313,7 +313,7 @@ public class MenuHolder extends CreateMenus {
 	 * @return true if it could set the page.
 	 */
 	public boolean setPage(final int page) {
-		if (this.getAddedButtonsCache().containsKey(page))
+		if (!this.getAddedButtonsCache().containsKey(page))
 			return false;
 
 		this.pageNumber = page;
