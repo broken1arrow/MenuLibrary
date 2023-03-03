@@ -1,6 +1,7 @@
 package org.brokenarrow.menu.library.NMS;
 
 import org.broken.lib.rbg.TextTranslator;
+import org.brokenarrow.menu.library.utility.MenuLogger;
 import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class UpdateTittleContainers {
 
@@ -24,55 +26,60 @@ public class UpdateTittleContainers {
 	private static Class<?> containersClass;
 	private static Class<?> containerClass;
 	private static Constructor<?> packetConstructor;
-	private static final Map<Integer, String> containerFieldname = new HashMap<>();
 	private static NmsData nmsData;
+	private static MenuLogger menuLogger;
 
 	public static void update(final Player p, final String title) {
-
+		if (menuLogger != null) {
+			menuLogger.sendLOG(Level.WARNING, "There was an error the last time you tried to update the title. Find and send stack trace on github.");
+			return;
+		}
 		try {
 			if (p != null) {
-				final Inventory inventory = p.getOpenInventory().getTopInventory();
-				if (ServerVersion.atLeast(ServerVersion.v1_19)) {
-					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
-					if (nmsData == null)
-						nmsData = new NmsData("bU", "j",
-								"a", "a");
-					loadNmsClasses1_18();
-					updateInventory(p, title, inventory, nmsData);
-				} else if (ServerVersion.atLeast(ServerVersion.v1_18_0)) {
-					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
-					if (nmsData == null)
-						nmsData = new NmsData(ServerVersion.atLeast(ServerVersion.v1_18_2) ? "bV" : "bW", "j",
-								"a", "a");
-					loadNmsClasses1_18();
-					updateInventory(p, title, inventory, nmsData);
-				} else if (ServerVersion.equals(ServerVersion.v1_17)) {
-					convertFieldNames("9;a", "18;b", "27;c", "36;d", "45;e", "54;f", "5;p");
-					if (nmsData == null)
-						nmsData = new NmsData("bV", "j", "sendPacket", "initMenu");
-					loadNmsClasses1_17();
-					updateInventory(p, title, inventory, nmsData);
-				} else if (ServerVersion.olderThan(ServerVersion.v1_17)) {
-					try {
-						convertFieldNames("9;1", "18;2", "27;3", "36;4", "45;5", "54;6", "5;HOPPER");
-						if (nmsData == null)
-							nmsData = new NmsData("activeContainer", "windowId",
-									"sendPacket", "updateInventory");
-						loadNmsClasses();
-						updateInventory(p, title, inventory, nmsData);
-					} catch (final NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
-						e.printStackTrace();
+				Map<Integer, String> inventorySizeNames;
+				if (ServerVersion.atLeast(ServerVersion.v1_17)) {
+					if (nmsData == null) {
+						inventorySizeNames = convertFieldNames(new FieldName(9, "a"),
+								new FieldName(18, "b"), new FieldName(27, "c"), new FieldName(36, "d"),
+								new FieldName(45, "e"), new FieldName(54, "f"), new FieldName(5, "p"));
+
+						if (ServerVersion.atLeast(ServerVersion.v1_19)) {
+							nmsData = new NmsData("bU", "j",
+									"a", "a", inventorySizeNames);
+
+						} else if (ServerVersion.atLeast(ServerVersion.v1_18_0)) {
+							nmsData = new NmsData(ServerVersion.atLeast(ServerVersion.v1_18_2) ? "bV" : "bW", "j",
+									"a", "a", inventorySizeNames);
+						} else if (ServerVersion.equals(ServerVersion.v1_17)) {
+							nmsData = new NmsData("bV", "j", "sendPacket", "initMenu", inventorySizeNames);
+						}
 					}
+				} else if (ServerVersion.olderThan(ServerVersion.v1_17)) {
+					if (nmsData == null) {
+						inventorySizeNames = convertFieldNames(new FieldName(9, "1"),
+								new FieldName(18, "2"), new FieldName(27, "3"), new FieldName(36, "4"),
+								new FieldName(45, "5"), new FieldName(54, "6"), new FieldName(5, "HOPPER"));
+						nmsData = new NmsData("activeContainer", "windowId",
+								"sendPacket", "updateInventory", inventorySizeNames);
+					}
+				}
+				if (nmsData != null) {
+					loadNmsClasses();
+					updateInventory(p, title, nmsData);
 				}
 			}
 		} catch (final NoSuchFieldException | ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
+			menuLogger = new MenuLogger(UpdateTittleContainers.class);
 			e.printStackTrace();
 		}
 	}
 
 
 	private static void loadNmsClasses() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException {
-
+		if (ServerVersion.newerThan(ServerVersion.v1_16)) {
+			loadNmsClasses1_17();
+			return;
+		}
 		if (packetclass == null)
 			packetclass = Class.forName(versionCheckNms("Packet"));
 		if (handle == null)
@@ -143,23 +150,24 @@ public class UpdateTittleContainers {
 			packetConstructor = Class.forName("net.minecraft.network.protocol.game.PacketPlayOutOpenWindow").getConstructor(int.class, containersClass, chatBaseCompenent);
 	}
 
-	private static void updateInventory(final Player p, final String title, final Inventory inventory, final NmsData nmsData) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
+	private static void updateInventory(final Player p, final String title, final NmsData nmsData) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
+		final Inventory inventory = p.getOpenInventory().getTopInventory();
 		final int inventorySize = inventory.getSize();
 		final boolean isOlder = ServerVersion.olderThan(ServerVersion.v1_17);
 		final Object player = p.getClass().getMethod("getHandle").invoke(p);
 		// inside net.minecraft.world.entity.player class EntityHuman do you have this field
 		final Object activeContainer = player.getClass().getField(nmsData.getContanerField()).get(player);
-		// inside net.minecraft.world.inventory class Container do you have this field older version is it j
+		// inside net.minecraft.world.inventory class Container do you have this field newer version is it curretly "j"
 		final Object windowId = activeContainer.getClass().getField(nmsData.getWindowId()).get(activeContainer);
 
 		final Method declaredMethodChat;
 		final Object inventoryTittle;
 		final Object methods;
 
-		String fieldName = getContainerFieldname().get(inventorySize);
+		String fieldName = nmsData.getContainerFieldnames(inventorySize);
 		if (fieldName == null || fieldName.isEmpty()) {
 			if (isOlder)
-				fieldName = "GENERIC_9X6";
+				fieldName = "GENERIC_9X3";
 			else
 				fieldName = "f";
 		} else if (isOlder) {
@@ -192,10 +200,6 @@ public class UpdateTittleContainers {
 
 	}
 
-	public static Map<Integer, String> getContainerFieldname() {
-		return containerFieldname;
-	}
-
 	private static String versionCheckNms(final String clazzName) {
 
 		return "net.minecraft.server." + Bukkit.getServer().getClass().toGenericString().split("\\.")[3] + "." + clazzName;
@@ -213,16 +217,12 @@ public class UpdateTittleContainers {
 	 *
 	 * @param fieldNames set the name to get right container inventory.
 	 */
-	private static void convertFieldNames(final String... fieldNames) {
-		if (fieldNames.length == 0) return;
-		if (!containerFieldname.isEmpty()) return;
-
-		for (final String name : fieldNames) {
-			final String[] splited = name.split(";");
-			if (splited.length == 2) {
-				containerFieldname.put(Integer.valueOf(splited[0]), splited[1]);
-			}
+	private static Map<Integer, String> convertFieldNames(final FieldName... fieldNames) {
+		Map<Integer, String> inventoryFieldname = new HashMap<>();
+		for (final FieldName fieldName : fieldNames) {
+			inventoryFieldname.put(fieldName.getInventorySize(), fieldName.getFieldName());
 		}
+		return inventoryFieldname;
 	}
 
 	private static class NmsData {
@@ -231,14 +231,14 @@ public class UpdateTittleContainers {
 		private final String windowId;
 		private final String sendPacket;
 		private final String updateInventory;
+		private final Map<Integer, String> containerFieldnames;
 
-
-		public NmsData(final String contanerField, final String windowId, final String sendPacket, final String updateInventory) {
+		public NmsData(final String contanerField, final String windowId, final String sendPacket, final String updateInventory, Map<Integer, String> containerFieldnames) {
 			this.contanerField = contanerField;
 			this.windowId = windowId;
 			this.sendPacket = sendPacket;
 			this.updateInventory = updateInventory;
-
+			this.containerFieldnames = containerFieldnames;
 		}
 
 		/**
@@ -279,6 +279,44 @@ public class UpdateTittleContainers {
 		 */
 		public String getUpdateInventory() {
 			return updateInventory;
+		}
+
+		/**
+		 * Get the name for the container type fieald name.
+		 *
+		 * @param inventorySize the size of the inventory.
+		 * @return the right name for the field player currently open.
+		 */
+		public String getContainerFieldnames(int inventorySize) {
+			return containerFieldnames.get(inventorySize);
+		}
+	}
+
+	private static class FieldName {
+		private final int inventorySize;
+		private final String fieldName;
+
+		public FieldName(final int size, final String fieldName) {
+			this.inventorySize = size;
+			this.fieldName = fieldName;
+		}
+
+		/**
+		 * Get the size of the inventory.
+		 *
+		 * @return inventory size.
+		 */
+		public int getInventorySize() {
+			return inventorySize;
+		}
+
+		/**
+		 * Get the feald name for the current inventory.
+		 *
+		 * @return the name.
+		 */
+		public String getFieldName() {
+			return fieldName;
 		}
 	}
 

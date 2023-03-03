@@ -184,13 +184,13 @@ public class MenuHolder extends CreateMenus {
 
 		player.openInventory(menu);
 
-		Bukkit.getScheduler().runTaskLater(plugin, this::updateTittle, 1);
-		onMenuOpenPlaySound();
 
+		onMenuOpenPlaySound();
 		setMetadataKey(MenuMetadataKey.MENU_OPEN.name());
 
 		if (!getButtonsToUpdate().isEmpty())
 			updateButtonsInList();
+		Bukkit.getScheduler().runTaskLater(plugin, this::updateTittle, 1);
 	}
 
 	/**
