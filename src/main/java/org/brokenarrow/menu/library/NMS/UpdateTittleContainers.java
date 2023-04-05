@@ -68,12 +68,14 @@ public class UpdateTittleContainers {
 								"sendPacket", "updateInventory", inventorySizeNames);
 					}
 				}
+				if (nmsData == null)
+					nmsData = newNmsData;
+
 				if (newNmsData != null) {
 					loadNmsClasses();
 					updateInventory(p, title);
 				}
-				if (nmsData == null)
-					nmsData = newNmsData;
+	
 			}
 		} catch (final NoSuchFieldException | ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
 			menuLogger = new MenuLogger(UpdateTittleContainers.class);
@@ -323,7 +325,7 @@ public class UpdateTittleContainers {
 		}
 
 		/**
-		 * Get the feald name for the current inventory.
+		 * Get the field name for the current inventory.
 		 *
 		 * @return the name.
 		 */
