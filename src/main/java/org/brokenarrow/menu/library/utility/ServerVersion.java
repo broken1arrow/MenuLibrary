@@ -27,44 +27,45 @@ public enum ServerVersion {
 	private final float version;
 	private static float currentServerVersion;
 
-	public static boolean equals(ServerVersion version) {
+	public static boolean equals(final ServerVersion version) {
 		return serverVersion(version) == 0;
 	}
 
-	public static boolean atLeast(ServerVersion version) {
+	public static boolean atLeast(final ServerVersion version) {
 		return equals(version) || newerThan(version);
 	}
 
-	public static boolean newerThan(ServerVersion version) {
+	public static boolean newerThan(final ServerVersion version) {
 		return serverVersion(version) > 0;
 	}
 
-	public static boolean olderThan(ServerVersion version) {
+	public static boolean olderThan(final ServerVersion version) {
 		return serverVersion(version) < 0;
 	}
 
-	public static double serverVersion(ServerVersion version) {
+	public static double serverVersion(final ServerVersion version) {
 		return currentServerVersion - version.getVersion();
 	}
 
-	public static void setServerVersion(Plugin plugin) {
-		String[] strings = plugin.getServer().getBukkitVersion().split("\\.");
-		String firstNumber;
+	public static void setServerVersion(final Plugin plugin) {
+		final String[] strings = plugin.getServer().getBukkitVersion().split("\\.");
+		final String firstNumber;
 		String secondNumber;
-		String firstString = strings[1];
+		final String firstString = strings[1];
 		if (firstString.contains("-")) {
 			firstNumber = firstString.substring(0, firstString.lastIndexOf("-"));
 
 			secondNumber = firstString.substring(firstString.lastIndexOf("-") + 1);
-			int index = secondNumber.toUpperCase().indexOf("R");
+			final int index = secondNumber.toUpperCase().indexOf("R");
 			if (index >= 0)
 				secondNumber = secondNumber.substring(index + 1);
 		} else {
-			String secondString = strings[2];
+			final String secondString = strings[2];
 			firstNumber = firstString;
 			secondNumber = secondString.substring(0, secondString.lastIndexOf("-"));
 		}
-		float version = Float.parseFloat(firstNumber + "." + secondNumber);
+
+		final float version = Float.parseFloat(firstNumber + "." + secondNumber);
 		if (version < 18)
 			currentServerVersion = (float) Math.floor(version);
 		else
