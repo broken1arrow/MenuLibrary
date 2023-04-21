@@ -3,9 +3,11 @@ package org.brokenarrow.menu.library.NMS;
 import org.broken.lib.rbg.TextTranslator;
 import org.brokenarrow.menu.library.utility.MenuLogger;
 import org.brokenarrow.menu.library.utility.ServerVersion;
+import org.brokenarrow.menu.library.utility.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -37,7 +39,7 @@ public class UpdateTittleContainers {
 		}
 		try {
 			if (p != null) {
-				Map<Integer, String> inventorySizeNames;
+				final Map<Integer, String> inventorySizeNames;
 				if (ServerVersion.atLeast(ServerVersion.v1_17)) {
 					if (newNmsData == null) {
 						inventorySizeNames = convertFieldNames(new FieldName(9, "a"),
@@ -75,7 +77,7 @@ public class UpdateTittleContainers {
 					loadNmsClasses();
 					updateInventory(p, title);
 				}
-	
+
 			}
 		} catch (final NoSuchFieldException | ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
 			menuLogger = new MenuLogger(UpdateTittleContainers.class);
@@ -159,7 +161,9 @@ public class UpdateTittleContainers {
 			packetConstructor = Class.forName("net.minecraft.network.protocol.game.PacketPlayOutOpenWindow").getConstructor(int.class, containersClass, chatBaseCompenent);
 	}
 
-	private static void updateInventory(final Player p, final String title) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
+	private static void updateInventory(@NotNull final Player p, final String title) throws NoSuchMethodException, NoSuchFieldException, InvocationTargetException, IllegalAccessException, InstantiationException {
+		Validate.checkNotNull(p, "player should not be null");
+		Validate.checkNotNull(title, "title should not be null");
 		final Inventory inventory = p.getOpenInventory().getTopInventory();
 		final NmsData nmsData = getNmsData();
 		final int inventorySize = inventory.getSize();
@@ -228,7 +232,7 @@ public class UpdateTittleContainers {
 	 * @param fieldNames set the name to get right container inventory.
 	 */
 	private static Map<Integer, String> convertFieldNames(final FieldName... fieldNames) {
-		Map<Integer, String> inventoryFieldname = new HashMap<>();
+		final Map<Integer, String> inventoryFieldname = new HashMap<>();
 		for (final FieldName fieldName : fieldNames) {
 			inventoryFieldname.put(fieldName.getInventorySize(), fieldName.getFieldName());
 		}
@@ -247,7 +251,7 @@ public class UpdateTittleContainers {
 		private final String updateInventory;
 		private final Map<Integer, String> containerFieldnames;
 
-		public NmsData(final String contanerField, final String windowId, final String sendPacket, final String updateInventory, Map<Integer, String> containerFieldnames) {
+		public NmsData(final String contanerField, final String windowId, final String sendPacket, final String updateInventory, final Map<Integer, String> containerFieldnames) {
 			this.contanerField = contanerField;
 			this.windowId = windowId;
 			this.sendPacket = sendPacket;
@@ -301,7 +305,7 @@ public class UpdateTittleContainers {
 		 * @param inventorySize the size of the inventory.
 		 * @return the right name for the field player currently open.
 		 */
-		public String getContainerFieldnames(int inventorySize) {
+		public String getContainerFieldnames(final int inventorySize) {
 			return containerFieldnames.get(inventorySize);
 		}
 	}
