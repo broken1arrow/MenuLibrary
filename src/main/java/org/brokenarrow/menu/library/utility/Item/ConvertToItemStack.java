@@ -95,7 +95,7 @@ public class ConvertToItemStack {
 	/**
 	 * This method check the itemname and convert item name from 1.13+ to 1.12 and older versions item names.
 	 *
-	 * @param item the 1.13+ item name.
+	 * @param item   the 1.13+ item name.
 	 * @param amount the amount you want to create.
 	 * @return Itemstack with the amount or null.
 	 */
@@ -176,7 +176,7 @@ public class ConvertToItemStack {
 	 * Check the type of wood you want to get.
 	 *
 	 * @param itemName the matrial name from 1.13+ versions.
-	 * @param amount the amount of items you want to make.
+	 * @param amount   the amount of items you want to make.
 	 * @return itemstack or null.
 	 */
 	@Nullable
@@ -192,7 +192,7 @@ public class ConvertToItemStack {
 
 		if (itemName.contains("_PLANKS")) {
 			final Material material = Material.getMaterial("WOOD");
-			itemStack = getWoodItemStack(material,itemName,amount);
+			itemStack = getWoodItemStack(material, itemName, amount);
 		}
 		if (itemName.contains("_LOG")) {
 			Material material = Material.getMaterial("LOG");
@@ -207,12 +207,12 @@ public class ConvertToItemStack {
 					material = Material.getMaterial("LOG_2");
 					woodTypeData = 1;
 				}
-				itemStack = getWoodItemStack(material,woodTypeData,itemName,amount);
+				itemStack = getWoodItemStack(material, woodTypeData, itemName, amount);
 			}
 		}
 		if (itemName.contains("_SLAB")) {
 			final Material material = Material.getMaterial("WOOD_STEP");
-			itemStack = getWoodItemStack(material,itemName,amount);
+			itemStack = getWoodItemStack(material, itemName, amount);
 		}
 		if (itemName.contains("_STAIRS")) {
 			final short woodTypeData = getWoodTypeData(itemName);
@@ -230,8 +230,8 @@ public class ConvertToItemStack {
 				material = Material.getMaterial("ACACIA_STAIRS");
 			if (woodTypeData == 5)
 				material = Material.getMaterial("DARK_OAK_STAIRS");
-			
-			itemStack = getWoodItemStack(material,woodTypeData,itemName,amount);
+
+			itemStack = getWoodItemStack(material, woodTypeData, itemName, amount);
 		}
 		if (itemName.contains("_DOOR")) {
 			final short woodTypeData = getWoodTypeData(itemName);
@@ -242,11 +242,11 @@ public class ConvertToItemStack {
 			if (woodTypeData == 0) {
 				material = Material.getMaterial("WOOD_DOOR");
 			}
-			itemStack = getWoodItemStack(material, (short) 0,itemName,amount);
+			itemStack = getWoodItemStack(material, (short) 0, itemName, amount);
 		}
 		if (itemName.contains("_BUTTON")) {
 			final Material material = Material.getMaterial("WOOD_BUTTON");
-			itemStack = getWoodItemStack(material,itemName,amount);
+			itemStack = getWoodItemStack(material, itemName, amount);
 		}
 		if (itemName.contains("_LEAVES")) {
 			Material material = Material.getMaterial("LEAVES");
@@ -260,13 +260,18 @@ public class ConvertToItemStack {
 					material = Material.getMaterial("LEAVES_2");
 					woodTypeData = 1;
 				}
-				itemStack = getWoodItemStack(material,woodTypeData,itemName,amount);
+				itemStack = getWoodItemStack(material, woodTypeData, itemName, amount);
 			}
 		}
 		if (itemName.contains("_SAPLING")) {
 			final Material material = Material.getMaterial("SAPLING");
-			itemStack = getWoodItemStack(material,itemName,amount);
+			itemStack = getWoodItemStack(material, itemName, amount);
 		}
+		if (itemName.endsWith("_SIGN")) {
+			final Material material = Material.getMaterial("SIGN");
+			itemStack = getWoodItemStack(material, (short) 0, itemName, amount);
+		}
+
 		if (itemStack != null)
 			return itemStack;
 		final Material material = Material.getMaterial(itemName);
@@ -286,6 +291,7 @@ public class ConvertToItemStack {
 			return new ItemStack(material, amount, woodTypeData);
 		return null;
 	}
+
 	public short getWoodTypeData(final String itemName) {
 		if (itemName.startsWith("DARK_OAK_")) {
 			return 5;
@@ -307,6 +313,7 @@ public class ConvertToItemStack {
 		}
 		return -1;
 	}
+
 	public short checkColor(String color) {
 		int end;
 		if (color.startsWith("LIGHT")) {
