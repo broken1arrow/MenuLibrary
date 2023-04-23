@@ -157,6 +157,9 @@ public class ConvertToItemStack {
 		if (item.equals("PLAYER_HEAD")) {
 			return new ItemStack(Material.valueOf("SKULL_ITEM"), amount);
 		}
+		if (item.contains("_ANDESITE") || item.contains("_DIORITE") || item.contains("_GRANITE")) {
+			return getStoneTypes(Material.STONE, item, amount);
+		}
 		if (item.equals("CHARCOAL")) {
 			return new ItemStack(Material.valueOf("COAL"), amount, (short) 1);
 		} else {
@@ -279,6 +282,16 @@ public class ConvertToItemStack {
 		return null;
 	}
 
+	public ItemStack getStoneTypes(final Material material, final String itemName, final int amount) {
+		if (material == null) return null;
+		short stonetype = getStoneTypeData(itemName);
+		if (stonetype == -1)
+			return new ItemStack(material, amount);
+		if (stonetype >= 0)
+			return new ItemStack(material, amount, stonetype);
+		return null;
+	}
+
 	public ItemStack getWoodItemStack(final Material material, final String itemName, final int amount) {
 		return getWoodItemStack(material, (short) -1, itemName, amount);
 	}
@@ -290,6 +303,28 @@ public class ConvertToItemStack {
 		if (woodTypeData >= 0)
 			return new ItemStack(material, amount, woodTypeData);
 		return null;
+	}
+
+	public short getStoneTypeData(final String itemName) {
+		if (itemName.equals("GRANITE")) {
+			return 1;
+		}
+		if (itemName.equals("POLISHED_GRANITE")) {
+			return 2;
+		}
+		if (itemName.equals("DIORITE")) {
+			return 3;
+		}
+		if (itemName.equals("POLISHED_DIORITE")) {
+			return 4;
+		}
+		if (itemName.equals("ANDESITE")) {
+			return 5;
+		}
+		if (itemName.equals("POLISHED_ANDESITE")) {
+			return 6;
+		}
+		return -1;
 	}
 
 	public short getWoodTypeData(final String itemName) {
