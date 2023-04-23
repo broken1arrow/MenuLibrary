@@ -157,7 +157,7 @@ public class ConvertToItemStack {
 		if (item.equals("PLAYER_HEAD")) {
 			return new ItemStack(Material.valueOf("SKULL_ITEM"), amount);
 		}
-		if (item.contains("_ANDESITE") || item.contains("_DIORITE") || item.contains("_GRANITE")) {
+		if (item.contains("ANDESITE") || item.contains("DIORITE") || item.contains("GRANITE")) {
 			return getStoneTypes(Material.STONE, item, amount);
 		}
 		if (item.equals("CHARCOAL")) {
