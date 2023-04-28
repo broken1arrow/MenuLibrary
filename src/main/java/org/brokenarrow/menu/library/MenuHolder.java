@@ -1,5 +1,6 @@
 package org.brokenarrow.menu.library;
 
+import org.brokenarrow.menu.library.utility.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -204,12 +205,23 @@ public class MenuHolder extends CreateMenus {
 	}
 
 	/**
-	 * set menu tittle inside your menu.
+	 * Set menu title inside your menu. If you want to use
+	 * placeholders in the text use {@link #setTitle(Function)}.
 	 *
 	 * @param title you want to show inside the menu.
 	 */
 	public void setTitle(final String title) {
 		this.title = title;
+	}
+
+	/**
+	 * Sets the title of the menu using the specified
+	 * function to automatically update any placeholders.
+	 *
+	 * @param function a function that takes a String input, used to correcly update placeholders in the menu title.
+	 */
+	public void setTitle(final Function<String> function) {
+		this.function = function;
 	}
 
 	/**
@@ -395,6 +407,7 @@ public class MenuHolder extends CreateMenus {
 		this.ignoreItemCheck = ignoreItemCheck;
 	}
 
+
 	/**
 	 * Set time it shall update the buttons.
 	 *
@@ -424,5 +437,15 @@ public class MenuHolder extends CreateMenus {
 	 */
 	public void setIgnoreValidCheck(final boolean ignoreValidCheck) {
 		this.ignoreValidCheck = ignoreValidCheck;
+	}
+
+	/**
+	 * Turn off this option if you not want it to auto fill in curent page.
+	 * This option will be set to true automatic.
+	 *
+	 * @param autoTitleCurrentPage Set this to false to turn this off.
+	 */
+	public void setAutoTitleCurrentPage(final boolean autoTitleCurrentPage) {
+		this.autoTitleCurrentPage = autoTitleCurrentPage;
 	}
 }

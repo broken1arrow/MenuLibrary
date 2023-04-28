@@ -2,6 +2,7 @@ package org.brokenarrow.menu.library;
 
 import com.google.common.base.Enums;
 import org.brokenarrow.menu.library.NMS.UpdateTittleContainers;
+import org.brokenarrow.menu.library.utility.Function;
 import org.brokenarrow.menu.library.utility.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -166,6 +167,7 @@ public class CreateMenus {
 	protected boolean ignoreValidCheck;
 	protected boolean autoClearCache = true;
 	protected boolean ignoreItemCheck = false;
+	protected boolean autoTitleCurrentPage = true;
 	protected int slotIndex = 0;
 	private int requiredPages;
 	protected int itemsPerPage = this.inventorySize;
@@ -177,6 +179,7 @@ public class CreateMenus {
 	protected Player player;
 	protected Sound menuOpenSound = Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull() == null ? Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BASEDRUM").orNull() : Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull();
 	protected String title;
+	protected Function<String> function;
 	private String playermetadataKey;
 	private String uniqueKey;
 	protected Location location;
@@ -439,6 +442,16 @@ public class CreateMenus {
 	}
 
 	/**
+	 * Get if this option is on or off.
+	 *
+	 * @return true if you want the current page added automatic.
+	 */
+	public boolean isAutoTitleCurrentPage() {
+		return autoTitleCurrentPage;
+	}
+
+
+	/**
 	 * If you want to cache the items in own class.
 	 *
 	 * @return map with slot number (can be over one inventory size) and itemstack.
@@ -493,7 +506,7 @@ public class CreateMenus {
 	 * @return Object/entity from the listOfFillItems list.
 	 */
 	public Object getObjectFromList(final int clickedPos) {
-		return getAddedButtons(this.pageNumber, clickedPos).getObject();
+		return getAddedButtons(this.getPageNumber(), clickedPos).getObject();
 	}
 
 	/**
@@ -562,6 +575,17 @@ public class CreateMenus {
 	public int getSlotFromCache(final int slot) {
 		return this.getPageNumber() * this.getInventorySize() + slot;
 	}
+
+	public String getTitle() {
+		String title = this.title;
+		if (function != null) {
+			title = function.apply();
+			if (title == null)
+				title = this.title;
+		}
+		return title;
+	}
+
 	//========================================================
 
 	/**
@@ -606,9 +630,12 @@ public class CreateMenus {
 	}
 
 	protected void updateTittle() {
-		if (this.title == null || this.title.equals(""))
+		String title = getTitle();
+		if (title == null || title.equals("")) {
 			this.title = "Menu" + (getRequiredPages() > 1 ? " page: " : "");
-		UpdateTittleContainers.update(player, this.title + (getRequiredPages() > 1 ? " " + (getPageNumber() + 1) + "" : ""));
+			title = getTitle();
+		}
+		UpdateTittleContainers.update(player, title + (getRequiredPages() > 1 && this.isAutoTitleCurrentPage() ? " " + (getPageNumber() + 1) + "" : ""));
 	}
 
 	private Object toMenuCache(final Player player, final Location location) {
@@ -882,21 +909,23 @@ public class CreateMenus {
 			this.inventory.setItem(i, new ItemStack(Material.AIR));
 		}
 
-		final Map<Integer, MenuData> entity = this.addedButtons.get(pageNumber);
+		final Map<Integer, MenuData> entity = this.addedButtons.get(this.getPageNumber());
 		if (entity != null && !entity.isEmpty())
 			for (int i = 0; i < inventory.getSize(); i++) {
-				inventory.setItem(i, entity.get(pageNumber * inventorySize + i).getItemStack());
+				inventory.setItem(i, entity.get(this.getPageNumber() * inventorySize + i).getItemStack());
 			}
 	}
 
 	private Inventory createInventory() {
+		String title = this.getTitle();
+
 		if (getInventoryType() != null)
-			return Bukkit.createInventory(null, getInventoryType(), this.title != null ? this.title : "");
+			return Bukkit.createInventory(null, getInventoryType(), title != null ? title : "");
 		if (!(this.inventorySize == 5 || this.inventorySize % 9 == 0))
 			plugin.getLogger().log(Level.WARNING, "wrong inverntory size , you has put in " + this.inventorySize + " it need to be valid number.");
 		if (this.inventorySize == 5)
-			return Bukkit.createInventory(null, InventoryType.HOPPER, this.title != null ? this.title : "");
-		return Bukkit.createInventory(null, this.inventorySize % 9 == 0 ? this.inventorySize : 9, this.title != null ? this.title : "");
+			return Bukkit.createInventory(null, InventoryType.HOPPER, title != null ? title : "");
+		return Bukkit.createInventory(null, this.inventorySize % 9 == 0 ? this.inventorySize : 9, title != null ? title : "");
 	}
 
 	private long getupdateTime(final MenuButton menuButton) {
