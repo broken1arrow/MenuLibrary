@@ -4,6 +4,10 @@
 Check wiki for info how to use it https://github.com/broken1arrow/MenuLibrary/wiki
 
 # Important changes: 
+### 0.89
+Added new title option and use functional interface insted of normal string. 
+To make sure the titel get updated, specially if you have your own placeholders 
+that's need be updated.
 ### 0.28
 You can´t use RegisterClass(this) in newest update, use RegisterMenuAPI(this).
 I made this change becuse the confusing name on the class.
