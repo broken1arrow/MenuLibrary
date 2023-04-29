@@ -8,6 +8,13 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class MenuButton {
 
+	private static int counter = 0;
+	private final int id;
+
+	public MenuButton() {
+		this.id = counter++;
+	}
+
 	/**
 	 * when you click inside the menu.
 	 *
@@ -52,21 +59,33 @@ public abstract class MenuButton {
 	}
 
 	/**
-	 * Set own time it shall update buttons in seconds.
+	 * Set your own time, if and when it shall update buttons. If this is set to -1
+	 * It will use the global from {@link CreateMenus#getUpdateTime()}
+	 * <p>
+	 * You also need set this to true {@link #shouldUpdateButtons()}
 	 *
-	 * @return seconds.
+	 * @return -1 or seconds between updates.
 	 */
-	public long updateTime() {
+	public long setUpdateTime() {
 		return -1;
 	}
 
 	/**
-	 * Set this to true if you want to update buttons.
+	 * Returns true if the buttons should be updated, when menu is open and no buttons are pushed. By default, this method
+	 * returns false. If you want to update the buttons, override this method and return true in your implementation.
 	 *
-	 * @return true if it shall update button.
+	 * @return true if the buttons should be updated, false otherwise.
 	 */
-	public boolean updateButton() {
+	public boolean shouldUpdateButtons() {
 		return false;
 	}
 
+	/**
+	 * The unique id for this instance.
+	 *
+	 * @return the id for this instance.
+	 */
+	public int getId() {
+		return id;
+	}
 }

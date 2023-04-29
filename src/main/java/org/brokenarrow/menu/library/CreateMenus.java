@@ -61,7 +61,7 @@ public class CreateMenus {
 	private final List<MenuButton> buttons = new ArrayList<>();
 	private final List<MenuButton> buttonsToUpdate = new ArrayList<>();
 	private final Map<Integer, Map<Integer, MenuData>> addedButtons = new HashMap<>();
-	private final Map<MenuButton, Long> timeWhenUpdatesButtons = new HashMap<>();
+	private final Map<Integer, Long> timeWhenUpdatesButtons = new HashMap<>();
 
 	protected List<Integer> fillSpace;
 	private final List<?> listOfFillItems;
@@ -164,14 +164,13 @@ public class CreateMenus {
 	}
 
 	@Nonnull
-	protected Map<MenuButton, Long> getTimeWhenUpdatesButtons() {
+	protected Map<Integer, Long> getTimeWhenUpdatesButtons() {
 		return timeWhenUpdatesButtons;
 	}
 
 	@Nullable
 	protected Long getTimeWhenUpdatesButton(MenuButton menuButton) {
-		System.out.println("menuButton " + menuButton.getId());
-		return getTimeWhenUpdatesButtons().getOrDefault(menuButton, null);
+		return getTimeWhenUpdatesButtons().getOrDefault(menuButton.getId(), null);
 	}
 
 	/**
@@ -525,7 +524,7 @@ public class CreateMenus {
 	}
 
 	protected void putTimeWhenUpdatesButtons(MenuButton menuButton, Long time) {
-		this.getTimeWhenUpdatesButtons().put(menuButton, time);
+		this.getTimeWhenUpdatesButtons().put(menuButton.getId(), time);
 	}
 
 	protected void changePage(final boolean nextPage) {
@@ -786,6 +785,7 @@ public class CreateMenus {
 			}
 			final MenuButton menuButton = getMenuButtonAtSlot(slot, slotIndexOld, objectFromlistOfFillItems);
 			final ItemStack result = getItemAtSlot(menuButton, slot, slotIndexOld, objectFromlistOfFillItems);
+
 			if (menuButton != null) {
 				if (menuButton.shouldUpdateButtons())
 					this.buttonsToUpdate.add(menuButton);
