@@ -9,7 +9,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,61 +25,10 @@ import java.util.stream.IntStream;
 public class MenuHolder extends CreateMenus {
 
 	/**
-	 * Create menu instance.
-	 *
-	 * @param plugin        your main class.
-	 * @param inventorySize size if menu.
-	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
-	 */
-	public MenuHolder(final Plugin plugin, final int inventorySize) {
-		super(plugin, inventorySize);
-	}
-
-	/**
-	 * Create menu instance.
-	 *
-	 * @param plugin    Your main class.
-	 * @param fillSlots Witch slots you want fill with items.
-	 * @param fillItems List of items you want parse inside gui on one or several pages.
-	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
-	 */
-
-	public MenuHolder(final Plugin plugin, final List<Integer> fillSlots, final List<?> fillItems) {
-		super(plugin, fillSlots, fillItems);
-	}
-
-	/**
-	 * Create menu instance.
-	 *
-	 * @param plugin          your main class.
-	 * @param inventorySize   size if menu.
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
-	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
-	 */
-
-	public MenuHolder(final Plugin plugin, final int inventorySize, final boolean shallCacheItems) {
-		super(plugin, inventorySize, shallCacheItems);
-	}
-
-	/**
-	 * Create menu instance.
-	 *
-	 * @param plugin          Your main class.
-	 * @param fillSlots       Witch slots you want fill with items.
-	 * @param fillItems       List of items you want parse inside gui.
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
-	 * @deprecated plugin and inventorySize will be removed, recplaced with method with out.
-	 */
-
-	public MenuHolder(final Plugin plugin, final List<Integer> fillSlots, final List<?> fillItems, final boolean shallCacheItems) {
-		super(plugin, fillSlots, fillItems, shallCacheItems);
-	}
-
-	/**
 	 * Create menu instance. With out any aguments. Recomend you set al lest inventory/menu size.
 	 */
 	public MenuHolder() {
-		super();
+		this(null, null, false);
 	}
 
 	/**
@@ -91,7 +39,7 @@ public class MenuHolder extends CreateMenus {
 	 */
 
 	public MenuHolder(final List<?> fillItems) {
-		super(fillItems);
+		this(null, fillItems, false);
 	}
 
 	/**
@@ -100,7 +48,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
 	 */
 	public MenuHolder(final boolean shallCacheItems) {
-		super(shallCacheItems);
+		this(null, null, shallCacheItems);
 	}
 
 	/**
@@ -110,7 +58,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param fillItems List of items you want parse inside gui on one or several pages.
 	 */
 	public MenuHolder(final List<Integer> fillSlots, final List<?> fillItems) {
-		super(fillSlots, fillItems);
+		this(fillSlots, fillItems, false);
 	}
 
 	/**
@@ -325,7 +273,7 @@ public class MenuHolder extends CreateMenus {
 	 * @return true if it could set the page.
 	 */
 	public boolean setPage(final int page) {
-		if (!this.getAddedButtonsCache().containsKey(page))
+		if (!this.containsPage(page))
 			return false;
 
 		this.pageNumber = page;
@@ -368,7 +316,7 @@ public class MenuHolder extends CreateMenus {
 	 * @param menuButton the current button.
 	 */
 	public void updateButton(final MenuButton menuButton) {
-		final Map<Integer, MenuData> menuDataMap = getMenuData(getPageNumber());
+		final Map<Integer, MenuData> menuDataMap = getMenuButtons(getPageNumber());
 		final Set<Integer> buttonSlots = this.getButtonSlots(menuButton);
 		if (!buttonSlots.isEmpty()) {
 			for (final int slot : buttonSlots) {
@@ -384,7 +332,7 @@ public class MenuHolder extends CreateMenus {
 			this.getMenu().setItem(buttonSlot, itemStack);
 			menuDataMap.put(getSlotFromCache(buttonSlot), new MenuData(itemStack, menuButton, ""));
 		}
-		this.getAddedButtonsCache().put(this.getPageNumber(), menuDataMap);
+		this.putAddedButtonsCache(this.getPageNumber(), menuDataMap);
 	}
 
 	/**
@@ -437,6 +385,17 @@ public class MenuHolder extends CreateMenus {
 	 */
 	public void setIgnoreValidCheck(final boolean ignoreValidCheck) {
 		this.ignoreValidCheck = ignoreValidCheck;
+	}
+
+	/**
+	 * Get if several players to look inside the current inventory. If it's zero
+	 * then is only one player currently looking inside the inventory.
+	 *
+	 * @return amount of players curently looking in the inventory.
+	 */
+	@Override
+	public int getAmountOfViewers() {
+		return (int) this.getMenu().getViewers().stream().filter(entity -> entity instanceof Player).count() - 1;
 	}
 
 	/**
