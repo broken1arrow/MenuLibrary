@@ -85,7 +85,7 @@ public abstract class MenuButton {
 	 *
 	 * @return the id for this instance.
 	 */
-	public int getId() {
+	protected int getId() {
 		return id;
 	}
 }

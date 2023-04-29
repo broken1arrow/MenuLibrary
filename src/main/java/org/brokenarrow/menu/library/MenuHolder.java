@@ -322,13 +322,13 @@ public class MenuHolder extends CreateMenus {
 			for (final int slot : buttonSlots) {
 
 				final MenuData menuData = menuDataMap.get(getSlotFromCache(slot));
-				final ItemStack menuItem = getMenuButton(menuButton, menuData, slot, true);
+				final ItemStack menuItem = getMenuItem(menuButton, menuData, slot, true);
 				this.getMenu().setItem(slot, menuItem);
 				menuDataMap.put(getSlotFromCache(slot), new MenuData(menuItem, menuButton, menuData.getObject()));
 			}
 		} else {
 			final int buttonSlot = this.getButtonSlot(menuButton);
-			final ItemStack itemStack = getMenuButton(menuButton, menuDataMap.get(getSlotFromCache(buttonSlot)), buttonSlot, true);
+			final ItemStack itemStack = getMenuItem(menuButton, menuDataMap.get(getSlotFromCache(buttonSlot)), buttonSlot, true);
 			this.getMenu().setItem(buttonSlot, itemStack);
 			menuDataMap.put(getSlotFromCache(buttonSlot), new MenuData(itemStack, menuButton, ""));
 		}
