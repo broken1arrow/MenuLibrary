@@ -68,7 +68,7 @@ public class RegisterMenuAPI {
 	private void registerMenuEvent(final Plugin plugin) {
 		final MenuHolderListener menuHolderListener = new MenuHolderListener();
 		//if (!getRegisteredListeners(plugin).stream().allMatch(registeredListener -> registeredListener.getListener().getClass().equals(menuHolderListener.getClass())))
-			Bukkit.getPluginManager().registerEvents(menuHolderListener, plugin);
+		Bukkit.getPluginManager().registerEvents(menuHolderListener, plugin);
 	}
 
 	public static RegisterNbtAPI getNbtApi() {
@@ -93,7 +93,7 @@ public class RegisterMenuAPI {
 			if (createMenus == null) return;
 			if (!event.getView().getTopInventory().equals(createMenus.getMenu())) return;
 
-			if (!createMenus.getButtons().isEmpty() || !createMenus.getAddedButtonsCache().isEmpty()) {
+			if (!createMenus.isAddedButtonsCacheEmpty()) {
 				final int clickedSlot = event.getSlot();
 				final int clickedPos = createMenus.getPageNumber() * createMenus.getMenu().getSize() + clickedSlot;
 
@@ -188,7 +188,7 @@ public class RegisterMenuAPI {
 			final CreateMenus createMenus = getMenuHolder(player);
 			if (createMenus == null) return;
 
-			if (!createMenus.getButtons().isEmpty()) {
+			if (!createMenus.isAddedButtonsCacheEmpty()) {
 				final int size = event.getView().getTopInventory().getSize();
 
 				for (final int clickedSlot : event.getRawSlots()) {
@@ -214,7 +214,7 @@ public class RegisterMenuAPI {
 
 
 		public MenuButton getClickedButton(final CreateMenus menusData, final ItemStack item, final int clickedPos) {
-			final Map<Integer, CreateMenus.MenuData> menuDataMap = menusData.getMenuData(menusData.getPageNumber());
+			final Map<Integer, CreateMenus.MenuData> menuDataMap = menusData.getMenuButtons(menusData.getPageNumber());
 			if (menuDataMap != null && !menuDataMap.isEmpty()) {
 				final CreateMenus.MenuData menuData = menuDataMap.get(clickedPos);
 				if (menuData == null) return null;
