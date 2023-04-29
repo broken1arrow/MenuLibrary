@@ -16,3 +16,6 @@ see how to set up a menu.
 Added new title option and use functional interface insted of normal string. 
 To make sure the titel get updated, specially if you have your own placeholders 
 that's need be updated. For example change page.
+### 0.90
+Rename the methods to set time and the boolean to activate it. Check wiki and the 
+example manus to see the new names.
