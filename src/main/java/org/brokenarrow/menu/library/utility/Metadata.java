@@ -1,7 +1,7 @@
 package org.brokenarrow.menu.library.utility;
 
-import org.brokenarrow.menu.library.CreateMenus;
 import org.brokenarrow.menu.library.MenuMetadataKey;
+import org.brokenarrow.menu.library.MenuUtility;
 import org.brokenarrow.menu.library.RegisterMenuAPI;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -30,16 +30,16 @@ public final class Metadata {
 	}
 
 	@Nullable
-	public static CreateMenus getPlayerMenuMetadata(@NotNull final Player player, @NotNull final MenuMetadataKey key) {
-		List<MetadataValue> playerMetadata = player.getMetadata(key + "_" + plugin);
+	public static MenuUtility getPlayerMenuMetadata(@NotNull final Player player, @NotNull final MenuMetadataKey key) {
+		final List<MetadataValue> playerMetadata = player.getMetadata(key + "_" + plugin);
 		if (playerMetadata.isEmpty())
 			return null;
-		return (CreateMenus) playerMetadata.get(0).value();
+		return (MenuUtility) playerMetadata.get(0).value();
 	}
 
 	@Nullable
 	public static Object getPlayerMetadata(@NotNull final Player player, @NotNull final MenuMetadataKey key) {
-		List<MetadataValue> playerMetadata = player.getMetadata(key + "_" + plugin);
+		final List<MetadataValue> playerMetadata = player.getMetadata(key + "_" + plugin);
 		if (playerMetadata.isEmpty())
 			return null;
 		return playerMetadata.get(0).value();
@@ -49,7 +49,7 @@ public final class Metadata {
 		player.setMetadata(key + "_" + plugin, new FixedMetadataValue(plugin, object));
 	}
 
-	public static void setPlayerMenuMetadata(@NotNull final Player player, @NotNull final MenuMetadataKey key, @NotNull final CreateMenus menu) {
+	public static void setPlayerMenuMetadata(@NotNull final Player player, @NotNull final MenuMetadataKey key, @NotNull final MenuUtility menu) {
 		player.setMetadata(key + "_" + plugin, new FixedMetadataValue(plugin, menu));
 	}
 

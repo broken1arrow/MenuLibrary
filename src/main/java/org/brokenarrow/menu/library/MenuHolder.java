@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +20,10 @@ import java.util.stream.IntStream;
 
 
 /**
- * Methods to create menu as you want it.
+ * Contains all needed methods to create menu.
  */
 
-public class MenuHolder extends CreateMenus {
+public class MenuHolder extends MenuUtility {
 
 	/**
 	 * Create menu instance. With out any aguments. Recomend you set al lest inventory/menu size.
@@ -45,7 +46,7 @@ public class MenuHolder extends CreateMenus {
 	/**
 	 * Create menu instance.
 	 *
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link MenuUtility#getMenuButtonsCache()} to cache it own class.
 	 */
 	public MenuHolder(final boolean shallCacheItems) {
 		this(null, null, shallCacheItems);
@@ -66,7 +67,7 @@ public class MenuHolder extends CreateMenus {
 	 *
 	 * @param fillSlots       Witch slots you want fill with items.
 	 * @param fillItems       List of items you want parse inside gui.
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link CreateMenus#getMenuButtonsCache()} to cache it own class.
+	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link MenuUtility#getMenuButtonsCache()} to cache it own class.
 	 */
 	public MenuHolder(final List<Integer> fillSlots, final List<?> fillItems, final boolean shallCacheItems) {
 		super(fillSlots, fillItems, shallCacheItems);
@@ -81,7 +82,7 @@ public class MenuHolder extends CreateMenus {
 	 */
 
 	@Override
-	public void menuClose(final InventoryCloseEvent event, final CreateMenus menu) {
+	public void menuClose(final InventoryCloseEvent event, final MenuUtility menu) {
 	}
 
 	/**
@@ -117,8 +118,8 @@ public class MenuHolder extends CreateMenus {
 		this.player = player;
 		this.location = location;
 
-		if (getMenu() != null)
-			player.closeInventory();
+	
+		player.closeInventory();
 
 		if (location != null)
 			setLocationMetaOnPlayer(player, location);
@@ -183,7 +184,7 @@ public class MenuHolder extends CreateMenus {
 	}
 
 	/**
-	 * set amount of items on every page
+	 * Set amount of items on every page
 	 *
 	 * @param itemsPerPage number of items it shall be on every page.
 	 */
@@ -195,10 +196,19 @@ public class MenuHolder extends CreateMenus {
 	}
 
 	/**
-	 * String value of slots you want to fill. Suport "1-5,12-18","1-5","1,8,9,20" or
-	 * only one number 14. It will auto add all numbers and also between (if you use -, like 0-5) to the list.
+	 * Supports "1-5,12-18","1-5","1,8,9,20" or only one number like this "14".
+	 * <p>
+	 * So for example, if you make a string of numbers like this "1-5,12-18",
+	 * it will add all numbers between 1 to 5 and 12 to 18. Numbers between
+	 * 5 and 12 will not be added, nor will numbers outside the range of 1-18.
+	 * <p>
+	 * Furthermore, this string '1,8,9,20' will only add the numbers 1, 8, 9,
+	 * and 20, and no other number will be added.
+	 * <p>
+	 * You use also this method or {@link #setFillSpace(List)} to tell the slots
+	 * player allowed to add and remove items, you neeed set this to true also {@link #setSlotsYouCanAddItems(boolean)}.
 	 *
-	 * @param fillSpace the string of slots you want to use as fill slots.
+	 * @param fillSpace the string of slots you want to use as fill slots or slots you allow players add and remove items.
 	 */
 	public void setFillSpace(final String fillSpace) {
 		final List<Integer> slotList = new ArrayList<>();
@@ -226,8 +236,11 @@ public class MenuHolder extends CreateMenus {
 	 * <p>
 	 * Like this IntStream.rangeClosed(0, 26).boxed().collect(Collectors.toList());
 	 * for a menu some are for example size 36 will it not add items to last 9 slots.
+	 * <p>
+	 * You use also this method or {@link #setFillSpace(String)} to tell the slots
+	 * player allowed to add and remove items, you neeed set this to true also {@link #setSlotsYouCanAddItems(boolean)}.
 	 *
-	 * @param fillSpace set slots you want to use as fill slots.
+	 * @param fillSpace the list of slots you want to use as fill slots or slots you allow players add and remove items.
 	 */
 	public void setFillSpace(final List<Integer> fillSpace) {
 		this.fillSpace = fillSpace;
@@ -246,7 +259,8 @@ public class MenuHolder extends CreateMenus {
 	}
 
 	/**
-	 * set this to true if you whant players has option to add or remove items
+	 * set this to true if you whant players has option to add or remove items. however you also need set the slots
+	 * you allow player remove and add items {@link MenuHolder#setFillSpace(String)} or {@link MenuHolder#setFillSpace(List)} for get it work.
 	 *
 	 * @param slotsYouCanAddItems true and it will give option to add and remove items on fill slots.
 	 */
@@ -377,11 +391,13 @@ public class MenuHolder extends CreateMenus {
 	}
 
 	/**
-	 * If it shall not valid check when open menu with location if you have several
-	 * menus on same location and not set {@link #setUniqueKeyMenuCache(String)}. The effect of
-	 * override old menu is if player is left in the old menu, they can take all items.
+	 * If set to true, the menu will not perform a validity check when it is opened with a location
+	 * that already has a menu open. This could result in the old menu being overridden, and if a player
+	 * is still viewing that old menu, they will be able to take all items from it.
+	 * <p>
+	 * Set unique key with this method {@link #setUniqueKeyMenuCache(String)} instead.
 	 *
-	 * @param ignoreValidCheck set this to true if you want to ignore the consequences of override the old menu.
+	 * @param ignoreValidCheck true if the validity check should be ignored.
 	 */
 	public void setIgnoreValidCheck(final boolean ignoreValidCheck) {
 		this.ignoreValidCheck = ignoreValidCheck;
@@ -407,4 +423,15 @@ public class MenuHolder extends CreateMenus {
 	public void setAutoTitleCurrentPage(final boolean autoTitleCurrentPage) {
 		this.autoTitleCurrentPage = autoTitleCurrentPage;
 	}
+
+	/**
+	 * Get the key for the cached menu.
+	 *
+	 * @return the cached menu instance or null.
+	 */
+	@Nullable
+	public MenuCacheKey getMenuCacheKey() {
+		return this.menuCacheKey;
+	}
+
 }

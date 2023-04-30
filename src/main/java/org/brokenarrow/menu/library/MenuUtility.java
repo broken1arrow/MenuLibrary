@@ -13,7 +13,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -32,10 +31,10 @@ import static org.brokenarrow.menu.library.RegisterMenuAPI.getPLUGIN;
 import static org.brokenarrow.menu.library.utility.Metadata.*;
 
 /**
- * Methods to create menu as you want it.
+ * Contains methods to create menu as you want it. Recomend you extends #MenuHolder to get all methods needed.
  */
 
-public class CreateMenus {
+public class MenuUtility {
 
 	/**
 	 * Create menu instance.
@@ -44,7 +43,7 @@ public class CreateMenus {
 	 * @param fillItems       List of items you want parse inside gui.
 	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link #getMenuButtonsCache()} to cache it own class.
 	 */
-	public CreateMenus(final @Nullable List<Integer> fillSlots, @Nullable final List<?> fillItems, final boolean shallCacheItems) {
+	public MenuUtility(final @Nullable List<Integer> fillSlots, @Nullable final List<?> fillItems, final boolean shallCacheItems) {
 		this.fillSpace = fillSlots;
 		this.listOfFillItems = fillItems;
 		this.shallCacheItems = shallCacheItems;
@@ -55,10 +54,11 @@ public class CreateMenus {
 		this.slotIndex = 0;
 		this.updateTime = -1;
 		this.menuOpenSound = Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull() == null ? Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BASEDRUM").orNull() : Enums.getIfPresent(Sound.class, "BLOCK_NOTE_BLOCK_BASEDRUM").orNull();
+		this.uniqueKey = "";
 	}
 
+	MenuCacheKey menuCacheKey;
 	private final MenuCache menuCache = MenuCache.getInstance();
-	private final List<MenuButton> buttons = new ArrayList<>();
 	private final List<MenuButton> buttonsToUpdate = new ArrayList<>();
 	private final Map<Integer, Map<Integer, MenuData>> addedButtons = new HashMap<>();
 	private final Map<Integer, Long> timeWhenUpdatesButtons = new HashMap<>();
@@ -82,6 +82,7 @@ public class CreateMenus {
 	protected int itemsPerPage = this.inventorySize;
 	protected int pageNumber;
 	protected int updateTime;
+
 	protected Player player;
 	protected Sound menuOpenSound;
 	protected String title;
@@ -128,6 +129,7 @@ public class CreateMenus {
 	 * @param slot will return slot number it will add item.
 	 * @return MenuButton you have set.
 	 */
+	@Nullable
 	public MenuButton getButtonAt(final int slot) {
 		return null;
 	}
@@ -138,7 +140,8 @@ public class CreateMenus {
 	 * @param object will return object you have added as fillitems.
 	 * @return MenuButton you have set.
 	 */
-	public MenuButton getFillButtonAt(final Object object) {
+	@Nullable
+	public MenuButton getFillButtonAt(@Nonnull final Object object) {
 		return null;
 	}
 
@@ -149,6 +152,7 @@ public class CreateMenus {
 	 * @param slot will return current number till will add item.
 	 * @return MenuButton you have set.
 	 */
+	@Nullable
 	public MenuButton getFillButtonAt(final int slot) {
 		return null;
 	}
@@ -169,7 +173,7 @@ public class CreateMenus {
 	}
 
 	@Nullable
-	protected Long getTimeWhenUpdatesButton(MenuButton menuButton) {
+	protected Long getTimeWhenUpdatesButton(final MenuButton menuButton) {
 		return getTimeWhenUpdatesButtons().getOrDefault(menuButton.getId(), null);
 	}
 
@@ -185,11 +189,12 @@ public class CreateMenus {
 	}
 
 	/**
-	 * get if it this option will give you option add or remove items.
+	 * If this is set to true, you can then add or remove items in the menu.
+	 * You need spcify the slots with one of this two methods {@link MenuHolder#setFillSpace(String)} or
+	 * {@link MenuHolder#setFillSpace(List)} for get it work.
 	 *
 	 * @return true will you have option add items.
 	 */
-
 	public boolean isSlotsYouCanAddItems() {
 		return slotsYouCanAddItems;
 	}
@@ -230,7 +235,7 @@ public class CreateMenus {
 	 *
 	 * @return true if the page exist.
 	 */
-	public boolean containsPage(Integer pageNumber) {
+	public boolean containsPage(final Integer pageNumber) {
 		return this.addedButtons.containsKey(pageNumber);
 	}
 
@@ -302,9 +307,9 @@ public class CreateMenus {
 	 *
 	 * @return list of buttons some currently are registed.
 	 */
-
+	@Deprecated
 	public List<MenuButton> getButtons() {
-		return buttons;
+		return null;
 	}
 
 	/**
@@ -379,7 +384,7 @@ public class CreateMenus {
 	 *
 	 * @return map with slot number (can be more than one inventory in number of buttons) and itemstack.
 	 */
-
+	@Nonnull
 	public Map<Integer, MenuData> getMenuButtonsCache() {
 		return addItemsToCache();
 	}
@@ -400,8 +405,8 @@ public class CreateMenus {
 	 *
 	 * @return menuholder instance.
 	 */
-
-	public CreateMenus getMenuholder(final Player player) {
+	@Nullable
+	public MenuUtility getMenuholder(final Player player) {
 		return getMenuholder(player, MenuMetadataKey.MENU_OPEN);
 	}
 
@@ -411,11 +416,18 @@ public class CreateMenus {
 	 * @return older menuholder instance.
 	 */
 
-	public CreateMenus getPreviousMenuholder(final Player player) {
+	public MenuUtility getPreviousMenuholder(final Player player) {
 		return getMenuholder(player, MenuMetadataKey.MENU_OPEN_PREVIOUS);
 	}
 
-	private CreateMenus getMenuholder(final Player player, final MenuMetadataKey metadataKey) {
+	/**
+	 * Get current menu player has stored or currently open menu.
+	 *
+	 * @param player      the player that open menu.
+	 * @param metadataKey the menu key set for this menu.
+	 * @return the menu instance or null if player currently no menu open.
+	 */
+	private MenuUtility getMenuholder(final Player player, final MenuMetadataKey metadataKey) {
 
 		if (hasPlayerMetadata(player, metadataKey))
 			return getPlayerMenuMetadata(player, metadataKey);
@@ -443,11 +455,11 @@ public class CreateMenus {
 	}
 
 	/**
-	 * get list of fill items you added to menu.
+	 * Get list of fill items you added to menu.
 	 *
 	 * @return items you have added.
 	 */
-
+	@Nullable
 	public List<?> getListOfFillItems() {
 		return listOfFillItems;
 	}
@@ -462,7 +474,15 @@ public class CreateMenus {
 		return inventorySize;
 	}
 
-
+	/**
+	 * If this is set to true, it will not check whether the unique key is set and
+	 * there is a risk of overriding an old menu that some players still have open.
+	 * <p>
+	 * This is likely to happen only if you set the location and the player opens
+	 * another menu that uses the same location.
+	 *
+	 * @return true if the check should be ignored.
+	 */
 	public boolean isIgnoreValidCheck() {
 		return ignoreValidCheck;
 	}
@@ -484,7 +504,7 @@ public class CreateMenus {
 	 * @param menu  class some are now closed.
 	 */
 
-	public void menuClose(final InventoryCloseEvent event, final CreateMenus menu) {
+	public void menuClose(final InventoryCloseEvent event, final MenuUtility menu) {
 	}
 
 	/**
@@ -521,11 +541,11 @@ public class CreateMenus {
 	 * @param pageNumber  the page number to set in cache
 	 * @param menuDataMap the map with slot and menu data where both button,item and code execution is set.
 	 */
-	protected void putAddedButtonsCache(Integer pageNumber, Map<Integer, MenuData> menuDataMap) {
+	protected void putAddedButtonsCache(final Integer pageNumber, final Map<Integer, MenuData> menuDataMap) {
 		this.addedButtons.put(pageNumber, menuDataMap);
 	}
 
-	protected void putTimeWhenUpdatesButtons(MenuButton menuButton, Long time) {
+	protected void putTimeWhenUpdatesButtons(final MenuButton menuButton, final Long time) {
 		this.getTimeWhenUpdatesButtons().put(menuButton.getId(), time);
 	}
 
@@ -586,47 +606,28 @@ public class CreateMenus {
 		return obj;
 	}
 
-	private void saveMenuCache(final Location location) {
-		final Object obj;
-		if (this.uniqueKey == null || this.uniqueKey.isEmpty()) {
-			obj = location;
-		} else {
-			obj = this.uniqueKey + ":" + location;
-		}
-		menuCache.setMenusCached(obj, this);
+	private void saveMenuCache(@Nonnull final Location location) {
+		menuCache.addToCache(location, this.uniqueKey, this);
 	}
 
-	private CreateMenus getMenuCache(final Location location) {
-		final Object obj;
-		if (this.uniqueKey == null || this.uniqueKey.isEmpty()) {
-			obj = location;
-		} else {
-			obj = this.uniqueKey + ":" + location;
-		}
-		return menuCache.getMenuInCache(obj);
+	private MenuUtility getMenuCache() {
+		return menuCache.getMenuInCache(this.menuCacheKey);
 	}
 
 	/**
 	 * Remove the cached menu. if you use location.
-	 *
-	 * @param location you stored in the cache.
 	 */
-	public void removeMenuCache(final Location location) {
-		final Object obj;
-		if (this.uniqueKey == null || this.uniqueKey.isEmpty()) {
-			obj = location;
-		} else {
-			obj = this.uniqueKey + ":" + location;
-		}
-		menuCache.removeMenuCached(obj);
+	public void removeMenuCache() {
+		menuCache.removeMenuCached(this.menuCacheKey);
 	}
 
 	/**
-	 * Set uniqueKey for the cached menu. If you want several menus on same location
-	 * (so several players can interact with same menu). You need set this in the constructor call
-	 * to make it work as it should.
+	 * Set a unique key for the cached menu if you want to have multiple menus on the same location,
+	 * allowing many players to interact with different menus without limiting them to one menu or
+	 * risking the override of an old menu when a player opens a new one. You need to use this method
+	 * in your constructor,so your key gets added it to the cache.
 	 *
-	 * @param uniqueKey you use as part of the key in the cache.
+	 * @param uniqueKey will used as part of the key in the cache.
 	 */
 	public void setUniqueKeyMenuCache(final String uniqueKey) {
 		this.uniqueKey = uniqueKey;
@@ -642,17 +643,15 @@ public class CreateMenus {
 	}
 
 	protected void setLocationMetaOnPlayer(final Player player, final Location location) {
-		final Object obj;
-		if (this.uniqueKey == null || this.uniqueKey.isEmpty()) {
-			obj = location;
-		} else {
-			obj = this.uniqueKey + ":" + location;
+		String uniqueKey = this.uniqueKey;
+		if (uniqueKey != null && uniqueKey.isEmpty()) {
+			this.uniqueKey = this.getClass().getName();
+			uniqueKey = this.uniqueKey;
 		}
-		setPlayerLocationMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION, obj);
-	}
-
-	private void setPlayermetadata(final Player player, final String setPlayerMetadataKey, final Object setPlayerMetadataValue) {
-		player.setMetadata(setPlayerMetadataKey, new FixedMetadataValue(plugin, setPlayerMetadataValue));
+		menuCacheKey = this.menuCache.getMenuCacheKey(location, uniqueKey);
+		if (menuCacheKey == null)
+			menuCacheKey = new MenuCacheKey(location, uniqueKey);
+		setPlayerLocationMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION, menuCacheKey);
 	}
 
 	protected void setMetadataKey(final String setPlayerMetadataKey) {
@@ -682,22 +681,22 @@ public class CreateMenus {
 
 	protected Inventory loadInventory(final Player player, final boolean loadToCahe) {
 		Inventory menu = null;
-		if (loadToCahe) {
-			CreateMenus menuCached = this.getMenuCache(this.location);
+		if (loadToCahe && this.location != null) {
+			MenuUtility menuCached = this.getMenuCache();
 
 			if (menuCached == null || menuCached.getMenu() == null) {
 				saveMenuCache(this.location);
-				menuCached = this.getMenuCache(this.location);
+				menuCached = this.getMenuCache();
 			}
 			if (!this.isIgnoreValidCheck()) {
 				Validate.checkBoolean(!menuCached.getClass().equals(this.getClass()) && (this.uniqueKey == null || this.uniqueKey.isEmpty()), "You need set uniqueKey for this menu " + menuCached.getClass() + " or it will replace the old menu and players left can take items, set method setIgnoreValidCheck() to ignore this or set the uniqueKey");
 			} else {
 				saveMenuCache(this.location);
-				menuCached = this.getMenuCache(this.location);
+				menuCached = this.getMenuCache();
 			}
 			menu = menuCached.getMenu();
 		} else {
-			final CreateMenus previous = getMenuholder(this.player);
+			/*final MenuUtility previous = getMenuholder(this.player);
 			if (previous != null && !hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN)) {
 				setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN_PREVIOUS, this);
 				setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN, this);
@@ -706,63 +705,38 @@ public class CreateMenus {
 				setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN_PREVIOUS, this);
 				setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN, this);
 				menu = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN).getMenu();
-			}
+			}*/
+			setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN_PREVIOUS, this);
+			setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN, this);
+			MenuUtility menuUtility = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
+			if (menuUtility != null)
+				menu = menuUtility.getMenu();
+
 		}
 		return menu;
 	}
-
-/*
-	private void registerFields() {
-		this.buttons.clear();
-		Class<?> iteratedClass = getClass();
-		try {
-			do {
-				registerFieldsIn(iteratedClass);
-			} while (!(iteratedClass = iteratedClass.getSuperclass()).isAssignableFrom(Object.class));
-
-		} catch (final Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	private void registerFieldsIn(final Class<?> clazz) {
-		for (final Field field : clazz.getDeclaredFields()) {
-			field.setAccessible(true);
-			if (MenuButton.class.isAssignableFrom(field.getType())) {
-				try {
-					final MenuButton fielddata = (MenuButton) field.get(this);
-					if (fielddata != null && fielddata.shouldUpdateButtons()) {
-						this.buttonsToUpdate.add(fielddata);
-					}
-					this.buttons.add(fielddata);
-				} catch (final IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-*/
-
-	private double amountpages() {
-
+	
+	private double amountOfpages() {
+		final List<?> fillItems = this.getListOfFillItems();
+		final List<Integer> fillSpace = this.getFillSpace();
 		if (this.itemsPerPage > 0) {
 			if (this.itemsPerPage > this.inventorySize)
 				this.plugin.getLogger().log(Level.SEVERE, "Items per page are biger an Inventory size, items items per page " + this.itemsPerPage + ". Inventory size " + this.inventorySize, new Throwable().fillInStackTrace());
-			if (!this.getFillSpace().isEmpty()) {
-				return (double) this.getFillSpace().size() / this.itemsPerPage;
-			} else if (this.getListOfFillItems() != null && !this.getListOfFillItems().isEmpty())
-				return (double) this.getListOfFillItems().size() / this.itemsPerPage;
+			if (!fillSpace.isEmpty()) {
+				return (double) fillSpace.size() / this.itemsPerPage;
+			} else if (fillItems != null && !fillItems.isEmpty())
+				return (double) fillItems.size() / this.itemsPerPage;
 			else
 				return (double) this.addedButtons.size() / this.itemsPerPage;
 		}
-		if (this.getListOfFillItems() != null && !this.getListOfFillItems().isEmpty()) {
-			return (double) this.getListOfFillItems().size() / (this.getFillSpace().isEmpty() ? this.inventorySize - 9 : this.getFillSpace().size());
-		} else return (double) this.buttons.size() / this.inventorySize;
+		if (fillItems != null && !fillItems.isEmpty()) {
+			return (double) fillItems.size() / (fillSpace.isEmpty() ? this.inventorySize - 9 : fillSpace.size());
+		} else return (double) this.addedButtons.size() / this.inventorySize;
 	}
 
 	protected Map<Integer, MenuData> addItemsToCache() {
 		Map<Integer, MenuData> addedButtons = new HashMap<>();
-		this.requiredPages = Math.max((int) Math.ceil(amountpages()), 1);
+		this.requiredPages = Math.max((int) Math.ceil(amountOfpages()), 1);
 		for (int i = 0; i < this.requiredPages; i++) {
 
 			final Map<Integer, MenuData> addedMenuData = cacheMenuData(i);
@@ -781,7 +755,7 @@ public class CreateMenus {
 
 			Object objectFromlistOfFillItems = "";
 			final int slotIndexOld = this.slotIndex;
-			if (this.getFillSpace() != null && this.getFillSpace().contains(slot)) {
+			if (!this.getFillSpace().isEmpty() && this.getFillSpace().contains(slot)) {
 				objectFromlistOfFillItems = getObjectFromlistOfFillItems(slotIndexOld);
 				this.slotIndex++;
 			}
@@ -834,8 +808,9 @@ public class CreateMenus {
 	}
 
 	private Object getObjectFromlistOfFillItems(final int slotIndex) {
-		if (getListOfFillItems() != null && getListOfFillItems().size() > slotIndex)
-			return getListOfFillItems().get(slotIndex);
+		final List<?> fillItems = this.getListOfFillItems();
+		if (fillItems != null && fillItems.size() > slotIndex)
+			return fillItems.get(slotIndex);
 		else return null;
 	}
 
@@ -857,7 +832,7 @@ public class CreateMenus {
 	}
 
 	private Inventory createInventory() {
-		String title = this.getTitle();
+		final String title = this.getTitle();
 
 		if (this.getInventoryType() != null)
 			return Bukkit.createInventory(null, this.getInventoryType(), title != null ? title : "");

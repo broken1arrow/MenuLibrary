@@ -6,6 +6,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+
 public abstract class MenuButton {
 
 	private static int counter = 0;
@@ -25,7 +27,7 @@ public abstract class MenuButton {
 	 * @param object      object some are clicked on (defult is it itemstack).
 	 */
 
-	public abstract void onClickInsideMenu(Player player, Inventory menu, ClickType click, ItemStack clickedItem, Object object);
+	public abstract void onClickInsideMenu(@Nonnull final Player player, @Nonnull final Inventory menu, @Nonnull final ClickType click, @Nonnull final ItemStack clickedItem, final Object object);
 
 	/**
 	 * get the item some are added in your menu
@@ -42,7 +44,7 @@ public abstract class MenuButton {
 	 * @return itemstack
 	 */
 
-	public ItemStack getItem(Object object) {
+	public ItemStack getItem(@Nonnull final Object object) {
 		return null;
 	}
 
@@ -54,13 +56,13 @@ public abstract class MenuButton {
 	 * @return itemstack
 	 */
 
-	public ItemStack getItem(int slot, @Nullable Object object) {
+	public ItemStack getItem(final int slot, @Nullable final Object object) {
 		return null;
 	}
 
 	/**
 	 * Set your own time, if and when it shall update buttons. If this is set to -1
-	 * It will use the global from {@link CreateMenus#getUpdateTime()}
+	 * It will use the global from {@link MenuUtility#getUpdateTime()}
 	 * <p>
 	 * You also need set this to true {@link #shouldUpdateButtons()}
 	 *

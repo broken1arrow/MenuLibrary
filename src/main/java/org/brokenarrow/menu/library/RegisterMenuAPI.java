@@ -1,6 +1,7 @@
 package org.brokenarrow.menu.library;
 
 import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
+import org.brokenarrow.menu.library.utility.Item.CreateItemStack;
 import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -86,23 +87,23 @@ public class RegisterMenuAPI {
 
 			if (event.getClickedInventory() == null)
 				return;
-			final ItemStack clickedItem = event.getCurrentItem();
+			ItemStack clickedItem = event.getCurrentItem();
 			final ItemStack cursor = event.getCursor();
 
-			final CreateMenus createMenus = getMenuHolder(player);
-			if (createMenus == null) return;
-			if (!event.getView().getTopInventory().equals(createMenus.getMenu())) return;
+			final MenuUtility menuUtility = getMenuHolder(player);
+			if (menuUtility == null) return;
+			if (!event.getView().getTopInventory().equals(menuUtility.getMenu())) return;
 
-			if (!createMenus.isAddedButtonsCacheEmpty()) {
+			if (!menuUtility.isAddedButtonsCacheEmpty()) {
 				final int clickedSlot = event.getSlot();
-				final int clickedPos = createMenus.getPageNumber() * createMenus.getMenu().getSize() + clickedSlot;
+				final int clickedPos = menuUtility.getPageNumber() * menuUtility.getMenu().getSize() + clickedSlot;
 
-				if (!createMenus.isAllowShiftClick() && event.getClick().isShiftClick()) {
+				if (!menuUtility.isAllowShiftClick() && event.getClick().isShiftClick()) {
 					event.setCancelled(true);
 					return;
 				}
-				if (createMenus.isSlotsYouCanAddItems()) {
-					if (createMenus.getFillSpace().contains(clickedPos))
+				if (menuUtility.isSlotsYouCanAddItems()) {
+					if (menuUtility.getFillSpace().contains(clickedPos))
 						return;
 					else if (event.getClickedInventory().getType() != InventoryType.PLAYER)
 						event.setCancelled(true);
@@ -115,11 +116,15 @@ public class RegisterMenuAPI {
 					if (cursor != null && cursor.getType() != Material.AIR)
 						event.setCancelled(true);
 				}
-				final MenuButton menuButton = getClickedButton(createMenus, clickedItem, clickedPos);
+				final MenuButton menuButton = getClickedButton(menuUtility, clickedItem, clickedPos);
 				if (menuButton != null) {
 					event.setCancelled(true);
-					final Object objectData = createMenus.getObjectFromList(clickedPos) != null && !createMenus.getObjectFromList(clickedPos).equals("") ? createMenus.getObjectFromList(clickedPos) : clickedItem;
-					menuButton.onClickInsideMenu(player, createMenus.getMenu(), event.getClick(), clickedItem, objectData);
+					final Object object = menuUtility.getObjectFromList(clickedPos);
+					final Object objectData = object != null && !object.equals("") ? object : clickedItem;
+					if (clickedItem == null)
+						clickedItem = CreateItemStack.of("AIR").makeItemStack();
+
+					menuButton.onClickInsideMenu(player, menuUtility.getMenu(), event.getClick(), clickedItem, objectData);
 
 					if (ServerVersion.newerThan(ServerVersion.v1_15) && event.getClick() == ClickType.SWAP_OFFHAND) {
 						final SwapData data = cacheData.get(player.getUniqueId());
@@ -137,8 +142,8 @@ public class RegisterMenuAPI {
 		public void onMenuOpen(final InventoryOpenEvent event) {
 			final Player player = (Player) event.getPlayer();
 
-			final CreateMenus createMenus = getMenuHolder(player);
-			if (createMenus == null) return;
+			final MenuUtility menuUtility = getMenuHolder(player);
+			if (menuUtility == null) return;
 			if (ServerVersion.olderThan(ServerVersion.v1_15)) return;
 
 			this.cacheData.put(player.getUniqueId(), new SwapData(false, player.getInventory().getItemInOffHand()));
@@ -148,8 +153,8 @@ public class RegisterMenuAPI {
 		public void onMenuClose(final InventoryCloseEvent event) {
 			final Player player = (Player) event.getPlayer();
 
-			final CreateMenus createMenus = getMenuHolder(player);
-			if (createMenus == null) return;
+			final MenuUtility menuUtility = getMenuHolder(player);
+			if (menuUtility == null) return;
 
 			final SwapData data = cacheData.get(player.getUniqueId());
 			if (data != null && data.isPlayerUseSwapoffhand())
@@ -159,19 +164,19 @@ public class RegisterMenuAPI {
 					player.getInventory().setItemInOffHand(null);
 			cacheData.remove(player.getUniqueId());
 
-			if (!event.getView().getTopInventory().equals(createMenus.getMenu()))
+			if (!event.getView().getTopInventory().equals(menuUtility.getMenu()))
 				return;
 
-			createMenus.onMenuClose(event);
+			menuUtility.onMenuClose(event);
 			try {
-				createMenus.menuClose(event, createMenus);
+				menuUtility.menuClose(event, menuUtility);
 			} finally {
 				if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN)) {
 					removePlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
 				}
 				if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION)) {
-					if (createMenus.isAutoClearCache()) {
-						if (createMenus.getAmountOfViewers() < 1) {
+					if (menuUtility.isAutoClearCache()) {
+						if (menuUtility.getAmountOfViewers() < 1) {
 							menuCache.removeMenuCached(getPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION));
 						}
 					}
@@ -185,38 +190,38 @@ public class RegisterMenuAPI {
 			final Player player = (Player) event.getWhoClicked();
 			if (event.getView().getType() == InventoryType.PLAYER) return;
 
-			final CreateMenus createMenus = getMenuHolder(player);
-			if (createMenus == null) return;
+			final MenuUtility menuUtility = getMenuHolder(player);
+			if (menuUtility == null) return;
 
-			if (!createMenus.isAddedButtonsCacheEmpty()) {
+			if (!menuUtility.isAddedButtonsCacheEmpty()) {
 				final int size = event.getView().getTopInventory().getSize();
 
 				for (final int clickedSlot : event.getRawSlots()) {
 					if (clickedSlot > size)
 						continue;
 
-					final int clickedPos = createMenus.getPageNumber() * createMenus.getMenu().getSize() + clickedSlot;
+					final int clickedPos = menuUtility.getPageNumber() * menuUtility.getMenu().getSize() + clickedSlot;
 
 					final ItemStack cursor = checkIfNull(event.getCursor(), event.getOldCursor());
-					if (createMenus.isSlotsYouCanAddItems()) {
-						if (createMenus.getFillSpace().contains(clickedSlot))
+					if (menuUtility.isSlotsYouCanAddItems()) {
+						if (menuUtility.getFillSpace().contains(clickedSlot))
 							return;
 						else
 							event.setCancelled(true);
 					} else {
 						event.setCancelled(true);
 					}
-					if (getClickedButton(createMenus, cursor, clickedPos) == null)
+					if (getClickedButton(menuUtility, cursor, clickedPos) == null)
 						event.setCancelled(true);
 				}
 			}
 		}
 
 
-		public MenuButton getClickedButton(final CreateMenus menusData, final ItemStack item, final int clickedPos) {
-			final Map<Integer, CreateMenus.MenuData> menuDataMap = menusData.getMenuButtons(menusData.getPageNumber());
+		public MenuButton getClickedButton(final MenuUtility menusData, final ItemStack item, final int clickedPos) {
+			final Map<Integer, MenuUtility.MenuData> menuDataMap = menusData.getMenuButtons(menusData.getPageNumber());
 			if (menuDataMap != null && !menuDataMap.isEmpty()) {
-				final CreateMenus.MenuData menuData = menuDataMap.get(clickedPos);
+				final MenuUtility.MenuData menuData = menuDataMap.get(clickedPos);
 				if (menuData == null) return null;
 				if (menusData.isIgnoreItemCheck())
 					return menuData.getMenuButton();
@@ -264,7 +269,7 @@ public class RegisterMenuAPI {
 		}
 
 		@Nullable
-		private CreateMenus getMenuHolder(final Player player) {
+		private MenuUtility getMenuHolder(final Player player) {
 
 			Object menukey = null;
 
@@ -272,13 +277,13 @@ public class RegisterMenuAPI {
 				menukey = getPlayerMetadata(player, MenuMetadataKey.MENU_OPEN_LOCATION);
 			}
 
-			final CreateMenus createMenus;
+			final MenuUtility menuUtility;
 			if (hasPlayerMetadata(player, MenuMetadataKey.MENU_OPEN)) {
-				createMenus = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
+				menuUtility = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
 			} else {
-				createMenus = menuCache.getMenuInCache(menukey);
+				menuUtility = menuCache.getMenuInCache(menukey);
 			}
-			return createMenus;
+			return menuUtility;
 		}
 
 		private static class SwapData {
