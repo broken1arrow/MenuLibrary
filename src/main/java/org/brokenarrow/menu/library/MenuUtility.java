@@ -337,7 +337,7 @@ public class MenuUtility {
 	 * @return amount of players curently looking in the inventory.
 	 */
 	public int getAmountOfViewers() {
-		return (int) this.getMenu().getViewers().stream().filter(entity -> entity instanceof Player).count() - 1;
+		return (int) (this.getMenu() == null ? -1 : this.getMenu().getViewers().stream().filter(entity -> entity instanceof Player).count() - 1);
 	}
 
 	/**
@@ -345,6 +345,7 @@ public class MenuUtility {
 	 *
 	 * @return menu some are curent created.
 	 */
+	@Nullable
 	public Inventory getMenu() {
 		return inventory;
 	}
@@ -659,10 +660,10 @@ public class MenuUtility {
 	}
 
 	protected void onMenuOpenPlaySound() {
-		if (this.menuOpenSound == null) return;
+		Sound sound = this.menuOpenSound;
+		if (sound == null) return;
 
-		if (Enums.getIfPresent(Sound.class, this.menuOpenSound.name()).orNull() != null)
-			this.player.playSound(player.getLocation(), this.menuOpenSound, 1, 1);
+		this.player.playSound(player.getLocation(), sound, 1, 1);
 	}
 
 	/**
@@ -715,7 +716,7 @@ public class MenuUtility {
 		}
 		return menu;
 	}
-	
+
 	private double amountOfpages() {
 		final List<?> fillItems = this.getListOfFillItems();
 		final List<Integer> fillSpace = this.getFillSpace();

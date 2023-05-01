@@ -28,7 +28,7 @@ import java.util.logging.Level;
 
 import static org.brokenarrow.menu.library.utility.Metadata.*;
 import static org.brokenarrow.menu.library.utility.ServerVersion.setServerVersion;
-import static org.brokenarrow.menu.library.utility.ServerVersion.v1_18_2;
+import static org.brokenarrow.menu.library.utility.ServerVersion.v1_19_4;
 
 public class RegisterMenuAPI {
 
@@ -51,10 +51,10 @@ public class RegisterMenuAPI {
 		nbtApi = new RegisterNbtAPI(plugin, false);
 	}
 
-	public final void versionCheck() {
+	private void versionCheck() {
 		PLUGIN.getLogger().log(Level.INFO, "Now starting MenuApi. Any errors will be shown below.");
-		if (ServerVersion.newerThan(v1_18_2)) {
-			PLUGIN.getLogger().log(Level.WARNING, "Is untested on never minecraft versions an 1.18.2");
+		if (ServerVersion.newerThan(v1_19_4)) {
+			PLUGIN.getLogger().log(Level.WARNING, "It is not tested on versions beyond 1.19.4");
 		}
 	}
 
@@ -70,6 +70,7 @@ public class RegisterMenuAPI {
 		final MenuHolderListener menuHolderListener = new MenuHolderListener();
 		//if (!getRegisteredListeners(plugin).stream().allMatch(registeredListener -> registeredListener.getListener().getClass().equals(menuHolderListener.getClass())))
 		Bukkit.getPluginManager().registerEvents(menuHolderListener, plugin);
+
 	}
 
 	public static RegisterNbtAPI getNbtApi() {
@@ -192,6 +193,7 @@ public class RegisterMenuAPI {
 
 			final MenuUtility menuUtility = getMenuHolder(player);
 			if (menuUtility == null) return;
+			if (menuUtility.getMenu() == null) return;
 
 			if (!menuUtility.isAddedButtonsCacheEmpty()) {
 				final int size = event.getView().getTopInventory().getSize();

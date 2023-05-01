@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 public class MenuHolder extends MenuUtility {
 
 	/**
-	 * Create menu instance. With out any aguments. Recomend you set al lest inventory/menu size.
+	 * Create menu instance with out any aguments. Recomend you set menu size.
 	 */
 	public MenuHolder() {
 		this(null, null, false);
@@ -46,7 +46,7 @@ public class MenuHolder extends MenuUtility {
 	/**
 	 * Create menu instance.
 	 *
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link MenuUtility#getMenuButtonsCache()} to cache it own class.
+	 * @param shallCacheItems set to true if you want to cache items and slots, use this method {@link MenuUtility#getMenuButtonsCache()} to cache it own class.
 	 */
 	public MenuHolder(final boolean shallCacheItems) {
 		this(null, null, shallCacheItems);
@@ -67,7 +67,7 @@ public class MenuHolder extends MenuUtility {
 	 *
 	 * @param fillSlots       Witch slots you want fill with items.
 	 * @param fillItems       List of items you want parse inside gui.
-	 * @param shallCacheItems if it shall cache items and slots in this class, other case use {@link MenuUtility#getMenuButtonsCache()} to cache it own class.
+	 * @param shallCacheItems set to true if you want to cache items and slots, use this method {@link MenuUtility#getMenuButtonsCache()} to cache it own class.
 	 */
 	public MenuHolder(final List<Integer> fillSlots, final List<?> fillItems, final boolean shallCacheItems) {
 		super(fillSlots, fillItems, shallCacheItems);
@@ -117,8 +117,6 @@ public class MenuHolder extends MenuUtility {
 	public void menuOpen(final Player player, final Location location, final boolean loadToCahe) {
 		this.player = player;
 		this.location = location;
-
-	
 		player.closeInventory();
 
 		if (location != null)
@@ -411,7 +409,7 @@ public class MenuHolder extends MenuUtility {
 	 */
 	@Override
 	public int getAmountOfViewers() {
-		return (int) this.getMenu().getViewers().stream().filter(entity -> entity instanceof Player).count() - 1;
+		return (int) (this.getMenu() == null ? -1 : this.getMenu().getViewers().stream().filter(entity -> entity instanceof Player).count() - 1);
 	}
 
 	/**
