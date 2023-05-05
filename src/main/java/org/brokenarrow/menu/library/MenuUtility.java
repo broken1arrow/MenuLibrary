@@ -390,10 +390,10 @@ public class MenuUtility {
 	 * <p>
 	 * Please be sure to double-check your calculations when setting the number of pages.
 	 *
-	 * @param manuallySetPages the number of pages to set manually
+	 * @param amountOfPages the number of pages to set manually
 	 */
-	public void setManuallySetPages(final int manuallySetPages) {
-		this.manuallySetPages = manuallySetPages;
+	public void setManuallyAmountOfPages(final int amountOfPages) {
+		this.manuallySetPages = amountOfPages;
 	}
 
 	/**
