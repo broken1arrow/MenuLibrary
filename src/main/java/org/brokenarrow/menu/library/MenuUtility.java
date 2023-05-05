@@ -40,6 +40,7 @@ import static org.brokenarrow.menu.library.utility.Metadata.*;
 
 public class MenuUtility {
 
+
 	/**
 	 * Create menu instance.
 	 *
@@ -82,6 +83,7 @@ public class MenuUtility {
 	protected boolean autoTitleCurrentPage;
 	protected int slotIndex;
 	private int requiredPages;
+	private int manuallySetPages = -1;
 	protected int inventorySize;
 	protected int itemsPerPage = this.inventorySize;
 	protected int pageNumber;
@@ -376,6 +378,22 @@ public class MenuUtility {
 	@Nullable
 	public Inventory getMenu() {
 		return inventory;
+	}
+
+	/**
+	 * Set the number of pages manually. Note that it is important to ensure that the number of
+	 * pages is appropriate for the size of the list of fill items {@link #getListOfFillItems()},
+	 * setting the wrong number of pages can result in an insufficient or unnecessary amount of
+	 * pages being displayed.
+	 * <p>
+	 * <p>
+	 * <p>
+	 * Please be sure to double-check your calculations when setting the number of pages.
+	 *
+	 * @param manuallySetPages the number of pages to set manually
+	 */
+	public void setManuallySetPages(final int manuallySetPages) {
+		this.manuallySetPages = manuallySetPages;
 	}
 
 	/**
@@ -776,6 +794,9 @@ public class MenuUtility {
 	protected Map<Integer, ButtonData> addItemsToCache() {
 		Map<Integer, ButtonData> addedButtons = new HashMap<>();
 		this.requiredPages = Math.max((int) Math.ceil(amountOfpages()), 1);
+		if (this.manuallySetPages > 0)
+			this.requiredPages = this.manuallySetPages;
+
 		for (int i = 0; i < this.requiredPages; i++) {
 			addedButtons = addItemsToCache(i);
 		}
