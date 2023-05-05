@@ -626,7 +626,7 @@ public class MenuUtility {
 				Bukkit.getScheduler().cancelTask(this.taskid);
 				cancelTask = true;
 			}
-		addItemsToCache(this.getPageNumber());
+		addItemsToCache();
 		reddrawInventory();
 
 		if (cancelTask) {
@@ -830,7 +830,6 @@ public class MenuUtility {
 				//addedButtons.put(pageNumber * this.getInventorySize() + slot, new ButtonData(result, menuButton, objectFromlistOfFillItems));
 			}
 		}
-		System.out.println("menuDataUtility " + menuDataUtility);
 		return menuDataUtility;
 	}
 
