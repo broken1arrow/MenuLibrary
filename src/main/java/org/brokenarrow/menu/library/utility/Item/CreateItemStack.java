@@ -12,13 +12,21 @@ import org.bukkit.block.banner.Pattern;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.BannerMeta;
+import org.bukkit.inventory.meta.FireworkEffectMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import static org.brokenarrow.menu.library.RegisterMenuAPI.getLogger;
@@ -446,8 +454,7 @@ public class CreateItemStack {
 	 * @return this class.
 	 */
 	public CreateItemStack setItemMetaData(final String itemMetaKey, final Object itemMetaValue) {
-		setItemMetaData(itemMetaKey, itemMetaValue, false);
-		return this;
+		return setItemMetaData(itemMetaKey, itemMetaValue, false);
 	}
 
 	/**
@@ -802,6 +809,7 @@ public class CreateItemStack {
 		}
 		return itemstackNew;
 	}
+
 	/**
 	 * Check if the material is an air block.
 	 *
@@ -819,6 +827,7 @@ public class CreateItemStack {
 				return false;
 		}
 	}
+
 	private ItemStack checkTypeOfItem() {
 		if (this.itemStack != null)
 			return itemStack;

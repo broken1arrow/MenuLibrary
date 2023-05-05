@@ -21,8 +21,7 @@ public final class MetaDataWraper {
 	 */
 
 	public MetaDataWraper add(String key, Object value) {
-		add(key, value, false);
-		return this;
+		return add(key, value, false);
 	}
 
 	/**

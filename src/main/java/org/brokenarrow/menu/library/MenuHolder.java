@@ -1,5 +1,7 @@
 package org.brokenarrow.menu.library;
 
+import org.brokenarrow.menu.library.builders.ButtonData;
+import org.brokenarrow.menu.library.builders.MenuDataUtility;
 import org.brokenarrow.menu.library.utility.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -158,7 +159,8 @@ public class MenuHolder extends MenuUtility {
 	 * @param title you want to show inside the menu.
 	 */
 	public void setTitle(final String title) {
-		this.title = title;
+		//this.title = title;
+		this.setTitle(() -> title);
 	}
 
 	/**
@@ -328,23 +330,30 @@ public class MenuHolder extends MenuUtility {
 	 * @param menuButton the current button.
 	 */
 	public void updateButton(final MenuButton menuButton) {
-		final Map<Integer, MenuData> menuDataMap = getMenuButtons(getPageNumber());
-		final Set<Integer> buttonSlots = this.getButtonSlots(menuButton);
-		if (!buttonSlots.isEmpty()) {
-			for (final int slot : buttonSlots) {
+		final MenuDataUtility menuDataUtility = getMenuData(getPageNumber());
+		final Set<Integer> buttonSlots = this.getButtonSlots(menuDataUtility, menuButton);
+		if (menuDataUtility != null) {
+			if (!buttonSlots.isEmpty()) {
+				for (final int slot : buttonSlots) {
 
-				final MenuData menuData = menuDataMap.get(getSlotFromCache(slot));
-				final ItemStack menuItem = getMenuItem(menuButton, menuData, slot, true);
-				this.getMenu().setItem(slot, menuItem);
-				menuDataMap.put(getSlotFromCache(slot), new MenuData(menuItem, menuButton, menuData.getObject()));
+					final ButtonData buttonData = menuDataUtility.getButton(getSlot(slot));
+					if (buttonData == null) return;
+					final ItemStack menuItem = getMenuItem(menuButton, buttonData, slot, true);
+					this.getMenu().setItem(slot, menuItem);
+					menuDataUtility.putButton(getSlot(slot), new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject()), menuDataUtility.getFillMenuButton());
+					//	menuDataMap.put(getSlot(slot), new ButtonData(menuItem, menuButton, buttonData.getObject()));
+				}
+			} else {
+				final int buttonSlot = this.getButtonSlot(menuButton);
+				final ButtonData buttonData = menuDataUtility.getButton(getSlot(buttonSlot));
+				if (buttonData == null) return;
+				final ItemStack itemStack = getMenuItem(menuButton, buttonData, buttonSlot, true);
+				//final ItemStack itemStack = getMenuItem(menuButton, menuDataUtility.getButton(getSlot(buttonSlot)), buttonSlot, true);
+				this.getMenu().setItem(buttonSlot, itemStack);
+				menuDataUtility.putButton(getSlot(buttonSlot), new ButtonData(itemStack, menuButton, buttonData.getObject()), menuDataUtility.getFillMenuButton());
 			}
-		} else {
-			final int buttonSlot = this.getButtonSlot(menuButton);
-			final ItemStack itemStack = getMenuItem(menuButton, menuDataMap.get(getSlotFromCache(buttonSlot)), buttonSlot, true);
-			this.getMenu().setItem(buttonSlot, itemStack);
-			menuDataMap.put(getSlotFromCache(buttonSlot), new MenuData(itemStack, menuButton, ""));
+			this.putAddedButtonsCache(this.getPageNumber(), menuDataUtility);
 		}
-		this.putAddedButtonsCache(this.getPageNumber(), menuDataMap);
 	}
 
 	/**

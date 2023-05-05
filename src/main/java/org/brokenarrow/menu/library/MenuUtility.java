@@ -2,7 +2,10 @@ package org.brokenarrow.menu.library;
 
 import com.google.common.base.Enums;
 import org.brokenarrow.menu.library.NMS.UpdateTittleContainers;
+import org.brokenarrow.menu.library.builders.ButtonData;
+import org.brokenarrow.menu.library.builders.MenuDataUtility;
 import org.brokenarrow.menu.library.utility.Function;
+import org.brokenarrow.menu.library.utility.Item.CreateItemStack;
 import org.brokenarrow.menu.library.utility.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -24,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -60,7 +64,7 @@ public class MenuUtility {
 	MenuCacheKey menuCacheKey;
 	private final MenuCache menuCache = MenuCache.getInstance();
 	private final List<MenuButton> buttonsToUpdate = new ArrayList<>();
-	private final Map<Integer, Map<Integer, MenuData>> addedButtons = new HashMap<>();
+	private final Map<Integer, MenuDataUtility> pagesOfButtonsData = new HashMap<>();
 	private final Map<Integer, Long> timeWhenUpdatesButtons = new HashMap<>();
 
 	protected List<Integer> fillSpace;
@@ -227,7 +231,7 @@ public class MenuUtility {
 	 * @return true if the cache is empty.
 	 */
 	public boolean isAddedButtonsCacheEmpty() {
-		return this.addedButtons.isEmpty();
+		return this.pagesOfButtonsData.isEmpty();
 	}
 
 	/**
@@ -236,7 +240,18 @@ public class MenuUtility {
 	 * @return true if the page exist.
 	 */
 	public boolean containsPage(final Integer pageNumber) {
-		return this.addedButtons.containsKey(pageNumber);
+		return this.pagesOfButtonsData.containsKey(pageNumber);
+	}
+
+	/**
+	 * Get all slots and items inside the cache, on this page.
+	 *
+	 * @param pageNumber of the page you want to get.
+	 * @return map with slots for every item are placed and items.
+	 */
+	@Nullable
+	public MenuDataUtility getMenuData(final int pageNumber) {
+		return this.pagesOfButtonsData.get(pageNumber);
 	}
 
 	/**
@@ -245,8 +260,11 @@ public class MenuUtility {
 	 * @param pageNumber of the page you want to get.
 	 * @return map with slots for every item are placed and items.
 	 */
-	public Map<Integer, MenuData> getMenuButtons(final int pageNumber) {
-		return this.addedButtons.get(pageNumber);
+	public Map<Integer, ButtonData> getMenuButtons(final int pageNumber) {
+		final MenuDataUtility utilityMap = this.pagesOfButtonsData.get(pageNumber);
+		if (utilityMap != null)
+			return utilityMap.getButtons();
+		return new HashMap<>();
 	}
 
 	/**
@@ -259,25 +277,28 @@ public class MenuUtility {
 	 * @return Menudata with itemstack and/or object
 	 */
 	@Nonnull
-	public MenuData getAddedButtons(final int pageNumber, final int slotIndex) {
-		final Map<Integer, MenuData> data = getMenuButtons(pageNumber);
-		if (data != null)
-			return data.get(slotIndex);
-		return new MenuData(null, null, "");
+	public ButtonData getAddedButtons(final int pageNumber, final int slotIndex) {
+		final Map<Integer, ButtonData> data = getMenuButtons(pageNumber);
+		if (data != null) {
+			final ButtonData buttonData = data.get(slotIndex);
+			if (buttonData != null)
+				return buttonData;
+		}
+		return new ButtonData(null, null, "");
 	}
 
 	/**
 	 * Get slot this menu button is added to, if you want get fillslots
-	 * will this only return first slot. Use {@link #getButtonSlots(MenuButton)}
+	 * will this only return first slot. Use {@link #getButtonSlots(MenuDataUtility, MenuButton)} (MenuButton)}
 	 * if you want to get all slots this button are connected to.
 	 *
 	 * @param menuButton to get slots connectet to this button.
 	 * @return slot number or -1 if not find data or if cache is null.
 	 */
 	public int getButtonSlot(final MenuButton menuButton) {
-		final Map<Integer, MenuData> data = this.getMenuButtons(this.getPageNumber());
+		final Map<Integer, ButtonData> data = this.getMenuButtons(this.getPageNumber());
 		if (data == null) return -1;
-		for (final Map.Entry<Integer, MenuData> entry : data.entrySet()) {
+		for (final Map.Entry<Integer, ButtonData> entry : data.entrySet()) {
 			if (entry.getValue().getMenuButton() == menuButton)
 				return entry.getKey() - (this.getPageNumber() * this.getInventorySize());
 		}
@@ -291,13 +312,20 @@ public class MenuUtility {
 	 * @return list of slot number or empty if not find data or if cache is null.
 	 */
 	@Nonnull
-	public Set<Integer> getButtonSlots(final MenuButton menuButton) {
+	public Set<Integer> getButtonSlots(final MenuDataUtility menuDataUtility, final MenuButton menuButton) {
 		final Set<Integer> slots = new HashSet<>();
-		final Map<Integer, MenuData> data = this.getMenuButtons(this.getPageNumber());
-		if (data == null) return slots;
-		for (final Map.Entry<Integer, MenuData> entry : data.entrySet()) {
-			if (entry.getValue().getMenuButton() == menuButton)
+		if (menuDataUtility == null) return slots;
+		final int menuButtonId = menuButton.getId();
+
+		for (final Map.Entry<Integer, ButtonData> entry : menuDataUtility.getButtons().entrySet()) {
+			final MenuButton chacheMenuButton = entry.getValue().getMenuButton();
+			final MenuButton fillMenuButton = menuDataUtility.getFillMenuButton();
+			if (chacheMenuButton == null && fillMenuButton != null && fillMenuButton.getId() == menuButtonId) {
+				return new HashSet<>(fillSpace);
+			}
+			if (chacheMenuButton != null && Objects.equals(menuButtonId, chacheMenuButton.getId())) {
 				slots.add(entry.getKey() - (this.getPageNumber() * this.getInventorySize()));
+			}
 		}
 		return slots;
 	}
@@ -386,7 +414,7 @@ public class MenuUtility {
 	 * @return map with slot number (can be more than one inventory in number of buttons) and itemstack.
 	 */
 	@Nonnull
-	public Map<Integer, MenuData> getMenuButtonsCache() {
+	public Map<Integer, ButtonData> getMenuButtonsCache() {
 		return addItemsToCache();
 	}
 
@@ -509,14 +537,16 @@ public class MenuUtility {
 	}
 
 	/**
-	 * Get a slot from cache. I use pagenumber and inventory size to get right
-	 * item inside the cache.
+	 * Calculates the corresponding slot index based on the current page number and inventory size.
 	 * <p>
+	 * The method returns the slot index that should be used to retrieve the button from the cache.
+	 * This calculation takes into account the page number and the inventory size to ensure that the
+	 * correct slot is returned for the given slot parameter.
 	 *
-	 * @param slot from 0 to 53 (depending on your inventory size).
-	 * @return slot inside the inventory.
+	 * @param slot the slot index, from 0 to 53, to calculate.
+	 * @return the calculated slot index based on the current page number and inventory size.
 	 */
-	public int getSlotFromCache(final int slot) {
+	public int getSlot(final int slot) {
 		return this.getPageNumber() * this.getInventorySize() + slot;
 	}
 
@@ -539,11 +569,11 @@ public class MenuUtility {
 	/**
 	 * Put data to menu cache.
 	 *
-	 * @param pageNumber  the page number to set in cache
-	 * @param menuDataMap the map with slot and menu data where both button,item and code execution is set.
+	 * @param pageNumber      the page number to set in cache
+	 * @param menuDataUtility the map with slot and menu data where both button,item and code execution is set.
 	 */
-	protected void putAddedButtonsCache(final Integer pageNumber, final Map<Integer, MenuData> menuDataMap) {
-		this.addedButtons.put(pageNumber, menuDataMap);
+	protected void putAddedButtonsCache(final Integer pageNumber, final MenuDataUtility menuDataUtility) {
+		this.pagesOfButtonsData.put(pageNumber, menuDataUtility);
 	}
 
 	protected void putTimeWhenUpdatesButtons(final MenuButton menuButton, final Long time) {
@@ -578,7 +608,7 @@ public class MenuUtility {
 				Bukkit.getScheduler().cancelTask(this.taskid);
 				cancelTask = true;
 			}
-		addItemsToCache();
+		addItemsToCache(this.getPageNumber());
 		reddrawInventory();
 
 		if (cancelTask) {
@@ -660,7 +690,7 @@ public class MenuUtility {
 	}
 
 	protected void onMenuOpenPlaySound() {
-		Sound sound = this.menuOpenSound;
+		final Sound sound = this.menuOpenSound;
 		if (sound == null) return;
 
 		this.player.playSound(player.getLocation(), sound, 1, 1);
@@ -709,7 +739,7 @@ public class MenuUtility {
 			}*/
 			setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN_PREVIOUS, this);
 			setPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN, this);
-			MenuUtility menuUtility = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
+			final MenuUtility menuUtility = getPlayerMenuMetadata(player, MenuMetadataKey.MENU_OPEN);
 			if (menuUtility != null)
 				menu = menuUtility.getMenu();
 
@@ -728,37 +758,44 @@ public class MenuUtility {
 			} else if (fillItems != null && !fillItems.isEmpty())
 				return (double) fillItems.size() / this.itemsPerPage;
 			else
-				return (double) this.addedButtons.size() / this.itemsPerPage;
+				return (double) this.pagesOfButtonsData.size() / this.itemsPerPage;
 		}
 		if (fillItems != null && !fillItems.isEmpty()) {
 			return (double) fillItems.size() / (fillSpace.isEmpty() ? this.inventorySize - 9 : fillSpace.size());
-		} else return (double) this.addedButtons.size() / this.inventorySize;
+		} else return (double) this.pagesOfButtonsData.size() / this.inventorySize;
 	}
 
-	protected Map<Integer, MenuData> addItemsToCache() {
-		Map<Integer, MenuData> addedButtons = new HashMap<>();
+	protected Map<Integer, ButtonData> addItemsToCache(final int pageNumber) {
+		final MenuDataUtility menuDataUtility = cacheMenuData(pageNumber);
+		if (!this.shallCacheItems) {
+			this.putAddedButtonsCache(pageNumber, menuDataUtility);
+		}
+		return menuDataUtility.getButtons();
+	}
+
+	protected Map<Integer, ButtonData> addItemsToCache() {
+		Map<Integer, ButtonData> addedButtons = new HashMap<>();
 		this.requiredPages = Math.max((int) Math.ceil(amountOfpages()), 1);
 		for (int i = 0; i < this.requiredPages; i++) {
-
-			final Map<Integer, MenuData> addedMenuData = cacheMenuData(i);
-			if (!this.shallCacheItems) {
-				this.putAddedButtonsCache(i, addedMenuData);
-			} else
-				addedButtons = addedMenuData;
+			addedButtons = addItemsToCache(i);
 		}
 		this.slotIndex = 0;
 		return addedButtons;
 	}
 
-	private Map<Integer, MenuData> cacheMenuData(final int pageNumber) {
-		final Map<Integer, MenuData> addedButtons = new HashMap<>();
+	@Nonnull
+	private MenuDataUtility cacheMenuData(final int pageNumber) {
+		//final Map<Integer, ButtonData> addedButtons = new HashMap<>();
+		final MenuDataUtility menuDataUtility = MenuDataUtility.of();
 		for (int slot = 0; slot < this.inventorySize; slot++) {
 
 			Object objectFromlistOfFillItems = "";
 			final int slotIndexOld = this.slotIndex;
+			boolean isFillButton = false;
 			if (!this.getFillSpace().isEmpty() && this.getFillSpace().contains(slot)) {
 				objectFromlistOfFillItems = getObjectFromlistOfFillItems(slotIndexOld);
 				this.slotIndex++;
+				isFillButton = true;
 			}
 			final MenuButton menuButton = getMenuButtonAtSlot(slot, slotIndexOld, objectFromlistOfFillItems);
 			final ItemStack result = getItemAtSlot(menuButton, slot, slotIndexOld, objectFromlistOfFillItems);
@@ -766,11 +803,14 @@ public class MenuUtility {
 			if (menuButton != null) {
 				if (menuButton.shouldUpdateButtons())
 					this.buttonsToUpdate.add(menuButton);
-				//this.buttons.add(menuButton);
+				final ButtonData buttonData = new ButtonData(result, isFillButton ? null : menuButton, objectFromlistOfFillItems);
+
+				menuDataUtility.putButton(pageNumber * this.getInventorySize() + slot, buttonData, isFillButton ? menuButton : null);
+				//addedButtons.put(pageNumber * this.getInventorySize() + slot, new ButtonData(result, menuButton, objectFromlistOfFillItems));
 			}
-			addedButtons.put(pageNumber * this.getInventorySize() + slot, new MenuData(result, menuButton, objectFromlistOfFillItems));
 		}
-		return addedButtons;
+		System.out.println("menuDataUtility " + menuDataUtility);
+		return menuDataUtility;
 	}
 
 	private MenuButton getMenuButtonAtSlot(final int slot, final int oldSlotIndex, final Object objectFromlistOfFillItems) {
@@ -825,10 +865,16 @@ public class MenuUtility {
 			this.getMenu().setItem(i, new ItemStack(Material.AIR));
 		}
 
-		final Map<Integer, MenuData> entity = this.getMenuButtons(this.getPageNumber());
+		final Map<Integer, ButtonData> entity = this.getMenuButtons(this.getPageNumber());
 		if (entity != null && !entity.isEmpty())
 			for (int i = 0; i < this.getMenu().getSize(); i++) {
-				this.getMenu().setItem(i, entity.get(this.getPageNumber() * inventorySize + i).getItemStack());
+				final ButtonData buttonData = entity.get(this.getPageNumber() * inventorySize + i);
+				final ItemStack itemStack;
+				if (buttonData == null)
+					itemStack = CreateItemStack.createItemStackAsOne((Material) null);
+				else
+					itemStack = buttonData.getItemStack();
+				this.getMenu().setItem(i, itemStack);
 			}
 	}
 
@@ -864,13 +910,14 @@ public class MenuUtility {
 					if (timeleft == null || timeleft == 0)
 						putTimeWhenUpdatesButtons(menuButton, counter + getupdateTime(menuButton));
 					else if (counter >= timeleft) {
-						final Map<Integer, MenuData> menuDataMap = getMenuButtons(getPageNumber());
-						if (menuDataMap == null) {
+						getMenuData(getPageNumber());
+						final MenuDataUtility menuDataUtility = getMenuData(getPageNumber());
+						if (menuDataUtility == null) {
 							cancel();
 							return;
 						}
 
-						final Set<Integer> itemSlots = getItemSlotsMap(menuDataMap, menuButton);
+						final Set<Integer> itemSlots = getItemSlotsMap(menuDataUtility, menuButton);
 
 						if (itemSlots.isEmpty())
 							putTimeWhenUpdatesButtons(menuButton, counter + getupdateTime(menuButton));
@@ -879,12 +926,16 @@ public class MenuUtility {
 							while (slotList.hasNext()) {
 								final Integer slot = slotList.next();
 
-								final MenuData menuData = menuDataMap.get(getSlotFromCache(slot));
+								final ButtonData buttonData = menuDataUtility.getButton(getSlot(slot));
+								if (buttonData == null) continue;
 
-								final ItemStack menuItem = getMenuItem(menuButton, menuData, slot);
-								menuDataMap.put(getSlotFromCache(slot), new MenuData(menuItem, menuData.getMenuButton(), menuData.getObject()));
+								final ItemStack menuItem = getMenuItem(menuButton, buttonData, slot);
+								final ButtonData newButtonData = new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject());
 
-								putAddedButtonsCache(getPageNumber(), menuDataMap);
+								menuDataUtility.putButton(getSlot(slot), newButtonData, menuDataUtility.getFillMenuButton());
+								//	menuDataMap.put(getSlot(slot), new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject()));
+
+								putAddedButtonsCache(getPageNumber(), menuDataUtility);
 								getMenu().setItem(slot, menuItem);
 								slotList.remove();
 							}
@@ -899,12 +950,12 @@ public class MenuUtility {
 	}
 
 	@Nullable
-	private ItemStack getMenuItem(final MenuButton menuButton, final MenuData cachedButtons, final int slot) {
+	private ItemStack getMenuItem(final MenuButton menuButton, final ButtonData cachedButtons, final int slot) {
 		return getMenuItem(menuButton, cachedButtons, slot, menuButton.shouldUpdateButtons());
 	}
 
 	@Nullable
-	protected ItemStack getMenuItem(final MenuButton menuButton, final MenuData cachedButtons, final int slot, final boolean updateButton) {
+	protected ItemStack getMenuItem(final MenuButton menuButton, final ButtonData cachedButtons, final int slot, final boolean updateButton) {
 		if (menuButton == null) return null;
 
 		if (updateButton) {
@@ -914,7 +965,7 @@ public class MenuUtility {
 			itemStack = menuButton.getItem(cachedButtons.getObject());
 			if (itemStack != null)
 				return itemStack;
-			itemStack = menuButton.getItem(getSlotFromCache(slot), cachedButtons.getObject());
+			itemStack = menuButton.getItem(getSlot(slot), cachedButtons.getObject());
 			return itemStack;
 		}
 		return null;
@@ -928,57 +979,25 @@ public class MenuUtility {
 	 * @return set of slots that match same menu button.
 	 */
 	@Nonnull
-	private Set<Integer> getItemSlotsMap(final Map<Integer, MenuData> menuDataMap, final MenuButton menuButton) {
+	private Set<Integer> getItemSlotsMap(final MenuDataUtility menuDataMap, final MenuButton menuButton) {
 		final Set<Integer> slotList = new HashSet<>();
+		if (menuDataMap == null)
+			return slotList;
 
 		for (int slot = 0; slot < this.inventorySize; slot++) {
-			final MenuData addedButtons = menuDataMap.get(this.getSlotFromCache(slot));
+			final ButtonData addedButtons = menuDataMap.getButtons().get(this.getSlot(slot));
 			if (addedButtons == null) continue;
 
-			if (addedButtons.getMenuButton() == menuButton)
+			final MenuButton chacheMenuButton = addedButtons.getMenuButton();
+			final MenuButton fillMenuButton = menuDataMap.getFillMenuButton();
+			final int menuButtonId = menuButton.getId();
+			if ((chacheMenuButton == null && fillMenuButton != null && fillMenuButton.getId() == menuButtonId)
+					|| (chacheMenuButton != null && Objects.equals(menuButtonId, chacheMenuButton.getId())))
 				slotList.add(slot);
+			//if ((addedButtons.getMenuButton() == null && menuDataMap.getFillMenuButton() != null && menuDataMap.getFillMenuButton().getId() == menuButton.getId()) || (addedButtons.getMenuButton().getId() == menuButton.getId()))
+			//slotList.add(slot);
 		}
 		return slotList;
 	}
 
-
-	protected static class MenuData {
-
-		private final ItemStack itemStack;
-		private final MenuButton menuButtonLinkedToThisItem;
-		private final Object object;
-
-		public MenuData(final ItemStack itemStack, final MenuButton menuButton, final Object object) {
-			this.itemStack = itemStack;
-			this.menuButtonLinkedToThisItem = menuButton;
-			this.object = object;
-		}
-
-		/**
-		 * the itemstack you want to be displayed in the menu.
-		 *
-		 * @return the itemstack you added in the menu.
-		 */
-		public ItemStack getItemStack() {
-			return itemStack;
-		}
-
-		/**
-		 * The button linked to this item.
-		 *
-		 * @return menuButton.
-		 */
-		public MenuButton getMenuButton() {
-			return menuButtonLinkedToThisItem;
-		}
-
-		/**
-		 * get the data linked to this item.
-		 *
-		 * @return object data you want this item contains.
-		 */
-		public Object getObject() {
-			return object;
-		}
-	}
 }

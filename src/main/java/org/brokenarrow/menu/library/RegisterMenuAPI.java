@@ -1,6 +1,8 @@
 package org.brokenarrow.menu.library;
 
 import de.tr7zw.changeme.nbtapi.metodes.RegisterNbtAPI;
+import org.brokenarrow.menu.library.builders.ButtonData;
+import org.brokenarrow.menu.library.builders.MenuDataUtility;
 import org.brokenarrow.menu.library.utility.Item.CreateItemStack;
 import org.brokenarrow.menu.library.utility.ServerVersion;
 import org.bukkit.Bukkit;
@@ -97,7 +99,7 @@ public class RegisterMenuAPI {
 
 			if (!menuUtility.isAddedButtonsCacheEmpty()) {
 				final int clickedSlot = event.getSlot();
-				final int clickedPos = menuUtility.getPageNumber() * menuUtility.getMenu().getSize() + clickedSlot;
+				final int clickedPos = menuUtility.getSlot(clickedSlot);
 
 				if (!menuUtility.isAllowShiftClick() && event.getClick().isShiftClick()) {
 					event.setCancelled(true);
@@ -202,7 +204,7 @@ public class RegisterMenuAPI {
 					if (clickedSlot > size)
 						continue;
 
-					final int clickedPos = menuUtility.getPageNumber() * menuUtility.getMenu().getSize() + clickedSlot;
+					final int clickedPos = menuUtility.getSlot(clickedSlot);
 
 					final ItemStack cursor = checkIfNull(event.getCursor(), event.getOldCursor());
 					if (menuUtility.isSlotsYouCanAddItems()) {
@@ -221,14 +223,20 @@ public class RegisterMenuAPI {
 
 
 		public MenuButton getClickedButton(final MenuUtility menusData, final ItemStack item, final int clickedPos) {
-			final Map<Integer, MenuUtility.MenuData> menuDataMap = menusData.getMenuButtons(menusData.getPageNumber());
-			if (menuDataMap != null && !menuDataMap.isEmpty()) {
-				final MenuUtility.MenuData menuData = menuDataMap.get(clickedPos);
-				if (menuData == null) return null;
-				if (menusData.isIgnoreItemCheck())
-					return menuData.getMenuButton();
-				if (isItemSimilar(menuData.getItemStack(), item)) {
-					return menuData.getMenuButton();
+			final MenuDataUtility menuData = menusData.getMenuData(menusData.getPageNumber());
+			if (menuData != null) {
+				final ButtonData buttonData = menuData.getButton(clickedPos);
+				if (buttonData == null) return null;
+				final MenuButton button = buttonData.getMenuButton();
+				if (menusData.isIgnoreItemCheck()) {
+					if (button != null)
+						return button;
+					return menuData.getFillMenuButton();
+				}
+				if (isItemSimilar(buttonData.getItemStack(), item)) {
+					if (button != null)
+						return button;
+					return menuData.getFillMenuButton();
 				}
 			}
 			return null;
