@@ -82,6 +82,7 @@ public class MenuUtility {
 	protected boolean ignoreItemCheck;
 	protected boolean autoTitleCurrentPage;
 	protected int slotIndex;
+	private int numberOfFillitems;
 	private int requiredPages;
 	private int manuallySetPages = -1;
 	protected int inventorySize;
@@ -620,15 +621,21 @@ public class MenuUtility {
 	}
 
 	protected void updateButtons() {
+		this.slotIndex = this.getPageNumber() * numberOfFillitems;
+		System.out.println("updateButtons this.slotIndex " + this.slotIndex);
+		addItemsToCache(this.getPageNumber());
+		this.slotIndex = 0;
+		reddrawInventory();
+		updateTimeButtons();
+	}
+
+	protected void updateTimeButtons() {
 		boolean cancelTask = false;
 		if (this.taskid > 0)
 			if (Bukkit.getScheduler().isCurrentlyRunning(this.taskid) || Bukkit.getScheduler().isQueued(this.taskid)) {
 				Bukkit.getScheduler().cancelTask(this.taskid);
 				cancelTask = true;
 			}
-		addItemsToCache();
-		reddrawInventory();
-
 		if (cancelTask) {
 			updateButtonsInList();
 			this.getTimeWhenUpdatesButtons().clear();
@@ -799,6 +806,8 @@ public class MenuUtility {
 
 		for (int i = 0; i < this.requiredPages; i++) {
 			addedButtons = addItemsToCache(i);
+			if (i == 0)
+				numberOfFillitems = this.slotIndex;
 		}
 		this.slotIndex = 0;
 		return addedButtons;
