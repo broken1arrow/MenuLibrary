@@ -831,11 +831,12 @@ public class MenuUtility {
 			final ItemStack result = getItemAtSlot(menuButton, slot, slotIndexOld, objectFromlistOfFillItems);
 
 			if (menuButton != null) {
+				boolean shallAddMenuButton = isFillButton && this.getListOfFillItems() != null && !this.getListOfFillItems().isEmpty();
 				if (menuButton.shouldUpdateButtons())
 					this.buttonsToUpdate.add(menuButton);
-				final ButtonData buttonData = new ButtonData(result, isFillButton ? null : menuButton, objectFromlistOfFillItems);
+				final ButtonData buttonData = new ButtonData(result, shallAddMenuButton ? null : menuButton, objectFromlistOfFillItems);
 
-				menuDataUtility.putButton(pageNumber * this.getInventorySize() + slot, buttonData, isFillButton ? menuButton : null);
+				menuDataUtility.putButton(pageNumber * this.getInventorySize() + slot, buttonData, shallAddMenuButton ? menuButton : null);
 				//addedButtons.put(pageNumber * this.getInventorySize() + slot, new ButtonData(result, menuButton, objectFromlistOfFillItems));
 			}
 		}
