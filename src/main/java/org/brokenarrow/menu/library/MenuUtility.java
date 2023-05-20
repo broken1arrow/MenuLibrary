@@ -622,7 +622,6 @@ public class MenuUtility {
 
 	protected void updateButtons() {
 		this.slotIndex = this.getPageNumber() * numberOfFillitems;
-		System.out.println("updateButtons this.slotIndex " + this.slotIndex);
 		addItemsToCache(this.getPageNumber());
 		this.slotIndex = 0;
 		reddrawInventory();
