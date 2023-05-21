@@ -311,7 +311,7 @@ public class MenuUtility {
 	/**
 	 * Get all slots this menu button is added to.
 	 *
-	 * @param menuButton to get slots conectet to this button.
+	 * @param menuButton to get slots connected to this button.
 	 * @return list of slot number or empty if not find data or if cache is null.
 	 */
 	@Nonnull
@@ -322,12 +322,15 @@ public class MenuUtility {
 
 		for (final Map.Entry<Integer, ButtonData> entry : menuDataUtility.getButtons().entrySet()) {
 			final MenuButton chacheMenuButton = entry.getValue().getMenuButton();
-			final MenuButton fillMenuButton = menuDataUtility.getFillMenuButton();
-			if (chacheMenuButton == null && fillMenuButton != null && fillMenuButton.getId() == menuButtonId) {
-				return new HashSet<>(fillSpace);
-			}
-			if (chacheMenuButton != null && Objects.equals(menuButtonId, chacheMenuButton.getId())) {
-				slots.add(entry.getKey() - (this.getPageNumber() * this.getInventorySize()));
+			final MenuButton fillMenuButton = menuDataUtility.getFillMenuButton(menuButton);
+			if (chacheMenuButton == null) {
+				if (fillMenuButton != null && fillMenuButton.getId() == menuButtonId) {
+					slots.add(entry.getKey() - (this.getPageNumber() * this.getInventorySize()));
+				}
+			} else {
+				if (menuButtonId == chacheMenuButton.getId()) {
+					slots.add(entry.getKey() - (this.getPageNumber() * this.getInventorySize()));
+				}
 			}
 		}
 		return slots;
@@ -961,7 +964,7 @@ public class MenuUtility {
 								final ItemStack menuItem = getMenuItem(menuButton, buttonData, slot);
 								final ButtonData newButtonData = new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject());
 
-								menuDataUtility.putButton(getSlot(slot), newButtonData, menuDataUtility.getFillMenuButton());
+								menuDataUtility.putButton(getSlot(slot), newButtonData, menuDataUtility.getFillMenuButton(getSlot(slot)));
 								//	menuDataMap.put(getSlot(slot), new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject()));
 
 								putAddedButtonsCache(getPageNumber(), menuDataUtility);
@@ -1018,7 +1021,7 @@ public class MenuUtility {
 			if (addedButtons == null) continue;
 
 			final MenuButton chacheMenuButton = addedButtons.getMenuButton();
-			final MenuButton fillMenuButton = menuDataMap.getFillMenuButton();
+			final MenuButton fillMenuButton = menuDataMap.getFillMenuButton(this.getSlot(slot));
 			final int menuButtonId = menuButton.getId();
 			if ((chacheMenuButton == null && fillMenuButton != null && fillMenuButton.getId() == menuButtonId)
 					|| (chacheMenuButton != null && Objects.equals(menuButtonId, chacheMenuButton.getId())))

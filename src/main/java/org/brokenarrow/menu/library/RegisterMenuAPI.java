@@ -229,14 +229,10 @@ public class RegisterMenuAPI {
 				if (buttonData == null) return null;
 				final MenuButton button = buttonData.getMenuButton();
 				if (menusData.isIgnoreItemCheck()) {
-					if (button != null)
-						return button;
-					return menuData.getFillMenuButton();
+					return menuData.getMenuButton(clickedPos);
 				}
 				if (isItemSimilar(buttonData.getItemStack(), item)) {
-					if (button != null)
-						return button;
-					return menuData.getFillMenuButton();
+					return menuData.getMenuButton(clickedPos);
 				}
 			}
 			return null;

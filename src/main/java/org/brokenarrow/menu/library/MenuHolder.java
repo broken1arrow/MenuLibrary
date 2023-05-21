@@ -332,7 +332,8 @@ public class MenuHolder extends MenuUtility {
 	public void updateButton(final MenuButton menuButton) {
 		final MenuDataUtility menuDataUtility = getMenuData(getPageNumber());
 		final Set<Integer> buttonSlots = this.getButtonSlots(menuDataUtility, menuButton);
-		if (menuDataUtility != null) {
+
+		if (menuDataUtility != null && this.getMenu() != null) {
 			if (!buttonSlots.isEmpty()) {
 				for (final int slot : buttonSlots) {
 
@@ -340,17 +341,16 @@ public class MenuHolder extends MenuUtility {
 					if (buttonData == null) return;
 					final ItemStack menuItem = getMenuItem(menuButton, buttonData, slot, true);
 					this.getMenu().setItem(slot, menuItem);
-					menuDataUtility.putButton(getSlot(slot), new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject()), menuDataUtility.getFillMenuButton());
-					//	menuDataMap.put(getSlot(slot), new ButtonData(menuItem, menuButton, buttonData.getObject()));
+					menuDataUtility.putButton(this.getSlot(slot), new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject()), menuDataUtility.getFillMenuButton(this.getSlot(slot)));
 				}
 			} else {
 				final int buttonSlot = this.getButtonSlot(menuButton);
-				final ButtonData buttonData = menuDataUtility.getButton(getSlot(buttonSlot));
+				final ButtonData buttonData = menuDataUtility.getButton(this.getSlot(buttonSlot));
 				if (buttonData == null) return;
 				final ItemStack itemStack = getMenuItem(menuButton, buttonData, buttonSlot, true);
 				//final ItemStack itemStack = getMenuItem(menuButton, menuDataUtility.getButton(getSlot(buttonSlot)), buttonSlot, true);
 				this.getMenu().setItem(buttonSlot, itemStack);
-				menuDataUtility.putButton(getSlot(buttonSlot), new ButtonData(itemStack, menuButton, buttonData.getObject()), menuDataUtility.getFillMenuButton());
+				menuDataUtility.putButton(this.getSlot(buttonSlot), new ButtonData(itemStack, menuButton, buttonData.getObject()), menuDataUtility.getFillMenuButton(this.getSlot(buttonSlot)));
 			}
 			this.putAddedButtonsCache(this.getPageNumber(), menuDataUtility);
 		}
