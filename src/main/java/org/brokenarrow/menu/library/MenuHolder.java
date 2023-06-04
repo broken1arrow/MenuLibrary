@@ -3,6 +3,7 @@ package org.brokenarrow.menu.library;
 import org.brokenarrow.menu.library.builders.ButtonData;
 import org.brokenarrow.menu.library.builders.MenuDataUtility;
 import org.brokenarrow.menu.library.utility.Function;
+import org.brokenarrow.menu.library.utility.PairFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -171,6 +172,20 @@ public class MenuHolder extends MenuUtility {
 	 */
 	public void setTitle(final Function<String> function) {
 		this.function = function;
+	}
+
+
+	/**
+	 * Sets the title of the menu using the specified
+	 * function to animate title.
+	 *
+	 * @param time     set how often it shall update, in seconds.
+	 * @param function a function that takes a String and boolean input, for animate title.
+	 */
+	public void setAnimateTitle(final int time, final PairFunction<String> function) {
+		this.animateTitleTime = time;
+		this.animateTitle = function;
+		this.animateTitle();
 	}
 
 	/**

@@ -6,6 +6,8 @@ import org.brokenarrow.menu.library.builders.ButtonData;
 import org.brokenarrow.menu.library.builders.MenuDataUtility;
 import org.brokenarrow.menu.library.utility.Function;
 import org.brokenarrow.menu.library.utility.Item.CreateItemStack;
+import org.brokenarrow.menu.library.utility.Item.Pair;
+import org.brokenarrow.menu.library.utility.PairFunction;
 import org.brokenarrow.menu.library.utility.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -89,6 +91,9 @@ public class MenuUtility {
 	protected int itemsPerPage = this.inventorySize;
 	protected int pageNumber;
 	protected int updateTime;
+	protected int taskidAnimateTitle;
+	protected int animateTitleTime;
+	protected PairFunction<String> animateTitle;
 
 	protected Player player;
 	protected Sound menuOpenSound;
@@ -735,6 +740,10 @@ public class MenuUtility {
 			Bukkit.getScheduler().cancelTask(this.taskid);
 
 		}
+		if (Bukkit.getScheduler().isCurrentlyRunning(this.taskidAnimateTitle) || Bukkit.getScheduler().isQueued(this.taskidAnimateTitle)) {
+			Bukkit.getScheduler().cancelTask(this.taskidAnimateTitle);
+
+		}
 	}
 
 	protected Inventory loadInventory(final Player player, final boolean loadToCahe) {
@@ -1032,4 +1041,24 @@ public class MenuUtility {
 		return slotList;
 	}
 
+	protected void animateTitle() {
+		PairFunction<String> task = this.animateTitle;
+		if (task == null) return;
+		this.taskidAnimateTitle = new BukkitRunnable() {
+
+			@Override
+			public void run() {
+				Pair<String, Boolean> apply = task.apply();
+				String text = apply.getFirst();
+				if (text == null || !apply.getSecond()) {
+					this.cancel();
+					UpdateTittleContainers.update(player, getTitle());
+					return;
+				}
+				if (!text.isEmpty()) {
+					UpdateTittleContainers.update(player, text);
+				}
+			}
+		}.runTaskTimerAsynchronously(plugin, 1, 20 + this.animateTitleTime).getTaskId();
+	}
 }

@@ -48,7 +48,7 @@ public class CreateItemStack {
 	private final Iterable<?> itemArray;
 	private final String displayName;
 	private final List<String> lore;
-	private final Map<Enchantment, Tuple<Integer, Boolean>> enchantments = new HashMap<>();
+	private final Map<Enchantment, Pair<Integer, Boolean>> enchantments = new HashMap<>();
 	private final List<ItemFlag> visibleItemFlags = new ArrayList<>();
 	private final List<ItemFlag> flagsToHide = new ArrayList<>();
 	private final List<Pattern> pattern = new ArrayList<>();
@@ -268,7 +268,7 @@ public class CreateItemStack {
 	 *
 	 * @return map with enchantment level and if it shall ignore level reestriction.
 	 */
-	public Map<Enchantment, Tuple<Integer, Boolean>> getEnchantments() {
+	public Map<Enchantment, Pair<Integer, Boolean>> getEnchantments() {
 		return enchantments;
 	}
 
@@ -393,7 +393,7 @@ public class CreateItemStack {
 	 * @param override       the old value in the map if you set it to true.
 	 * @return this class.
 	 */
-	public CreateItemStack addEnchantments(final Map<Enchantment, Tuple<Integer, Boolean>> enchantmentMap, final boolean override) {
+	public CreateItemStack addEnchantments(final Map<Enchantment, Pair<Integer, Boolean>> enchantmentMap, final boolean override) {
 		Validate.checkNotNull(enchantmentMap, "this map is null");
 		if (enchantmentMap.isEmpty())
 			getLogger(Level.INFO, "This map is empty so no enchantments vill be added");
@@ -425,7 +425,7 @@ public class CreateItemStack {
 			enchantment = (Enchantment) enchant;
 
 		if (enchantment != null)
-			this.enchantments.put(enchantment, new Tuple<>(enchantmentLevel, levelRestriction));
+			this.enchantments.put(enchantment, new Pair<>(enchantmentLevel, levelRestriction));
 		else
 			getLogger(Level.INFO, "your enchantment: " + enchant + " ,are not valid.");
 
@@ -867,12 +867,12 @@ public class CreateItemStack {
 	public boolean addEnchantments(final ItemMeta itemMeta) {
 		if (!this.getEnchantments().isEmpty()) {
 			boolean haveEnchant = false;
-			for (final Map.Entry<Enchantment, Tuple<Integer, Boolean>> enchant : this.getEnchantments().entrySet()) {
+			for (final Map.Entry<Enchantment, Pair<Integer, Boolean>> enchant : this.getEnchantments().entrySet()) {
 				if (enchant == null) {
 					getLogger(Level.INFO, "Your enchantment are null.");
 					continue;
 				}
-				final Tuple<Integer, Boolean> level = enchant.getValue();
+				final Pair<Integer, Boolean> level = enchant.getValue();
 				haveEnchant = itemMeta.addEnchant(enchant.getKey(), level.getFirst() <= 0 ? 1 : level.getFirst(), level.getSecond());
 			}
 			if (isShowEnchantments() || !this.getFlagsToHide().isEmpty())
