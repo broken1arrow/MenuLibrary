@@ -48,8 +48,11 @@ public class UpdateTittleContainers {
 
 						if (ServerVersion.atLeast(ServerVersion.v1_19)) {
 							if (ServerVersion.atLeast(ServerVersion.v1_19_4))
-								newNmsData = new NmsData("bP", "j",
-										"a", "a", inventorySizeNames);
+								if (ServerVersion.atLeast(ServerVersion.v1_20))
+									newNmsData = new NmsData("bR", "j", "a", "a", inventorySizeNames);
+								else
+									newNmsData = new NmsData("bP", "j",
+											"a", "a", inventorySizeNames);
 							else
 								newNmsData = new NmsData("bU", "j",
 										"a", "a", inventorySizeNames);
@@ -124,7 +127,10 @@ public class UpdateTittleContainers {
 		if (handle == null)
 			handle = Class.forName(versionCheckBukkit("entity.CraftPlayer")).getMethod("getHandle");
 		if (playerConnection == null)
-			playerConnection = Class.forName("net.minecraft.server.level.EntityPlayer").getField("b");
+			if (ServerVersion.atLeast(ServerVersion.v1_20))
+				playerConnection = Class.forName("net.minecraft.server.level.EntityPlayer").getField("c");
+			else
+				playerConnection = Class.forName("net.minecraft.server.level.EntityPlayer").getField("b");
 		if (packetConnectionClass == null)
 			packetConnectionClass = Class.forName("net.minecraft.server.network.PlayerConnection");
 		if (chatBaseCompenent == null)
