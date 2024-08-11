@@ -12,6 +12,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import space.arim.morepaperlib.MorePaperLib;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -140,7 +141,7 @@ public class MenuHolder extends MenuUtility {
 
 		if (!getButtonsToUpdate().isEmpty())
 			updateButtonsInList();
-		Bukkit.getScheduler().runTaskLater(plugin, this::updateTittle, 1);
+		new MorePaperLib(plugin).scheduling().entitySpecificScheduler(player).runDelayed(this::updateTittle, null, 1L);
 	}
 
 	/**

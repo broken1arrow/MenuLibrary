@@ -67,7 +67,11 @@
             <id>sonatype-oss-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
-
+        <!-- MorePaperLib-->
+        <repository>
+            <id>arim-mvn-lgpl3</id>
+            <url>https://mvn-repo.arim.space/lesser-gpl3/</url>
+        </repository>
     </repositories>
 
     <!--
@@ -116,6 +120,13 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- MorePaperLib -->
+        <dependency>
+            <groupId>space.arim.morepaperlib</groupId>
+            <artifactId>morepaperlib</artifactId>
+            <version>0.4.3</version>
             <scope>compile</scope>
         </dependency>
 
@@ -188,6 +199,7 @@
                                 <includes>
                                     <include>com.github.broken1arrow:*</include>
                                     <include>com.github.broken1arrow.Item-NBT-API:item-nbt-api:*</include>
+                                    <include>space.arim.morepaperlib:morepaperlib*</include>
                                 </includes>
                                 <excludes>
                                 </excludes>
@@ -200,6 +212,10 @@
                                 <relocation>
                                     <pattern>de.tr7zw.changeme</pattern>
                                     <shadedPattern>${project.groupId}.dependencies.nbt</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>space.arim.morepaperlib</pattern>
+                                    <shadedPattern>${project.groupId}.dependencies.morepaperlib</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

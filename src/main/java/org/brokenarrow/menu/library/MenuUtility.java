@@ -19,10 +19,12 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
+import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,7 +77,7 @@ public class MenuUtility {
 	protected final Plugin plugin = getPLUGIN();
 	private Inventory inventory;
 	protected InventoryType inventoryType;
-	protected int taskid;
+	protected ScheduledTask taskid;
 	protected boolean shallCacheItems;
 	protected boolean slotsYouCanAddItems;
 	protected boolean allowShiftClick;
@@ -91,7 +93,7 @@ public class MenuUtility {
 	protected int itemsPerPage = this.inventorySize;
 	protected int pageNumber;
 	protected int updateTime;
-	protected int taskidAnimateTitle;
+	protected ScheduledTask taskidAnimateTitle;
 	protected int animateTitleTime;
 	protected PairFunction<String> animateTitle;
 
@@ -638,11 +640,10 @@ public class MenuUtility {
 
 	protected void updateTimeButtons() {
 		boolean cancelTask = false;
-		if (this.taskid > 0)
-			if (Bukkit.getScheduler().isCurrentlyRunning(this.taskid) || Bukkit.getScheduler().isQueued(this.taskid)) {
-				Bukkit.getScheduler().cancelTask(this.taskid);
-				cancelTask = true;
-			}
+		if (this.taskid != null && !this.taskid.isCancelled()) {
+			this.taskid.cancel();
+			cancelTask = true;
+		}
 		if (cancelTask) {
 			updateButtonsInList();
 			this.getTimeWhenUpdatesButtons().clear();
@@ -736,13 +737,11 @@ public class MenuUtility {
 	 */
 	@Deprecated
 	protected void onMenuClose(final InventoryCloseEvent event) {
-		if (Bukkit.getScheduler().isCurrentlyRunning(this.taskid) || Bukkit.getScheduler().isQueued(this.taskid)) {
-			Bukkit.getScheduler().cancelTask(this.taskid);
-
+		if (this.taskid != null && !this.taskid.isCancelled()) {
+			taskid.cancel();
 		}
-		if (Bukkit.getScheduler().isCurrentlyRunning(this.taskidAnimateTitle) || Bukkit.getScheduler().isQueued(this.taskidAnimateTitle)) {
-			Bukkit.getScheduler().cancelTask(this.taskidAnimateTitle);
-
+		if (this.taskidAnimateTitle != null && !this.taskidAnimateTitle.isCancelled()) {
+			this.taskidAnimateTitle.cancel();
 		}
 	}
 
@@ -938,7 +937,7 @@ public class MenuUtility {
 	}
 
 	protected void updateButtonsInList() {
-		taskid = new BukkitRunnable() {
+		taskid = new MorePaperLib(plugin).scheduling().entitySpecificScheduler(player).runAtFixedRate(new Runnable() {
 			private int counter = 0;
 
 			@Override
@@ -954,8 +953,7 @@ public class MenuUtility {
 						getMenuData(getPageNumber());
 						final MenuDataUtility menuDataUtility = getMenuData(getPageNumber());
 						if (menuDataUtility == null) {
-							cancel();
-							return;
+							return; // Terminate the task if needed
 						}
 
 						final Set<Integer> itemSlots = getItemSlotsMap(menuDataUtility, menuButton);
@@ -974,8 +972,6 @@ public class MenuUtility {
 								final ButtonData newButtonData = new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject());
 
 								menuDataUtility.putButton(getSlot(slot), newButtonData, menuDataUtility.getFillMenuButton(getSlot(slot)));
-								//	menuDataMap.put(getSlot(slot), new ButtonData(menuItem, buttonData.getMenuButton(), buttonData.getObject()));
-
 								putAddedButtonsCache(getPageNumber(), menuDataUtility);
 								getMenu().setItem(slot, menuItem);
 								slotList.remove();
@@ -986,8 +982,7 @@ public class MenuUtility {
 				}
 				counter++;
 			}
-		}.runTaskTimer(plugin, 1L, 20L).getTaskId();
-
+		}, null, 1L, 20L);
 	}
 
 	@Nullable
@@ -1044,21 +1039,18 @@ public class MenuUtility {
 	protected void animateTitle() {
 		PairFunction<String> task = this.animateTitle;
 		if (task == null) return;
-		this.taskidAnimateTitle = new BukkitRunnable() {
 
-			@Override
-			public void run() {
-				Pair<String, Boolean> apply = task.apply();
-				String text = apply.getFirst();
-				if (text == null || !apply.getSecond()) {
-					this.cancel();
-					UpdateTittleContainers.update(player, getTitle());
-					return;
-				}
-				if (!text.isEmpty()) {
-					UpdateTittleContainers.update(player, text);
-				}
+		this.taskidAnimateTitle = new MorePaperLib(plugin).scheduling().asyncScheduler().runAtFixedRate(() -> {
+			Pair<String, Boolean> apply = task.apply();
+			String text = apply.getFirst();
+			if (text == null || !apply.getSecond()) {
+				taskidAnimateTitle.cancel();
+				UpdateTittleContainers.update(player, getTitle());
+				return;
 			}
-		}.runTaskTimerAsynchronously(plugin, 1, 20 + this.animateTitleTime).getTaskId();
+			if (!text.isEmpty()) {
+				UpdateTittleContainers.update(player, text);
+			}
+		}, Duration.ofMillis(50L), Duration.ofMillis(20L + this.animateTitleTime * 50L));
 	}
 }
